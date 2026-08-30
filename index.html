@@ -4,68 +4,299 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Music</title>
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 25px;
+      background: #181818;
+      border-bottom: 1px solid #333;
+    }
+
+    header h1 {
+      font-size: 30px;
+    }
+
+    header p {
+      color: #aaa;
+      margin-top: 6px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 30px 20px 120px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #333, #171717);
+      border-radius: 20px;
+      padding: 35px;
+      margin-bottom: 30px;
+    }
+
+    .hero h2 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: #bbb;
+      margin-bottom: 20px;
+    }
+
+    .upload {
+      display: inline-block;
+      background: white;
+      color: black;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .search {
+      width: 100%;
+      padding: 15px;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 25px;
+      background: #242424;
+      color: white;
+      font-size: 16px;
+    }
+
+    .songs {
+      display: grid;
+      gap: 10px;
+    }
+
+    .song {
+      background: #1d1d1d;
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .song button {
+      border: none;
+      background: white;
+      color: black;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .song-info {
+      flex: 1;
+    }
+
+    .song-title {
+      font-weight: bold;
+    }
+
+    .song-type {
+      color: #888;
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      padding: 50px 10px;
+    }
+
+    .player {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #181818;
+      border-top: 1px solid #333;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .now-playing {
+      flex: 1;
+    }
+
+    .now-playing small {
+      color: #888;
+    }
+
+    audio {
+      width: 45%;
+    }
+
+    @media (max-width: 700px) {
+      .hero h2 {
+        font-size: 28px;
+      }
+
+      .player {
+        flex-wrap: wrap;
+      }
+
+      audio {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="brand">MY<span>MUSIC</span></div>
-    <div class="search-wrap">
-      <input id="search" type="search" placeholder="Search songs, artists, albums...">
+
+<header>
+  <h1>🎵 My Music</h1>
+  <p>Your personal music streaming website</p>
+</header>
+
+<div class="container">
+
+  <section class="hero">
+    <h2>Listen to music your way.</h2>
+    <p>Upload your own music and listen directly from your website.</p>
+
+    <label class="upload">
+      + Add Music
+      <input type="file" id="fileInput" accept="audio/*" multiple>
+    </label>
+  </section>
+
+  <input
+    type="text"
+    id="search"
+    class="search"
+    placeholder="🔎 Search your music..."
+  >
+
+  <div id="songs" class="songs">
+    <div class="empty">
+      No music added yet.<br>
+      Click <b>+ Add Music</b> to choose songs from your computer.
     </div>
-    <button id="themeBtn" class="icon-btn" title="Toggle theme">☼</button>
-  </header>
+  </div>
 
-  <main>
-    <section class="hero">
-      <div>
-        <p class="eyebrow">YOUR MUSIC. YOUR SITE.</p>
-        <h1>Listen to music<br><span>your way.</span></h1>
-        <p class="hero-copy">A private, self-hosted music player for your own songs. No streaming service required.</p>
-        <button class="primary" id="browseBtn">Browse music</button>
-      </div>
-      <div class="hero-art"><div class="disc"></div><div class="note">♪</div></div>
-    </section>
+</div>
 
-    <section class="section" id="library">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">LIBRARY</p>
-          <h2>Your music</h2>
+<div class="player">
+  <div class="now-playing">
+    <small>NOW PLAYING</small>
+    <div id="nowPlaying">Nothing playing</div>
+  </div>
+
+  <audio id="audio" controls></audio>
+</div>
+
+<script>
+
+  const fileInput = document.getElementById("fileInput");
+  const songsContainer = document.getElementById("songs");
+  const audio = document.getElementById("audio");
+  const nowPlaying = document.getElementById("nowPlaying");
+  const search = document.getElementById("search");
+
+  let songs = [];
+
+  fileInput.addEventListener("change", function () {
+
+    for (const file of fileInput.files) {
+
+      const url = URL.createObjectURL(file);
+
+      songs.push({
+        name: file.name,
+        url: url
+      });
+
+    }
+
+    displaySongs();
+
+    fileInput.value = "";
+  });
+
+  function displaySongs(filter = "") {
+
+    songsContainer.innerHTML = "";
+
+    const filtered = songs.filter(song =>
+      song.name.toLowerCase().includes(filter.toLowerCase())
+    );
+
+    if (filtered.length === 0) {
+
+      songsContainer.innerHTML = `
+        <div class="empty">
+          No music found.
         </div>
-        <label class="upload">
-          <input id="fileInput" type="file" accept="audio/*" multiple>
-          + Add songs
-        </label>
-      </div>
-      <div id="songList" class="song-list"></div>
-      <p id="empty" class="empty">No songs added yet. Use <b>+ Add songs</b> to play audio files from your computer.</p>
-    </section>
-  </main>
+      `;
 
-  <footer class="player">
-    <div class="now-playing">
-      <div class="mini-art" id="miniArt">♪</div>
-      <div>
-        <strong id="nowTitle">Nothing playing</strong>
-        <span id="nowArtist">Add a song to begin</span>
-      </div>
-    </div>
-    <div class="controls">
-      <button class="control" id="prevBtn">↶</button>
-      <button class="play" id="playBtn">▶</button>
-      <button class="control" id="nextBtn">↷</button>
-    </div>
-    <div class="progress-wrap">
-      <span id="current">0:00</span>
-      <input id="progress" type="range" min="0" max="100" value="0">
-      <span id="duration">0:00</span>
-    </div>
-    <div class="volume">
-      🔊 <input id="volume" type="range" min="0" max="1" value=".8" step=".01">
-    </div>
-  </footer>
+      return;
+    }
 
-  <audio id="audio"></audio>
-  <script src="script.js"></script>
+    filtered.forEach((song) => {
+
+      const row = document.createElement("div");
+
+      row.className = "song";
+
+      row.innerHTML = `
+        <button>▶</button>
+
+        <div class="song-info">
+          <div class="song-title">${song.name}</div>
+          <div class="song-type">Your music</div>
+        </div>
+      `;
+
+      row.querySelector("button").addEventListener("click", () => {
+
+        audio.src = song.url;
+
+        audio.play();
+
+        nowPlaying.textContent = song.name;
+
+      });
+
+      songsContainer.appendChild(row);
+
+    });
+
+  }
+
+  search.addEventListener("input", () => {
+
+    displaySongs(search.value);
+
+  });
+
+</script>
+
 </body>
 </html>
