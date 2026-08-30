@@ -8,6 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -18,22 +22,42 @@
     header {
       padding: 25px;
       background: #181818;
+      border-bottom: 1px solid #333;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+    }
+
+    header p {
+      margin: 0;
+      color: #aaa;
     }
 
     .container {
       max-width: 1000px;
       margin: auto;
-      padding: 30px 20px 120px;
+      padding: 30px 20px 140px;
     }
 
     .hero {
-      padding: 30px;
+      padding: 35px;
       border-radius: 18px;
       background: #222;
       margin-bottom: 25px;
     }
 
-    button, .upload {
+    .hero h2 {
+      font-size: 32px;
+      margin-top: 0;
+    }
+
+    .hero p {
+      color: #aaa;
+    }
+
+    .upload {
+      display: inline-block;
       background: white;
       color: black;
       border: 0;
@@ -49,10 +73,10 @@
 
     .search {
       width: 100%;
-      padding: 14px;
+      padding: 15px;
       margin-bottom: 20px;
       border-radius: 10px;
-      border: 0;
+      border: 1px solid #333;
       background: #222;
       color: white;
       font-size: 16px;
@@ -68,12 +92,26 @@
       border-radius: 10px;
     }
 
-    .song-name {
-      flex: 1;
+    .song button {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      background: white;
+      color: black;
+      cursor: pointer;
+      font-size: 16px;
     }
 
-    audio {
-      width: 100%;
+    .song-name {
+      flex: 1;
+      font-weight: bold;
+    }
+
+    .message {
+      color: #888;
+      padding: 30px 0;
+      text-align: center;
     }
 
     .player {
@@ -82,12 +120,27 @@
       left: 0;
       right: 0;
       background: #181818;
-      padding: 15px;
+      border-top: 1px solid #333;
+      padding: 15px 20px;
     }
 
-    .message {
-      color: #aaa;
-      padding: 30px 0;
+    #nowPlaying {
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    audio {
+      width: 100%;
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        padding: 25px;
+      }
+
+      .hero h2 {
+        font-size: 26px;
+      }
     }
   </style>
 </head>
@@ -114,6 +167,7 @@
   <input
     id="search"
     class="search"
+    type="text"
     placeholder="🔎 Search your music..."
   >
 
@@ -125,19 +179,18 @@
 
 <div class="player">
   <div id="nowPlaying">Nothing playing</div>
-  <br>
   <audio id="audio" controls></audio>
 </div>
 
 <script>
 
-  // =====================================
+  // ==========================================
   // SUPABASE CONNECTION
-  // =====================================
+  // ==========================================
 
   const SUPABASE_URL = https://axkdbcyvuezawgbqjtyq.supabase.co;
 
-  const SUPABASE_KEY = KEY=sb_publishable_O0oXTHsPLxZGD2Wo5ayouw_-a9zJKgn;
+  const SUPABASE_KEY = _KEY=sb_publishable_O0oXTHsPLxZGD2Wo5ayouw_-a9zJKgn;
 
   const supabaseClient =
     window.supabase.createClient(
@@ -146,36 +199,51 @@
     );
 
 
-  // =====================================
-  // ELEMENTS
-  // =====================================
+  // ==========================================
+  // PAGE ELEMENTS
+  // ==========================================
 
-  const fileInput = document.getElementById("fileInput");
-  const songsContainer = document.getElementById("songs");
-  const audio = document.getElementById("audio");
-  const nowPlaying = document.getElementById("nowPlaying");
-  const search = document.getElementById("search");
+  const fileInput =
+    document.getElementById("fileInput");
+
+  const songsContainer =
+    document.getElementById("songs");
+
+  const audio =
+    document.getElementById("audio");
+
+  const nowPlaying =
+    document.getElementById("nowPlaying");
+
+  const search =
+    document.getElementById("search");
 
   let songs = [];
 
 
-  // =====================================
-  // LOAD MUSIC
-  // =====================================
+  // ==========================================
+  // LOAD SONGS FROM DATABASE
+  // ==========================================
 
   async function loadSongs() {
+
+    songsContainer.innerHTML =
+      '<div class="message">Loading your music...</div>';
 
     const { data, error } =
       await supabaseClient
         .from("songs")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", {
+          ascending: false
+        });
 
     if (error) {
 
       songsContainer.innerHTML =
         `<div class="message">
-          Could not load music: ${error.message}
+          Could not load music.<br><br>
+          ${escapeHtml(error.message)}
         </div>`;
 
       return;
@@ -188,9 +256,9 @@
   }
 
 
-  // =====================================
+  // ==========================================
   // DISPLAY SONGS
-  // =====================================
+  // ==========================================
 
   function displaySongs(filter = "") {
 
@@ -198,7 +266,7 @@
 
     const filteredSongs =
       songs.filter(song =>
-        song.title
+        (song.title || "")
           .toLowerCase()
           .includes(filter.toLowerCase())
       );
@@ -221,7 +289,8 @@
       row.className = "song";
 
       row.innerHTML = `
-        <button>▶</button>
+        <button type="button">▶</button>
+
         <div class="song-name">
           ${escapeHtml(song.title)}
         </div>
@@ -230,18 +299,7 @@
       row.querySelector("button")
         .addEventListener("click", () => {
 
-          const { data } =
-            supabaseClient
-              .storage
-              .from("music")
-              .getPublicUrl(song.file_path);
-
-          audio.src = data.publicUrl;
-
-          audio.play();
-
-          nowPlaying.textContent =
-            "Now playing: " + song.title;
+          playSong(song);
 
         });
 
@@ -252,113 +310,179 @@
   }
 
 
-  // =====================================
-  // UPLOAD MUSIC
-  // =====================================
+  // ==========================================
+  // PLAY SONG
+  // ==========================================
 
-  fileInput.addEventListener("change", async () => {
+  function playSong(song) {
 
-    const file = fileInput.files[0];
-
-    if (!file) return;
-
-    if (!file.type.startsWith("audio/")) {
-
-      alert("Please select an audio file.");
-
-      return;
-    }
-
-    const fileName =
-      Date.now() + "-" +
-      file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-
-    const { error: uploadError } =
-      await supabaseClient
+    const { data } =
+      supabaseClient
         .storage
         .from("music")
-        .upload(fileName, file);
+        .getPublicUrl(song.file_path);
 
-    if (uploadError) {
+    audio.src = data.publicUrl;
+
+    nowPlaying.textContent =
+      "Now playing: " + song.title;
+
+    audio.play();
+
+  }
+
+
+  // ==========================================
+  // UPLOAD MUSIC
+  // ==========================================
+
+  fileInput.addEventListener(
+    "change",
+    async function () {
+
+      const file = fileInput.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (!file.type.startsWith("audio/")) {
+
+        alert("Please choose an audio file.");
+
+        fileInput.value = "";
+
+        return;
+      }
+
+      nowPlaying.textContent =
+        "Uploading: " + file.name;
+
+
+      // Create a unique filename
+
+      const fileName =
+        Date.now() +
+        "-" +
+        file.name.replace(
+          /[^a-zA-Z0-9._-]/g,
+          "_"
+        );
+
+
+      // Upload file to Supabase Storage
+
+      const { error: uploadError } =
+        await supabaseClient
+          .storage
+          .from("music")
+          .upload(
+            fileName,
+            file
+          );
+
+
+      if (uploadError) {
+
+        alert(
+          "Upload failed:\n\n" +
+          uploadError.message
+        );
+
+        nowPlaying.textContent =
+          "Nothing playing";
+
+        fileInput.value = "";
+
+        return;
+      }
+
+
+      // Save song information to database
+
+      const { error: databaseError } =
+        await supabaseClient
+          .from("songs")
+          .insert({
+
+            title: file.name,
+
+            file_path: fileName
+
+          });
+
+
+      if (databaseError) {
+
+        alert(
+          "The file uploaded, but the library record failed:\n\n" +
+          databaseError.message
+        );
+
+        nowPlaying.textContent =
+          "Nothing playing";
+
+        fileInput.value = "";
+
+        return;
+      }
+
 
       alert(
-        "Upload failed: " +
-        uploadError.message
+        "🎵 " +
+        file.name +
+        " was added to your music library!"
       );
 
-      return;
+      nowPlaying.textContent =
+        "Nothing playing";
+
+      fileInput.value = "";
+
+      loadSongs();
+
     }
+  );
 
 
-    const { error: databaseError } =
-      await supabaseClient
-        .from("songs")
-        .insert({
-
-          title: file.name,
-
-          file_path: fileName
-
-        });
-
-
-    if (databaseError) {
-
-      alert(
-        "Music uploaded, but the library record failed: " +
-        databaseError.message
-      );
-
-      return;
-    }
-
-
-    alert("🎵 Music uploaded successfully!");
-
-    fileInput.value = "";
-
-    loadSongs();
-
-  });
-
-
-  // =====================================
+  // ==========================================
   // SEARCH
-  // =====================================
+  // ==========================================
 
-  search.addEventListener("input", () => {
+  search.addEventListener(
+    "input",
+    function () {
 
-    displaySongs(search.value);
+      displaySongs(search.value);
 
-  });
+    }
+  );
 
 
-  // =====================================
-  // SECURITY
-  // =====================================
+  // ==========================================
+  // BASIC HTML SAFETY
+  // ==========================================
 
   function escapeHtml(text) {
 
     const div =
       document.createElement("div");
 
-    div.textContent = text;
+    div.textContent =
+      text || "";
 
     return div.innerHTML;
 
   }
 
 
-  // =====================================
-  // START
-  // =====================================
+  // ==========================================
+  // START WEBSITE
+  // ==========================================
 
   loadSongs();
 
 </script>
-
-</body>
-</html>
 
 </body>
 </html>
