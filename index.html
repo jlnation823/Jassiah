@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Music</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">MY<span>MUSIC</span></div>
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="Search songs, artists, albums...">
+    </div>
+    <button id="themeBtn" class="icon-btn" title="Toggle theme">☼</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">YOUR MUSIC. YOUR SITE.</p>
+        <h1>Listen to music<br><span>your way.</span></h1>
+        <p class="hero-copy">A private, self-hosted music player for your own songs. No streaming service required.</p>
+        <button class="primary" id="browseBtn">Browse music</button>
+      </div>
+      <div class="hero-art"><div class="disc"></div><div class="note">♪</div></div>
+    </section>
+
+    <section class="section" id="library">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">LIBRARY</p>
+          <h2>Your music</h2>
+        </div>
+        <label class="upload">
+          <input id="fileInput" type="file" accept="audio/*" multiple>
+          + Add songs
+        </label>
+      </div>
+      <div id="songList" class="song-list"></div>
+      <p id="empty" class="empty">No songs added yet. Use <b>+ Add songs</b> to play audio files from your computer.</p>
+    </section>
+  </main>
+
+  <footer class="player">
+    <div class="now-playing">
+      <div class="mini-art" id="miniArt">♪</div>
+      <div>
+        <strong id="nowTitle">Nothing playing</strong>
+        <span id="nowArtist">Add a song to begin</span>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="control" id="prevBtn">↶</button>
+      <button class="play" id="playBtn">▶</button>
+      <button class="control" id="nextBtn">↷</button>
+    </div>
+    <div class="progress-wrap">
+      <span id="current">0:00</span>
+      <input id="progress" type="range" min="0" max="100" value="0">
+      <span id="duration">0:00</span>
+    </div>
+    <div class="volume">
+      🔊 <input id="volume" type="range" min="0" max="1" value=".8" step=".01">
+    </div>
+  </footer>
+
+  <audio id="audio"></audio>
+  <script src="script.js"></script>
+</body>
+</html>
