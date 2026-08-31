@@ -102,6 +102,7 @@
 
     .song-info {
       flex: 1;
+      min-width: 0;
     }
 
     .song-title {
@@ -132,8 +133,6 @@
       margin-top: 10px;
       color: #1db954;
     }
-
-    /* SEARCH */
 
     .search-box {
       margin-bottom: 25px;
@@ -189,6 +188,7 @@
     >
 
     <label>Music file:</label>
+
     <input
       type="file"
       id="musicFile"
@@ -196,6 +196,7 @@
     >
 
     <label>Cover image:</label>
+
     <input
       type="file"
       id="coverFile"
@@ -218,12 +219,14 @@
   <!-- SEARCH -->
 
   <div class="search-box">
+
     <input
       type="text"
       id="search"
       placeholder="🔎 Search songs or artists..."
       oninput="searchSongs()"
     >
+
   </div>
 
 
@@ -237,7 +240,7 @@
 <script>
 
   // =====================================
-  // SUPABASE
+  // SUPABASE CONNECTION
   // =====================================
 
   const SUPABASE_URL =
@@ -252,10 +255,6 @@
       SUPABASE_KEY
     );
 
-
-  // =====================================
-  // STORE SONGS
-  // =====================================
 
   let allSongs = [];
 
@@ -289,6 +288,7 @@
     allSongs = data || [];
 
     displaySongs(allSongs);
+
   }
 
 
@@ -321,9 +321,35 @@
       div.className = "song";
 
 
+      // =====================================
+      // COVER
+      // =====================================
+
       const cover =
         song.cover_url ||
         "https://via.placeholder.com/90?text=Music";
+
+
+      // =====================================
+      // MUSIC URL
+      // =====================================
+
+      let musicUrl = "";
+
+
+      if (song.file_path) {
+
+        const { data } =
+          supabaseClient
+            .storage
+            .from("music")
+            .getPublicUrl(
+              song.file_path
+            );
+
+        musicUrl =
+          data.publicUrl;
+      }
 
 
       div.innerHTML = `
@@ -337,16 +363,20 @@
         <div class="song-info">
 
           <div class="song-title">
-            ${escapeHtml(song.title || "Untitled")}
+            ${escapeHtml(
+              song.title || "Untitled"
+            )}
           </div>
 
           <div class="artist">
-            ${escapeHtml(song.artist || "Unknown Artist")}
+            ${escapeHtml(
+              song.artist || "Unknown Artist"
+            )}
           </div>
 
           <audio
             controls
-            src="${escapeAttribute(song.music_url || "")}">
+            src="${escapeAttribute(musicUrl)}">
           </audio>
 
 
@@ -376,14 +406,18 @@
             <input
               id="title-${song.id}"
               type="text"
-              value="${escapeAttribute(song.title || "")}"
+              value="${escapeAttribute(
+                song.title || ""
+              )}"
               placeholder="Song title"
             >
 
             <input
               id="artist-${song.id}"
               type="text"
-              value="${escapeAttribute(song.artist || "")}"
+              value="${escapeAttribute(
+                song.artist || ""
+              )}"
               placeholder="Artist"
             >
 
@@ -423,7 +457,7 @@
 
 
   // =====================================
-  // SEARCH SONGS
+  // SEARCH
   // =====================================
 
   function searchSongs() {
@@ -521,14 +555,18 @@
 
     const title =
       document
-        .getElementById(`title-${id}`)
+        .getElementById(
+          `title-${id}`
+        )
         .value
         .trim();
 
 
     const artist =
       document
-        .getElementById(`artist-${id}`)
+        .getElementById(
+          `artist-${id}`
+        )
         .value
         .trim();
 
@@ -548,15 +586,21 @@
     };
 
 
+    // =====================================
     // NEW COVER
+    // =====================================
 
-    if (coverInput.files.length > 0) {
+    if (
+      coverInput.files.length > 0
+    ) {
 
       const file =
         coverInput.files[0];
 
 
-      if (!file.type.startsWith("image/")) {
+      if (
+        !file.type.startsWith("image/")
+      ) {
 
         alert(
           "Please select an image file."
@@ -604,7 +648,9 @@
         supabaseClient
           .storage
           .from("music")
-          .getPublicUrl(fileName);
+          .getPublicUrl(
+            fileName
+          );
 
 
       updateData.cover_url =
@@ -613,7 +659,9 @@
     }
 
 
+    // =====================================
     // UPDATE DATABASE
+    // =====================================
 
     const { error } =
       await supabaseClient
@@ -702,7 +750,9 @@
       musicInput.files[0];
 
 
-    // MUSIC
+    // =====================================
+    // UPLOAD MUSIC
+    // =====================================
 
     const musicName =
       "songs/" +
@@ -734,6 +784,10 @@
     }
 
 
+    // =====================================
+    // GET MUSIC URL
+    // =====================================
+
     const { data: musicPublic } =
       supabaseClient
         .storage
@@ -743,12 +797,16 @@
         );
 
 
+    // =====================================
+    // COVER
+    // =====================================
+
     let coverUrl = "";
 
 
-    // COVER
-
-    if (coverInput.files.length > 0) {
+    if (
+      coverInput.files.length > 0
+    ) {
 
       const coverFile =
         coverInput.files[0];
@@ -799,7 +857,9 @@
     }
 
 
-    // DATABASE
+    // =====================================
+    // SAVE TO DATABASE
+    // =====================================
 
     const { error: databaseError } =
       await supabaseClient
@@ -807,10 +867,14 @@
         .insert([
           {
             title: title,
+
+            file_path:
+              musicName,
+
             artist: artist,
-            music_url:
-              musicPublic.publicUrl,
-            cover_url: coverUrl
+
+            cover_url:
+              coverUrl
           }
         ]);
 
@@ -828,6 +892,8 @@
     message.innerText =
       "Song uploaded successfully! 🎉";
 
+
+    // CLEAR FORM
 
     document.getElementById(
       "songTitle"
@@ -928,4 +994,3 @@
 
 </body>
 </html>
-
