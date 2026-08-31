@@ -357,11 +357,7 @@ audio{width:100%;height:40px}
   .site-nav{overflow-x:auto;flex-wrap:nowrap}
 }
 
-.artist-swipe-hint{color:#777;font-size:11px}
-@media(max-width:650px){
-  #artistHero{flex-direction:column;align-items:flex-start}
-  #artistsGrid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
-}
+.admin-only{display:none !important}
 </style>
 </head>
 
@@ -373,7 +369,7 @@ audio{width:100%;height:40px}
   <div class="home-shell">
     <div class="home-kicker">WELCOME TO</div>
     <div class="home-title">Jassiah Music</div>
-    <div class="home-subtitle">Your music. Your favorites. Your world.</div>
+    <div class="home-subtitle">Listen, browse artists, favorites, playlists and albums.</div>
 
     <div class="home-actions">
       <button class="home-primary" onclick="playFeaturedFromHome()">▶ Play Featured</button>
@@ -418,42 +414,7 @@ audio{width:100%;height:40px}
 
 
 
-<div class="panel" id="newArtistPanel">
-  <h2>🎤 Create Artist Profile</h2>
 
-  <input
-    id="newArtistName"
-    type="text"
-    placeholder="Artist name"
-  >
-
-  <label>Artist profile picture:</label>
-
-  <input
-    id="newArtistImage"
-    type="file"
-    accept="image/*"
-  >
-
-  <button
-    onclick="createArtistProfile()"
-    style="
-      background:linear-gradient(135deg,#f0c653,#9d7014);
-      color:#111;
-      border:0;
-      border-radius:8px;
-      padding:11px 16px;
-      font-weight:bold;
-      cursor:pointer;
-    "
-  >
-    Create Artist Profile
-  </button>
-
-  <div style="color:#777;font-size:11px;margin-top:4px">
-    Primary artist rule: “Jamil Landin ft. Other Artist” stays exactly as credited,
-    but the song belongs under Jamil Landin’s artist page.
-  </div>
 
   <div
     id="artistUploadMessage"
@@ -467,83 +428,10 @@ audio{width:100%;height:40px}
 </div>
 
 
-<div class="panel" id="editArtistPanel" style="display:none">
-  <h2>✏️ Edit Artist Profile</h2>
 
-  <input
-    id="editArtistName"
-    type="text"
-    placeholder="Artist name"
-  >
-
-  <label>New artist profile picture (optional):</label>
-
-  <input
-    id="editArtistImage"
-    type="file"
-    accept="image/*"
-  >
-
-  <button
-    onclick="saveArtistProfile()"
-    style="
-      background:linear-gradient(135deg,#f0c653,#9d7014);
-      color:#111;
-      border:0;
-      border-radius:8px;
-      padding:11px 16px;
-      font-weight:bold;
-      cursor:pointer;
-    "
-  >
-    Save Artist
-  </button>
-
-  <button
-    onclick="cancelEditArtist()"
-    style="
-      background:#333;
-      color:#fff;
-      border:1px solid #555;
-      border-radius:8px;
-      padding:11px 16px;
-      font-weight:bold;
-      cursor:pointer;
-      margin-left:6px;
-    "
-  >
-    Cancel
-  </button>
-
-  <div
-    id="editArtistMessage"
-    style="
-      margin-top:10px;
-      color:#ffd76a;
-      font-weight:bold;
-      min-height:20px;
-    "
-  ></div>
 </div>
 
-<div class="panel">
-  <h2>♫ Add New Song</h2>
 
-  <input id="songTitle" type="text" placeholder="Song title">
-  <input id="artist" type="text" placeholder="Artist" list="artistNames">
-<datalist id="artistNames"></datalist>
-
-  <label>Music file:</label>
-  <input id="musicFile" type="file" accept="audio/*">
-
-  <label>Cover image:</label>
-  <input id="coverFile" type="file" accept="image/*">
-
-  <button class="upload" id="uploadBtn" onclick="uploadSong()">
-    Upload Song
-  </button>
-
-  <div id="msg"></div>
 </div>
 
 
@@ -638,70 +526,29 @@ audio{width:100%;height:40px}
 </section>
 
 
-
 <section class="panel" id="artistPage" style="display:none">
-  <div style="
+  <button id="artistBack" onclick="closeArtistPage()" style="
+    background:#111;color:#ffd76a;border:1px solid #9f741c;
+    border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer
+  ">← Back to Music</button>
+
+  <div id="artistHero" style="
+    margin-top:15px;
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:15px;
-  ">
-    <button
-      onclick="closeArtistPage()"
-      style="
-        background:#111;color:#ffd76a;border:1px solid #9f741c;
-        border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer
-      "
-    >
-      ← Back to Artists
-    </button>
+    gap:18px;
+    padding:20px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#211a0b,#101010);
+    border:1px solid #604a18;
+  "></div>
 
-    <div style="display:flex;gap:7px">
-      <button
-        id="artistPrevButton"
-        onclick="showPreviousArtist()"
-        title="Previous artist"
-        style="
-          background:#111;color:#ffd76a;border:1px solid #9f741c;
-          border-radius:50%;width:40px;height:40px;
-          font-weight:bold;cursor:pointer
-        "
-      >←</button>
-
-      <button
-        id="artistNextButton"
-        onclick="showNextArtist()"
-        title="Next artist"
-        style="
-          background:#111;color:#ffd76a;border:1px solid #9f741c;
-          border-radius:50%;width:40px;height:40px;
-          font-weight:bold;cursor:pointer
-        "
-      >→</button>
-    </div>
+  <div style="margin-top:18px;color:#ffd76a;font-weight:bold">
+    Songs by this artist
   </div>
 
-  <div
-    id="artistHero"
-    style="
-      display:flex;
-      align-items:center;
-      gap:18px;
-      padding:20px;
-      background:linear-gradient(135deg,#211a0b,#101010);
-      border:1px solid #604a18;
-      border-radius:14px;
-    "
-  ></div>
-
-  <div
-    id="artistSongList"
-    style="margin-top:16px"
-  ></div>
+  <div id="artistSongList" style="margin-top:10px"></div>
 </section>
-
 
 
 <section class="panel" id="artistsPanel">
@@ -886,8 +733,6 @@ let favoritesOnly=false;
 let playlists=JSON.parse(localStorage.getItem("jassiahPlaylists")||"{}");
 let artistProfiles=JSON.parse(localStorage.getItem("jassiahArtistProfiles")||"{}");
 let playlistQueue=null;
-let artistPageNames=[];
-let artistPageIndex=-1;
 let albums=JSON.parse(localStorage.getItem("jassiahAlbums")||"{}");
 let albumQueue=null;
 let featuredSongId=Number(localStorage.getItem("jassiahFeaturedSong")||0);
@@ -1003,34 +848,6 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
-<button
-            onclick="addSongToAlbum(${song.id})"
-            style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
-          >
-            + Album
-          </button>
-
-          <button
-            onclick="setFeaturedSong(${song.id})"
-            style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
-          >
-            ⭐ Set Featured
-          </button>
-
-          <button
-            onclick="addSongToPlaylist(${song.id})"
-            style="
-              background:#111;
-              color:#ffd76a;
-              border:1px solid #9f741c;
-              padding:9px 14px;
-              border-radius:7px;
-              cursor:pointer;
-              font-weight:bold;
-            "
-          >
-            + Playlist
-          </button>
 
           <button
             class="favoriteSongBtn"
@@ -1038,16 +855,6 @@ function renderSongs(list){
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
             ${favorites.includes(Number(song.id)) ? "♥ Favorited" : "♡ Favorite"}
-          </button>
-
-          <button class="edit"
-                  onclick="showEdit(${song.id})">
-            ✏️ Edit
-          </button>
-
-          <button class="delete"
-                  onclick="deleteSong(${song.id})">
-            🗑 Delete
           </button>
 
         </div>
@@ -2168,38 +1975,13 @@ window.currentArtistSongs=[];
 
 
 
-
-function getArtistProfileNames(){
-  return Object.keys(artistProfiles)
-    .filter(name=>String(name).trim())
-    .sort((a,b)=>a.localeCompare(b));
-}
-
 function openArtistPage(artistName){
   const name=String(artistName||"").trim();
 
   if(!artistProfiles[name]){
-    alert("Create this artist profile first.");
+    alert("This artist does not have an artist profile yet.");
     return;
   }
-
-  artistPageNames=getArtistProfileNames();
-  artistPageIndex=artistPageNames.findIndex(
-    item=>item.toLowerCase()===name.toLowerCase()
-  );
-
-  renderCurrentArtistPage();
-}
-
-function renderCurrentArtistPage(){
-  if(
-    artistPageIndex<0 ||
-    artistPageIndex>=artistPageNames.length
-  ){
-    return;
-  }
-
-  const name=artistPageNames[artistPageIndex];
 
   const artistSongs=songsForArtist(name);
 
@@ -2207,7 +1989,7 @@ function renderCurrentArtistPage(){
   const hero=document.getElementById("artistHero");
   const list=document.getElementById("artistSongList");
 
-  if(!page||!hero||!list){
+  if(!page || !hero || !list){
     alert("Artist page is not available.");
     return;
   }
@@ -2215,8 +1997,12 @@ function renderCurrentArtistPage(){
   window.currentArtistName=name;
   window.currentArtistSongs=artistSongs;
 
-  const profile=artistProfiles[name]||{};
-  const fallback=document.querySelector(".logo")?.src || "";
+  const profile=artistProfiles[name] || {};
+  const fallback=
+    document.querySelector(".logo")?.src ||
+    document.querySelector("header img")?.src ||
+    "";
+
   const image=profile.image || fallback;
 
   hero.innerHTML=`
@@ -2225,8 +2011,8 @@ function renderCurrentArtistPage(){
       onerror="this.src='${escapeJs(fallback)}'"
       alt="${escapeHtml(name)}"
       style="
-        width:170px;
-        height:170px;
+        width:160px;
+        height:160px;
         object-fit:cover;
         border-radius:50%;
         border:3px solid #d6a83c;
@@ -2235,9 +2021,10 @@ function renderCurrentArtistPage(){
       "
     >
 
-    <div style="min-width:0;flex:1">
+    <div style="flex:1;min-width:0">
+
       <div style="
-        color:#ae9558;
+        color:#ad9457;
         font-size:11px;
         letter-spacing:3px;
         font-weight:bold;
@@ -2247,133 +2034,143 @@ function renderCurrentArtistPage(){
 
       <div style="
         color:#ffd76a;
-        font:italic 48px Georgia,serif;
+        font:italic 46px Georgia,serif;
         margin-top:5px;
         word-break:break-word;
       ">
         ${escapeHtml(name)}
       </div>
 
-      <div style="color:#aaa;margin-top:7px">
+      <div style="color:#aaa;margin-top:6px">
         ${artistSongs.length}
         song${artistSongs.length===1?"":"s"}
       </div>
 
-      <div style="color:#777;font-size:11px;margin-top:7px">
-        Artist ${artistPageIndex+1} of ${artistPageNames.length}
-        • Swipe or use ← →
+      <div style="
+        color:#777;
+        font-size:11px;
+        margin-top:7px;
+      ">
+        Collaborations stay listed in their original song credits.
       </div>
 
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
+      <button
+        onclick="playArtistAll()"
+        style="
+          margin-top:13px;
+          background:linear-gradient(135deg,#f0c653,#9d7014);
+          color:#111;
+          border:0;
+          border-radius:8px;
+          padding:10px 16px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        ▶ Play All
+      </button>
 
-        <button
-          onclick="playArtistAll()"
-          style="
-            background:linear-gradient(135deg,#f0c653,#9d7014);
-            color:#111;border:0;border-radius:8px;
-            padding:10px 16px;font-weight:bold;cursor:pointer;
-          "
-        >
-          ▶ Play All
-        </button>
+      <button
+        onclick="openEditArtist('${escapeJs(name)}')"
+        style="
+          margin-top:13px;
+          margin-left:6px;
+          background:#111;
+          color:#ffd76a;
+          border:1px solid #9f741c;
+          border-radius:8px;
+          padding:10px 15px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        ✏️ Edit Artist
+      </button>
 
-        <button
-          onclick="openEditArtist('${escapeJs(name)}')"
-          style="
-            background:#111;color:#ffd76a;
-            border:1px solid #9f741c;border-radius:8px;
-            padding:10px 15px;font-weight:bold;cursor:pointer;
-          "
-        >
-          ✏️ Edit Artist
-        </button>
-
-      </div>
     </div>
   `;
 
-  if(!artistSongs.length){
-    list.innerHTML=`
-      <div style="text-align:center;color:#999;padding:25px">
-        This artist has no songs on the site yet.
+  list.innerHTML=artistSongs.length
+    ? artistSongs.map(song=>{
+        const index=songs.findIndex(
+          s=>Number(s.id)===Number(song.id)
+        );
+
+        return `
+          <div style="
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:11px 0;
+            border-bottom:1px solid #222;
+          ">
+
+            <img
+              src="${escapeHtml(song.cover_url||image)}"
+              onerror="this.src='${escapeJs(image)}'"
+              alt=""
+              style="
+                width:64px;
+                height:64px;
+                object-fit:cover;
+                border-radius:8px;
+              "
+            >
+
+            <div style="
+              flex:1;
+              min-width:0;
+            ">
+
+              <div style="
+                font-weight:bold;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+              ">
+                ${escapeHtml(song.title||"Untitled")}
+              </div>
+
+              <div style="
+                color:#ffd76a;
+                font-size:12px;
+                margin-top:3px;
+                word-break:break-word;
+              ">
+                ${escapeHtml(song.artist||"Unknown Artist")}
+              </div>
+
+            </div>
+
+            <button
+              onclick="playSong(${index})"
+              style="
+                width:40px;
+                height:40px;
+                border-radius:50%;
+                background:#ffd76a;
+                color:#111;
+                border:0;
+                font-weight:bold;
+                cursor:pointer;
+              "
+              title="Play"
+            >
+              ▶
+            </button>
+
+          </div>
+        `;
+      }).join("")
+    : `
+      <div style="
+        text-align:center;
+        color:#999;
+        padding:25px;
+      ">
+        No songs have been added for this artist yet.
       </div>
     `;
-  }else{
-    list.innerHTML=artistSongs.map(song=>{
-      const i=songs.findIndex(
-        s=>Number(s.id)===Number(song.id)
-      );
-
-      return `
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:12px;
-          padding:11px 0;
-          border-bottom:1px solid #222;
-        ">
-
-          <img
-            src="${escapeHtml(song.cover_url||image)}"
-            onerror="this.src='${escapeJs(image)}'"
-            alt=""
-            style="
-              width:64px;
-              height:64px;
-              object-fit:cover;
-              border-radius:8px;
-            "
-          >
-
-          <div style="flex:1;min-width:0">
-            <div style="
-              font-weight:bold;
-              white-space:nowrap;
-              overflow:hidden;
-              text-overflow:ellipsis;
-            ">
-              ${escapeHtml(song.title||"Untitled")}
-            </div>
-
-            <div style="
-              color:#ffd76a;
-              font-size:12px;
-              margin-top:3px;
-              word-break:break-word;
-            ">
-              ${escapeHtml(song.artist||name)}
-            </div>
-          </div>
-
-          <button
-            onclick="playSong(${i})"
-            style="
-              width:40px;height:40px;border-radius:50%;
-              background:#ffd76a;color:#111;border:0;
-              font-weight:bold;cursor:pointer;
-            "
-            title="Play"
-          >▶</button>
-
-        </div>
-      `;
-    }).join("");
-  }
-
-  const prev=document.getElementById("artistPrevButton");
-  const next=document.getElementById("artistNextButton");
-
-  if(prev){
-    prev.disabled=artistPageNames.length<2;
-    prev.style.opacity=
-      artistPageNames.length<2 ? "0.45" : "1";
-  }
-
-  if(next){
-    next.disabled=artistPageNames.length<2;
-    next.style.opacity=
-      artistPageNames.length<2 ? "0.45" : "1";
-  }
 
   [
     "homeDashboard",
@@ -2389,7 +2186,7 @@ function renderCurrentArtistPage(){
   ].forEach(id=>{
     const el=document.getElementById(id);
 
-    if(el && id!=="artistPage"){
+    if(el){
       el.dataset.artistHidden="1";
       el.style.display="none";
     }
@@ -2403,30 +2200,6 @@ function renderCurrentArtistPage(){
   });
 }
 
-function showPreviousArtist(){
-  if(artistPageNames.length<2)return;
-
-  artistPageIndex--;
-
-  if(artistPageIndex<0){
-    artistPageIndex=artistPageNames.length-1;
-  }
-
-  renderCurrentArtistPage();
-}
-
-function showNextArtist(){
-  if(artistPageNames.length<2)return;
-
-  artistPageIndex++;
-
-  if(artistPageIndex>=artistPageNames.length){
-    artistPageIndex=0;
-  }
-
-  renderCurrentArtistPage();
-}
-
 function playArtistSong(index){
   if(index<0 || index>=songs.length)return;
 
@@ -2435,7 +2208,6 @@ function playArtistSong(index){
 
   playSong(index);
 }
-
 
 
 function playArtistAll(){
@@ -2514,189 +2286,6 @@ function songsForArtist(artistName){
   });
 }
 
-function saveArtistProfiles(){
-  localStorage.setItem(
-    "jassiahArtistProfiles",
-    JSON.stringify(artistProfiles)
-  );
-}
-
-
-let artistBeingEdited="";
-
-
-async function deleteArtistProfile(name){
-  name=String(name||"").trim();
-
-  if(!artistProfiles[name]){
-    alert("Artist profile not found.");
-    return;
-  }
-
-  const artistSongs=songsForArtist(name);
-
-  const message =
-    'Delete artist "'+name+'"?\n\n' +
-    'This will delete the artist profile only.' +
-    (artistSongs.length
-      ? '\n\nThe '+artistSongs.length+
-        ' song(s) will stay on your site with their original artist credits.'
-      : '\n\nNo songs are attached to this artist profile.');
-
-  if(!confirm(message)){
-    return;
-  }
-
-  delete artistProfiles[name];
-  saveArtistProfiles();
-
-  if(window.currentArtistName===name){
-    closeArtistPage();
-  }
-
-  renderArtists();
-  renderHomeDashboard();
-
-  const editPanel=document.getElementById("editArtistPanel");
-  if(editPanel){
-    editPanel.style.display="none";
-  }
-
-  alert("Artist profile deleted. The songs were not deleted.");
-}
-
-function openEditArtist(name){
-  const profile=artistProfiles[name]||{};
-  artistBeingEdited=name;
-
-  const panel=document.getElementById("editArtistPanel");
-  const nameInput=document.getElementById("editArtistName");
-  const imageInput=document.getElementById("editArtistImage");
-  const message=document.getElementById("editArtistMessage");
-
-  if(!panel||!nameInput||!imageInput)return;
-
-  nameInput.value=name;
-  imageInput.value="";
-  message.textContent="";
-
-  panel.style.display="block";
-
-  panel.scrollIntoView({
-    behavior:"smooth",
-    block:"center"
-  });
-
-  nameInput.focus();
-}
-
-function saveArtistProfile(){
-  const oldName=artistBeingEdited;
-
-  const nameInput=document.getElementById("editArtistName");
-  const imageInput=document.getElementById("editArtistImage");
-  const message=document.getElementById("editArtistMessage");
-
-  const newName=nameInput.value.trim();
-
-  if(!oldName){
-    message.textContent="Select an artist to edit.";
-    return;
-  }
-
-  if(!newName){
-    message.textContent="Please enter the artist name.";
-    return;
-  }
-
-  const oldProfile=artistProfiles[oldName]||{};
-
-  const applySave=(image)=>{
-    /*
-      Move the profile to the new artist name so the
-      picture stays attached even when the name changes.
-    */
-    delete artistProfiles[oldName];
-
-    artistProfiles[newName]={
-      image:image || oldProfile.image || ""
-    };
-
-    saveArtistProfiles();
-
-    /*
-      Update existing songs when the artist name itself changes.
-      This keeps the artist's songs connected to the new profile.
-    */
-    if(oldName!==newName){
-      const ids=songs
-        .filter(song =>
-          String(song.artist||"").trim().toLowerCase()===
-          oldName.trim().toLowerCase()
-        )
-        .map(song=>song.id);
-
-      if(ids.length){
-        Promise.all(
-          ids.map(id =>
-            client
-              .from("songs")
-              .update({artist:newName})
-              .eq("id",id)
-          )
-        ).then(async()=>{
-          artistBeingEdited=newName;
-          message.textContent=
-            "Artist profile updated successfully! 🎤";
-
-          await loadSongs();
-          renderArtists();
-          renderHomeDashboard();
-        }).catch(error=>{
-          console.error(error);
-          message.textContent=
-            "The profile saved, but some song names may need updating.";
-          renderArtists();
-        });
-
-        return;
-      }
-    }
-
-    artistBeingEdited=newName;
-
-    nameInput.value="";
-    imageInput.value="";
-    message.textContent=
-      "Artist profile updated successfully! 🎤";
-
-    renderArtists();
-    renderHomeDashboard();
-
-    const page=document.getElementById("artistPage");
-    if(page && page.style.display!=="none"){
-      openArtistPage(newName);
-    }
-  };
-
-  if(imageInput.files.length){
-    const reader=new FileReader();
-
-    reader.onload=function(){
-      applySave(reader.result);
-    };
-
-    reader.onerror=function(){
-      message.textContent=
-        "Could not read that picture.";
-    };
-
-    reader.readAsDataURL(imageInput.files[0]);
-  }else{
-    applySave("");
-  }
-}
-
 function cancelEditArtist(){
   const panel=document.getElementById("editArtistPanel");
 
@@ -2706,52 +2295,6 @@ function cancelEditArtist(){
 
   artistBeingEdited="";
 }
-
-function createArtistProfile(){
-  const nameInput=document.getElementById("newArtistName");
-  const imageInput=document.getElementById("newArtistImage");
-  const message=document.getElementById("artistUploadMessage");
-
-  const name=nameInput.value.trim();
-
-  if(!name){
-    message.textContent="Please enter the artist name.";
-    return;
-  }
-
-  if(!imageInput.files.length){
-    message.textContent="Please choose the artist's picture.";
-    return;
-  }
-
-  const reader=new FileReader();
-
-  reader.onload=function(){
-    artistProfiles[name]={
-      image:reader.result
-    };
-
-    saveArtistProfiles();
-    renderArtists();
-    renderHomeDashboard();
-
-    nameInput.value="";
-    imageInput.value="";
-    message.textContent=
-      "Artist profile created successfully! 🎤";
-  };
-
-  reader.onerror=function(){
-    message.textContent=
-      "Could not read that picture.";
-  };
-
-  reader.readAsDataURL(imageInput.files[0]);
-}
-
-
-
-
 
 function renderArtists(){
   const grid=document.getElementById("artistsGrid");
@@ -2862,23 +2405,6 @@ function renderArtists(){
             ✏️ Edit Artist
           </button>
 
-          <button
-            onclick="deleteArtistProfile('${escapeJs(name)}')"
-            style="
-              margin-top:7px;
-              width:100%;
-              background:#111;
-              color:#ff7568;
-              border:1px solid #8d382f;
-              border-radius:7px;
-              padding:8px;
-              font-weight:bold;
-              cursor:pointer;
-            "
-          >
-            🗑 Delete Artist
-          </button>
-
         </div>
 
       </div>
@@ -2946,60 +2472,6 @@ document.querySelectorAll(".nav-link").forEach(link=>{
       }
     }
   });
-});
-
-
-let artistTouchStartX=0;
-let artistTouchStartY=0;
-
-document.addEventListener("touchstart",function(event){
-  const page=document.getElementById("artistPage");
-
-  if(!page || page.style.display==="none")return;
-
-  const touch=event.touches[0];
-
-  artistTouchStartX=touch.clientX;
-  artistTouchStartY=touch.clientY;
-},{passive:true});
-
-document.addEventListener("touchend",function(event){
-  const page=document.getElementById("artistPage");
-
-  if(!page || page.style.display==="none")return;
-
-  const touch=event.changedTouches[0];
-
-  const dx=touch.clientX-artistTouchStartX;
-  const dy=touch.clientY-artistTouchStartY;
-
-  if(Math.abs(dx)<60 || Math.abs(dx)<Math.abs(dy)){
-    return;
-  }
-
-  if(dx<0){
-    showNextArtist();
-  }else{
-    showPreviousArtist();
-  }
-},{passive:true});
-
-document.addEventListener("keydown",function(event){
-  const page=document.getElementById("artistPage");
-
-  if(!page || page.style.display==="none")return;
-
-  if(event.key==="ArrowRight"){
-    showNextArtist();
-  }
-
-  if(event.key==="ArrowLeft"){
-    showPreviousArtist();
-  }
-
-  if(event.key==="Escape"){
-    closeArtistPage();
-  }
 });
 
 function filterSongs(){
@@ -3128,125 +2600,7 @@ async function saveEdit(id){
 loadSongs();
 }
 
-async function uploadSong(){
-  const title=
-    document.getElementById("songTitle")
-      .value.trim();
-
-  const artist=
-    document.getElementById("artist")
-      .value.trim();
-
-  const musicInput=
-    document.getElementById("musicFile");
-
-  const coverInput=
-    document.getElementById("coverFile");
-
-  const msg=
-    document.getElementById("msg");
-
-  if(!title||!artist||!musicInput.files.length){
-    msg.textContent=
-      "Enter the title, artist, and music file.";
-    return;
-  }
-
-  msg.textContent="Uploading...";
-
-  try{
-    const musicFile=musicInput.files[0];
-
-    const musicPath=
-      "songs/"+Date.now()+"_"+cleanName(musicFile.name);
-
-    const {error:musicError}=await client.storage
-      .from(BUCKET)
-      .upload(
-        musicPath,
-        musicFile,
-        {
-          upsert:false,
-          contentType:musicFile.type
-        }
-      );
-
-    if(musicError)throw musicError;
-
-    let cover=null;
-
-    if(coverInput.files.length){
-      const coverFile=coverInput.files[0];
-
-      const coverPath=
-        "covers/"+Date.now()+"_"+cleanName(coverFile.name);
-
-      const {error:coverError}=await client.storage
-        .from(BUCKET)
-        .upload(
-          coverPath,
-          coverFile,
-          {
-            upsert:false,
-            contentType:coverFile.type
-          }
-        );
-
-      if(coverError)throw coverError;
-
-      cover=
-        client.storage
-          .from(BUCKET)
-          .getPublicUrl(coverPath)
-          .data.publicUrl;
-    }
-
-    const {error:dbError}=await client
-      .from("songs")
-      .insert({
-        title:title,
-        artist:artist,
-        file_path:musicPath,
-        cover_url:cover
-      });
-
-    if(dbError)throw dbError;
-
-    document.getElementById("songTitle").value="";
-    document.getElementById("artist").value="";
-    musicInput.value="";
-    coverInput.value="";
-
-    msg.textContent=
-      "Song uploaded successfully! 🎵";
-
-    await loadSongs();
-
-  }catch(error){
-    console.error(error);
-    msg.textContent=
-      "Upload failed: "+error.message;
-  }
-}
-
-async function deleteSong(id){
-  if(!confirm("Are you sure you want to delete this song?"))return;
-
-  const {error}=await client
-    .from("songs")
-    .delete()
-    .eq("id",id);
-
-  if(error){
-    alert("Could not delete song: "+error.message);
-    return;
-  }
-
-  await loadSongs();
-}
-
-loadSongs();
-
+async 
 </script>
 
 </body>
