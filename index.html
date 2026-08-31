@@ -290,7 +290,61 @@ audio{width:100%;height:40px}
   color:#ffd76a;
   box-shadow:inset 0 0 0 1px #8e681c;
 }
+
+.mobile-menu-button{
+  display:none;
+  position:sticky;
+  top:8px;
+  z-index:950;
+  margin:0 auto 10px;
+  width:48px;
+  height:42px;
+  padding:8px;
+  background:rgba(8,8,8,.97);
+  border:1px solid #8f691c;
+  border-radius:9px;
+  cursor:pointer;
+}
+.mobile-menu-button span{
+  display:block;
+  height:2px;
+  margin:5px 4px;
+  background:#ffd76a;
+  border-radius:2px;
+  transition:.2s;
+}
+.mobile-nav-open + .mobile-menu-button span:nth-child(1){
+  transform:translateY(7px) rotate(45deg);
+}
+.mobile-nav-open + .mobile-menu-button span:nth-child(2){
+  opacity:0;
+}
+.mobile-nav-open + .mobile-menu-button span:nth-child(3){
+  transform:translateY(-7px) rotate(-45deg);
+}
 @media(max-width:650px){
+  .mobile-menu-button{display:block}
+  .site-nav{
+    max-height:0;
+    overflow:hidden;
+    opacity:0;
+    margin-top:0;
+    margin-bottom:0;
+    padding-top:0;
+    padding-bottom:0;
+    pointer-events:none;
+    transition:max-height .25s ease,opacity .2s ease,padding .2s ease;
+    position:relative;
+  }
+  .site-nav.mobile-nav-open{
+    max-height:300px;
+    opacity:1;
+    margin-bottom:14px;
+    padding-top:8px;
+    padding-bottom:8px;
+    pointer-events:auto;
+  }
+
   .site-nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}
   .nav-link{white-space:nowrap;font-size:13px;padding:9px 12px}
 
@@ -402,6 +456,16 @@ audio{width:100%;height:40px}
   <a href="#playlists" class="nav-link" data-target="playlists">Playlists</a>
   <a href="#albumPanel" class="nav-link" data-target="albumPanel">Albums</a>
 </nav>
+<button
+  id="mobileMenuButton"
+  class="mobile-menu-button"
+  type="button"
+  onclick="toggleMobileNav()"
+  aria-label="Open menu"
+>
+  <span></span><span></span><span></span>
+</button>
+
 
 
 <div class="panel">
@@ -2017,6 +2081,56 @@ window.addEventListener("scroll",()=>{
   });
 
   setActiveNav(current);
+});
+
+
+function showArtist(artistName){
+  const searchBox=document.getElementById("search");
+
+  if(searchBox){
+    searchBox.value=artistName;
+  }
+
+  renderSongs(
+    songs.filter(song =>
+      String(song.artist||"").toLowerCase() ===
+      String(artistName||"").toLowerCase()
+    )
+  );
+
+  const songsPanel=document.getElementById("songsPanel") || document.getElementById("songs");
+  if(songsPanel){
+    songsPanel.scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+  }
+}
+
+
+function toggleMobileNav(){
+  const nav=document.querySelector(".site-nav");
+  const button=document.getElementById("mobileMenuButton");
+
+  if(!nav)return;
+
+  nav.classList.toggle("mobile-nav-open");
+  button.classList.toggle("mobile-nav-open");
+}
+
+document.querySelectorAll(".nav-link").forEach(link=>{
+  link.addEventListener("click",()=>{
+    const nav=document.querySelector(".site-nav");
+    const button=document.getElementById("mobileMenuButton");
+
+    if(nav){
+      nav.classList.remove("mobile-nav-open");
+    }
+
+    if(button){
+      button.classList.remove("mobile-nav-open");
+    }
+  });
 });
 
 function filterSongs(){
