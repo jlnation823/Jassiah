@@ -986,10 +986,110 @@ body > #adminLoginPanel{display:none!important}
   .jx-admin-grid{grid-template-columns:1fr}
   .jx-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* ===== FINAL TOP CONTROLS: no overlays blocking clicks ===== */
+.jx-top{
+  position:absolute!important;
+  left:61px!important;right:280px!important;top:0!important;height:64px!important;
+  z-index:90000!important;
+  pointer-events:auto!important;
+}
+.jx-arrows{
+  position:absolute!important;
+  left:12px!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  display:flex!important;gap:7px!important;
+  z-index:90010!important;
+}
+.jx-arrows button{
+  position:relative!important;
+  width:36px!important;height:36px!important;
+  min-width:36px!important;min-height:36px!important;
+  border:0!important;border-radius:50%!important;
+  background:#1b1b1b!important;color:#ddd!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  padding:0!important;line-height:1!important;
+  cursor:pointer!important;
+  z-index:90011!important;
+}
+.jx-search{
+  position:absolute!important;
+  left:50%!important;top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  width:min(560px,58%)!important;height:36px!important;
+  z-index:90005!important;
+}
+.jx-actions{
+  position:absolute!important;
+  right:12px!important;top:50%!important;
+  transform:translateY(-50%)!important;
+  display:flex!important;align-items:center!important;gap:7px!important;
+  z-index:90020!important;pointer-events:auto!important;
+}
+.jx-actions button{
+  pointer-events:auto!important;
+  position:relative!important;z-index:90021!important;
+}
+#jxNewPanel{
+  position:absolute!important;
+  top:58px!important;right:10px!important;
+  width:370px!important;max-width:calc(100vw - 20px)!important;
+  max-height:430px!important;overflow-y:auto!important;
+  display:none;background:#292929!important;
+  border:1px solid #444!important;border-radius:10px!important;
+  box-shadow:0 20px 50px rgba(0,0,0,.78)!important;
+  z-index:100000!important;pointer-events:auto!important;
+}
+#jxNewButton{cursor:pointer!important}
+@media(max-width:700px){
+  .jx-top{left:0!important;right:0!important;height:58px!important}
+  .jx-arrows{display:none!important}
+  .jx-search{
+    left:38%!important;width:54%!important;
+  }
+  .jx-actions{right:5px!important;gap:4px!important}
+  #jxNewPanel{
+    top:52px!important;right:5px!important;width:calc(100vw - 10px)!important;
+  }
+}
 </style>
 </head>
 
 <body>
+<div id="jxAdminModalFinal" style="
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.80);z-index:100000;padding:16px;box-sizing:border-box;
+">
+  <div style="
+    width:min(420px,100%);background:#161616;border:1px solid #70551a;
+    border-radius:12px;padding:20px;box-shadow:0 25px 80px rgba(0,0,0,.8);
+    position:relative;box-sizing:border-box;
+  ">
+    <button type="button" onclick="jxFinalCloseAdmin()" style="
+      position:absolute;right:10px;top:8px;border:0;background:transparent;
+      color:#aaa;font-size:26px;cursor:pointer;
+    ">×</button>
+    <div style="font-size:21px;font-weight:900;color:#ffd76a;margin-bottom:14px">
+      🔐 Jassiah Admin
+    </div>
+    <input id="jxFinalAdminEmail" type="email" placeholder="Email"
+      autocomplete="username" style="
+      width:100%;box-sizing:border-box;margin-bottom:10px;
+      background:#252525;color:#fff;border:1px solid #444;border-radius:7px;padding:11px;
+    ">
+    <input id="jxFinalAdminPassword" type="password" placeholder="Password"
+      autocomplete="current-password" style="
+      width:100%;box-sizing:border-box;margin-bottom:10px;
+      background:#252525;color:#fff;border:1px solid #444;border-radius:7px;padding:11px;
+    ">
+    <button type="button" onclick="jxFinalLogin()" style="
+      background:#ffd76a;color:#111;border:0;border-radius:999px;
+      padding:10px 16px;font-weight:900;cursor:pointer;
+    ">Log In</button>
+    <div id="jxFinalAdminStatus" style="min-height:20px;margin-top:9px;color:#ffd76a;font-size:12px"></div>
+  </div>
+</div>
+
 <div id="jxPhotoLightbox" onclick="jxClosePhoto(event)">
   <button id="jxPhotoClose" type="button" onclick="jxClosePhoto(event)">×</button>
   <img id="jxPhotoLightboxImg" alt="">
@@ -1103,12 +1203,14 @@ body > #adminLoginPanel{display:none!important}
     <input id="jxSearch" class="jx-search" type="search" placeholder="What do you want to play?"
       autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
     
+
 <div class="jx-actions">
   <button type="button" class="jx-new-btn" id="jxNewButton" title="What's New" aria-label="What's New">
     🔔<span class="jx-new-dot" id="jxNewDot"></span>
   </button>
-  <button type="button" class="jx-admin-btn" onclick="openAdminLogin()">🔐 Admin Login</button>
+  <button type="button" class="jx-admin-btn" id="jxFinalAdminButton">🔐 Admin Login</button>
 </div>
+
 
   </header>
 
@@ -5693,6 +5795,207 @@ const jxOldRenderLikedClean=window.jxRenderLikedSongsFeature;
         document.getElementById("jxPhotoLightbox")?.classList.remove("open");
       }
     });
+  });
+
+})();
+</script>
+
+<script id="jassiah-final-top-controls">
+(function(){
+
+  /* -------- Login -------- */
+  window.jxFinalOpenAdmin=function(){
+    const modal=document.getElementById("jxAdminModalFinal");
+    const status=document.getElementById("jxFinalAdminStatus");
+    if(!modal)return;
+    if(status)status.textContent="";
+    modal.style.display="flex";
+    document.getElementById("jxFinalAdminEmail")?.focus();
+  };
+
+  window.jxFinalCloseAdmin=function(){
+    const modal=document.getElementById("jxAdminModalFinal");
+    if(modal)modal.style.display="none";
+  };
+
+  window.jxFinalLogin=async function(){
+    const email=document.getElementById("jxFinalAdminEmail")?.value.trim();
+    const password=document.getElementById("jxFinalAdminPassword")?.value||"";
+    const status=document.getElementById("jxFinalAdminStatus");
+
+    if(!email||!password){
+      if(status)status.textContent="Enter your email and password.";
+      return;
+    }
+
+    if(status)status.textContent="Logging in...";
+
+    try{
+      const result=await client.auth.signInWithPassword({email,password});
+
+      if(result.error){
+        if(status)status.textContent="Login failed: "+result.error.message;
+        return;
+      }
+
+      currentUser=result.data.user;
+
+      if(typeof updateAdminVisibility==="function"){
+        updateAdminVisibility();
+      }
+
+      jxFinalCloseAdmin();
+
+      /* Put the admin directly on the Admin Hub (page 6). */
+      if(typeof jxGo==="function"){
+        jxGo(6);
+      }
+    }catch(error){
+      console.error(error);
+      if(status)status.textContent="Login failed.";
+    }
+  };
+
+  /* -------- What's New -------- */
+  const NEWS_SEEN_KEY="jassiahFinalNewsSeen";
+
+  function songStamp(song){
+    const d=new Date(song?.created_at||song?.date_added||song?.added_at||0).getTime();
+    const id=Number(song?.id)||0;
+    return Math.max(Number.isFinite(d)?d:0,id);
+  }
+
+  function newsData(){
+    const out=[];
+    const list=(typeof songs!=="undefined"&&Array.isArray(songs))?songs:[];
+    const profiles=(typeof artistProfiles!=="undefined"&&artistProfiles)?artistProfiles:{};
+
+    list.forEach(song=>{
+      out.push({
+        type:"song",
+        id:Number(song.id),
+        title:song.title||"Untitled",
+        sub:song.artist||"Unknown Artist",
+        image:typeof coverUrl==="function"?coverUrl(song):"",
+        stamp:songStamp(song)
+      });
+    });
+
+    Object.entries(profiles).forEach(([name,p])=>{
+      const d=new Date(p?.created_at||p?.date_added||0).getTime();
+      out.push({
+        type:"artist",
+        name,
+        title:name,
+        sub:"Artist profile",
+        image:p?.image||"",
+        stamp:Number.isFinite(d)?d:0
+      });
+    });
+
+    return out.sort((a,b)=>b.stamp-a.stamp).slice(0,20);
+  }
+
+  function renderFinalNews(){
+    const panel=document.getElementById("jxNewPanel");
+    if(!panel)return;
+
+    const items=newsData();
+
+    let out='<div style="padding:13px 14px 10px;font-weight:900;border-bottom:1px solid #3c3c3c">🔔 What\'s New</div>';
+
+    if(!items.length){
+      out+='<div style="padding:16px;color:#aaa">Nothing new yet.</div>';
+    }else{
+      out+=items.map(item=>item.type==="song"
+        ? `<button type="button" onclick="jxFinalPlayNew(${item.id})"
+             style="width:100%;border:0;background:transparent;color:#fff;display:flex;gap:10px;align-items:center;padding:9px 12px;text-align:left;cursor:pointer">
+             <img src="${escapeHtml(item.image)}" alt="" style="width:45px;height:45px;object-fit:cover;border-radius:6px;background:#1d1d1d">
+             <span style="min-width:0;flex:1"><span style="display:block;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.title)}</span><span style="display:block;color:#aaa;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escapeHtml(item.sub)}</span></span>
+           </button>`
+        : `<button type="button" onclick="jxFinalOpenArtist('${escapeJs(item.name)}')"
+             style="width:100%;border:0;background:transparent;color:#fff;display:flex;gap:10px;align-items:center;padding:9px 12px;text-align:left;cursor:pointer">
+             <img src="${escapeHtml(item.image)}" alt="" style="width:45px;height:45px;object-fit:cover;border-radius:50%;background:#1d1d1d">
+             <span style="min-width:0;flex:1"><span style="display:block;font-weight:800">${escapeHtml(item.title)}</span><span style="display:block;color:#aaa;font-size:11px;margin-top:2px">Artist profile</span></span>
+           </button>`
+      ).join("");
+    }
+
+    panel.innerHTML=out;
+
+    const latest=items[0]?.stamp||0;
+    const seen=Number(localStorage.getItem(NEWS_SEEN_KEY)||0);
+    const dot=document.getElementById("jxNewDot");
+    if(dot)dot.style.display=(latest>seen&&latest>0)?"block":"none";
+  }
+
+  window.jxFinalPlayNew=function(id){
+    document.getElementById("jxNewPanel")?.style.setProperty("display","none");
+    const index=(typeof songs!=="undefined"?songs:[]).findIndex(s=>Number(s.id)===Number(id));
+    if(index>=0&&typeof playSong==="function")playSong(index);
+  };
+
+  window.jxFinalOpenArtist=function(name){
+    document.getElementById("jxNewPanel")?.style.setProperty("display","none");
+    if(typeof jxOpenArtist==="function")jxOpenArtist(name);
+  };
+
+  /* -------- Wire buttons after every previous patch has loaded -------- */
+  function bind(){
+    const bell=document.getElementById("jxNewButton");
+    const admin=document.getElementById("jxFinalAdminButton");
+
+    if(bell){
+      bell.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        const panel=document.getElementById("jxNewPanel");
+        if(!panel)return;
+
+        if(panel.style.display==="block"){
+          panel.style.display="none";
+        }else{
+          renderFinalNews();
+          panel.style.display="block";
+
+          const items=newsData();
+          const latest=items[0]?.stamp||0;
+          if(latest>0)localStorage.setItem(NEWS_SEEN_KEY,String(latest));
+
+          const dot=document.getElementById("jxNewDot");
+          if(dot)dot.style.display="none";
+        }
+      };
+    }
+
+    if(admin){
+      admin.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(typeof currentUser!=="undefined" && currentUser){
+          if(typeof jxGo==="function")jxGo(6);
+        }else{
+          jxFinalOpenAdmin();
+        }
+      };
+    }
+
+    renderFinalNews();
+  }
+
+  document.addEventListener("click",e=>{
+    if(!e.target.closest("#jxNewButton")&&!e.target.closest("#jxNewPanel")){
+      const p=document.getElementById("jxNewPanel");
+      if(p)p.style.display="none";
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    bind();
+    setTimeout(bind,300);
+    setTimeout(bind,1200);
   });
 
 })();
