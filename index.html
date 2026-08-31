@@ -990,6 +990,74 @@ body > #adminLoginPanel{display:none!important}
     aspect-ratio:1!important;
   }
 }
+
+/* STEP: Spotify-style Liked Songs controls */
+.jx-like-actions{
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  flex-shrink:0!important;
+}
+.jx-like-btn{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
+  padding:0!important;
+  border:1px solid #7a5a18!important;
+  border-radius:50%!important;
+  background:#111!important;
+  color:#ffd76a!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:18px!important;
+  line-height:1!important;
+  cursor:pointer!important;
+}
+.jx-like-btn:hover{
+  background:#242424!important;
+  transform:scale(1.04);
+}
+.jx-like-btn.liked{
+  background:#ffd76a!important;
+  color:#111!important;
+}
+.jx-liked-page-head{
+  display:flex!important;
+  align-items:center!important;
+  gap:14px!important;
+  margin-bottom:18px!important;
+}
+.jx-liked-icon{
+  width:86px!important;
+  height:86px!important;
+  border-radius:8px!important;
+  background:linear-gradient(135deg,#6e4cff,#b8dfff)!important;
+  color:#fff!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:38px!important;
+  box-shadow:0 8px 26px rgba(94,75,200,.2)!important;
+}
+@media(max-width:700px){
+  .jx-like-btn{
+    width:31px!important;
+    height:31px!important;
+    min-width:31px!important;
+    min-height:31px!important;
+  }
+}
+
+/* CHECK BUTTON: use a checkmark instead of a heart for liked songs */
+.jx-like-btn{
+  font-size:19px!important;
+  font-weight:900!important;
+}
+.jx-like-btn.liked{
+  color:#111!important;
+}
 </style>
 </head>
 
@@ -1140,7 +1208,7 @@ body > #adminLoginPanel{display:none!important}
 
       <section class="jx-slide">
         <div class="jx-inner">
-          <h1 class="jx-slide-title">Favorites</h1>
+          <div class="jx-liked-page-head"><div class="jx-liked-icon">♥</div><div><h1 class="jx-slide-title" style="margin:0">Liked Songs</h1><div class="jx-muted">Your liked songs playlist</div></div></div>
           <div id="jxFavorites"></div>
         </div>
       </section>
@@ -4942,6 +5010,180 @@ if(typeof setNowPlaying==="function"){
   });
 
 })();
+</script>
+
+<script id="jassiah-liked-songs-feature">
+/* =========================================================
+   SPOTIFY-STYLE LIKED SONGS
+   ========================================================= */
+
+function jxLikedIds(){
+  return (typeof favorites!=="undefined" && Array.isArray(favorites))
+    ? favorites.map(Number)
+    : [];
+}
+
+function jxLikeButton(song){
+  const liked=jxLikedIds().includes(Number(song.id));
+
+  return `
+    <button
+      type="button"
+      class="jx-like-btn ${liked?"liked":""}"
+      title="${liked?"Remove from Liked Songs":"Add to Liked Songs"}"
+      aria-label="${liked?"Remove from Liked Songs":"Add to Liked Songs"}"
+      aria-pressed="${liked}"
+      onclick="
+        event.stopPropagation();
+        jxToggleLikedSong(${Number(song.id)});
+      "
+    >${liked?"✓":"+"}</button>
+  `;
+}
+
+function jxToggleLikedSong(id){
+  if(typeof toggleFavorite==="function"){
+    toggleFavorite(Number(id));
+  }else{
+    if(typeof favorites==="undefined")window.favorites=[];
+    const n=Number(id);
+
+    if(favorites.includes(n)){
+      favorites=favorites.filter(x=>Number(x)!==n);
+    }else{
+      favorites.push(n);
+    }
+
+    localStorage.setItem(
+      "jassiahFavorites",
+      JSON.stringify(favorites)
+    );
+  }
+
+  /* Repaint both Songs and Liked Songs without touching the working audio player. */
+  setTimeout(()=>{
+    jxRenderLikedSongsFeature();
+    jxRenderAllSongsFeature();
+
+    if(typeof updateCurrentFavoriteButton==="function"){
+      updateCurrentFavoriteButton();
+    }
+  },0);
+}
+
+function jxFeatureRows(list){
+  if(!list.length){
+    return '<div class="jx-muted">No liked songs yet. Press ♡ beside a song to add it.</div>';
+  }
+
+  return `
+    <div class="jx-table">
+      <div class="jx-head">
+        <div>#</div>
+        <div>Title</div>
+        <div>Artist</div>
+        <div>Date added</div>
+        <div>◷</div>
+      </div>
+
+      ${list.map((song,i)=>{
+        const real=songs.findIndex(
+          s=>Number(s.id)===Number(song.id)
+        );
+
+        const primary=jxPrimary(song.artist);
+
+        return `
+          <div class="jx-row" onclick="playSong(${real})">
+
+            <div style="text-align:center;color:#888">${i+1}</div>
+
+            <div class="jx-trackcell">
+              <img class="jx-cover"
+                src="${escapeHtml(jxCover(song))}"
+                alt="">
+              <div class="jx-tracktext">
+                <div class="jx-song">
+                  ${escapeHtml(song.title||"Untitled")}
+                </div>
+                <div class="jx-credit">
+                  ${escapeHtml(song.artist||"Unknown Artist")}
+                </div>
+              </div>
+            </div>
+
+            <div class="jx-artist-cell"
+              onclick="event.stopPropagation();jxOpenArtist('${escapeJs(primary)}')">
+              <div class="jx-like-actions">
+                <button
+                  type="button"
+                  class="jx-artist-play"
+                  onclick="event.stopPropagation();playSong(${real})"
+                  title="Play"
+                >▶</button>
+
+                ${jxLikeButton(song)}
+              </div>
+
+              <span style="
+                min-width:0;
+                overflow:hidden;
+                text-overflow:ellipsis;
+                white-space:nowrap;
+              ">
+                ${escapeHtml(song.artist||"Unknown Artist")}
+              </span>
+            </div>
+
+            <div class="jx-date">
+              ${escapeHtml(jxDate(song))}
+            </div>
+
+            <div class="jx-time">
+              ${escapeHtml(jxDuration(song))}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function jxRenderAllSongsFeature(){
+  const box=document.getElementById("jxSongs");
+
+  if(box){
+    box.innerHTML=jxFeatureRows(
+      typeof songs!=="undefined" ? songs : []
+    );
+  }
+}
+
+function jxRenderLikedSongsFeature(){
+  const box=document.getElementById("jxFavorites");
+
+  if(!box)return;
+
+  const ids=jxLikedIds();
+
+  const list=(typeof songs!=="undefined"?songs:[]).filter(
+    song=>ids.includes(Number(song.id))
+  );
+
+  box.innerHTML=jxFeatureRows(list);
+}
+
+/* Make the main Songs view and Liked Songs page use the new control. */
+document.addEventListener("DOMContentLoaded",()=>{
+  jxRenderAllSongsFeature();
+  jxRenderLikedSongsFeature();
+
+  /* When the existing Supabase loader refreshes songs, repaint this layer. */
+  setTimeout(()=>{
+    jxRenderAllSongsFeature();
+    jxRenderLikedSongsFeature();
+  },1200);
+});
 </script>
 </body>
 </html>
