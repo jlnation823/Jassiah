@@ -419,6 +419,29 @@ body:not(.admin-mode) .admin-only{
   fill:#17120a !important;
   stroke:none !important;
 }
+
+/* STEP 2 ONLY: clean bottom-player heart */
+#favoritePlayerBtn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 !important;
+  overflow:hidden !important;
+}
+
+#favoritePlayerBtn .j-step2-heart{
+  display:block !important;
+  font-family:Arial,"Segoe UI Symbol",sans-serif !important;
+  font-size:24px !important;
+  line-height:1 !important;
+  font-weight:400 !important;
+  color:#ffd76a !important;
+  transform:translateY(-1px) !important;
+}
+
+#favoritePlayerBtn.active .j-step2-heart{
+  color:#ffd76a !important;
+}
 </style>
 </head>
 
@@ -3492,6 +3515,39 @@ async function initializeAuth(){
 
 initializeAuth();
 
+
+/* STEP 2: replace only the favorite icon with a stable heart glyph */
+function fixStep2Heart(){
+  const btn=document.getElementById("favoritePlayerBtn");
+  if(!btn)return;
+
+  let heart=btn.querySelector(".j-step2-heart");
+
+  if(!heart){
+    btn.innerHTML='<span class="j-step2-heart">♡</span>';
+    heart=btn.querySelector(".j-step2-heart");
+  }
+
+  heart.textContent=btn.classList.contains("active")?"♥":"♡";
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  fixStep2Heart();
+  setTimeout(fixStep2Heart,250);
+  setTimeout(fixStep2Heart,700);
+});
+
+const step2HeartObserver=new MutationObserver(fixStep2Heart);
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const btn=document.getElementById("favoritePlayerBtn");
+  if(btn){
+    step2HeartObserver.observe(btn,{
+      attributes:true,
+      attributeFilter:["class"]
+    });
+  }
+});
 </script>
 
 </body>
