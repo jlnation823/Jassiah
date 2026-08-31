@@ -379,6 +379,29 @@ audio{width:100%;height:40px}
   <div id="playlists" style="margin-top:15px"></div>
 </section>
 
+
+<section class="panel" id="recentPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <h2 style="margin:0">🆕 Recently Added</h2>
+    <button
+      onclick="showAllSongs()"
+      style="
+        background:#111;
+        color:#ffd76a;
+        border:1px solid #9f741c;
+        border-radius:8px;
+        padding:8px 13px;
+        font-weight:bold;
+        cursor:pointer;
+      "
+    >
+      View All
+    </button>
+  </div>
+
+  <div id="recentSongs" style="margin-top:14px"></div>
+</section>
+
 <input id="search" class="search" type="text"
        placeholder="🔎 Search songs or artists..."
        oninput="filterSongs()">
@@ -599,6 +622,7 @@ async function loadSongs(){
   renderSongs(songs);
   renderPlaylists();
   renderFeaturedSong();
+  renderRecentlyAdded();
 }
 
 function renderSongs(list){
@@ -1314,6 +1338,100 @@ function renderFeaturedSong(){
 
     </div>
   `;
+}
+
+
+function renderRecentlyAdded(){
+  const box=document.getElementById("recentSongs");
+  if(!box)return;
+
+  const recent=songs.slice(0,5);
+
+  if(!recent.length){
+    box.innerHTML=
+      '<div style="color:#888;padding:12px 0">No songs uploaded yet.</div>';
+    return;
+  }
+
+  box.innerHTML=recent.map((song,i)=>{
+    const cover=coverUrl(song);
+
+    return `
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:10px 0;
+        border-bottom:1px solid #222;
+      ">
+        <img
+          src="${escapeHtml(cover)}"
+          onerror="this.src='${escapeJs(coverUrl({}))}'"
+          style="
+            width:58px;
+            height:58px;
+            object-fit:cover;
+            border-radius:8px;
+            flex-shrink:0;
+          "
+          alt=""
+        >
+
+        <div style="min-width:0;flex:1">
+          <div style="
+            font-weight:bold;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${escapeHtml(song.title||"Untitled")}
+          </div>
+
+          <div style="
+            color:#999;
+            font-size:13px;
+            margin-top:3px;
+          ">
+            ${escapeHtml(song.artist||"Unknown Artist")}
+          </div>
+        </div>
+
+        <button
+          onclick="playSong(${i})"
+          style="
+            width:38px;
+            height:38px;
+            border-radius:50%;
+            background:#ffd76a;
+            color:#111;
+            border:0;
+            cursor:pointer;
+            font-weight:bold;
+          "
+          title="Play"
+        >
+          ▶
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+function showAllSongs(){
+  const searchBox=document.getElementById("search");
+  if(searchBox){
+    searchBox.value="";
+  }
+
+  renderSongs(songs);
+
+  const target=document.getElementById("songs");
+  if(target){
+    target.scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+  }
 }
 
 function filterSongs(){
