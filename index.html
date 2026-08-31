@@ -793,104 +793,206 @@ body > #adminLoginPanel{display:none!important}
   color:#111!important;
 }
 
-/* ===== LOGIN + WHAT'S NEW + PLAYER PERSISTENCE ===== */
-#jxAdminModal{
-  position:fixed!important;inset:0!important;
-  display:none;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.78)!important;
-  z-index:60000!important;
-  padding:16px;box-sizing:border-box;
+/* =========================================================
+   ADMIN HUB + WHAT'S NEW + FAN GALLERY
+   ========================================================= */
+
+.jx-top{
+  z-index:30000!important;
 }
-#jxAdminModal.open{display:flex!important}
-.jx-admin-modal-card{
-  width:min(420px,100%);
-  background:#161616;
-  border:1px solid #6b531c;
+.jx-topbar{
+  z-index:30000!important;
+}
+.jx-actions{
+  z-index:35000!important;
+  pointer-events:auto!important;
+}
+.jx-actions button{
+  pointer-events:auto!important;
+  position:relative!important;
+  z-index:35001!important;
+}
+
+#jxNewPanel{
+  pointer-events:auto!important;
+  z-index:50000!important;
+}
+
+#jxAdminHub{
+  padding-bottom:40px;
+}
+.jx-admin-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+}
+.jx-admin-card{
+  background:#151515;
+  border:1px solid #3a321f;
   border-radius:12px;
+  padding:16px;
+}
+.jx-admin-card h3{
+  margin:0 0 12px;
+  color:#ffd76a;
+  font-size:17px;
+}
+.jx-admin-card input,
+.jx-admin-card select{
+  width:100%;
+  box-sizing:border-box;
+  background:#242424;
+  color:#fff;
+  border:1px solid #444;
+  border-radius:7px;
+  padding:10px;
+  margin:5px 0 9px;
+}
+.jx-admin-card label{
+  color:#aaa;
+  font-size:11px;
+  display:block;
+  margin-top:7px;
+}
+.jx-admin-primary,
+.jx-admin-danger,
+.jx-admin-secondary{
+  border-radius:8px;
+  padding:9px 13px;
+  font-weight:900;
+  cursor:pointer;
+  border:0;
+  margin-top:4px;
+}
+.jx-admin-primary{
+  background:#ffd76a;
+  color:#111;
+}
+.jx-admin-secondary{
+  background:#202020;
+  color:#ffd76a;
+  border:1px solid #6d5319;
+}
+.jx-admin-danger{
+  background:#321414;
+  color:#ff8f8f;
+  border:1px solid #813333;
+}
+.jx-admin-status{
+  min-height:18px;
+  margin-top:8px;
+  color:#ffd76a;
+  font-size:11px;
+}
+.jx-song-checks{
+  max-height:190px;
+  overflow:auto;
+  background:#101010;
+  border:1px solid #2d2d2d;
+  border-radius:7px;
+  padding:7px;
+  margin:7px 0;
+}
+.jx-song-check{
+  display:flex;
+  gap:7px;
+  align-items:center;
+  padding:5px;
+  color:#ddd;
+  font-size:11px;
+}
+.jx-song-check input{
+  width:auto;
+  margin:0;
+}
+.jx-gallery-panel{
+  margin-top:22px;
+  background:#111;
+  border:1px solid #302817;
+  border-radius:12px;
+  padding:16px;
+}
+.jx-gallery-title{
+  color:#ffd76a;
+  font-size:21px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+.jx-gallery-sub{
+  color:#888;
+  font-size:11px;
+  margin-bottom:14px;
+}
+.jx-gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(145px,1fr));
+  gap:12px;
+}
+.jx-gallery-card{
+  background:#181818;
+  border:1px solid #292929;
+  border-radius:9px;
+  overflow:hidden;
+}
+.jx-gallery-card img{
+  width:100%;
+  aspect-ratio:1;
+  object-fit:cover;
+  display:block;
+  cursor:pointer;
+  background:#222;
+}
+.jx-gallery-caption{
+  padding:8px 9px;
+  color:#ddd;
+  font-size:11px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#jxPhotoLightbox{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.88);
+  z-index:70000;
   padding:20px;
-  box-shadow:0 25px 70px rgba(0,0,0,.72);
-  position:relative;
+  box-sizing:border-box;
 }
-.jx-admin-close{
-  position:absolute;top:8px;right:10px;
-  border:0;background:transparent;color:#aaa;
-  font-size:26px;cursor:pointer;
+#jxPhotoLightbox.open{display:flex}
+#jxPhotoLightbox img{
+  max-width:min(92vw,900px);
+  max-height:86vh;
+  object-fit:contain;
+  border-radius:8px;
 }
-.jx-admin-modal-title{
-  color:#ffd76a;font-size:21px;font-weight:900;
-  margin-bottom:15px;
-}
-#jxAdminEmail,#jxAdminPassword{
-  width:100%;box-sizing:border-box;
-  margin-bottom:10px;
-  background:#252525;color:#fff;
-  border:1px solid #444;border-radius:7px;
-  padding:11px;
-  outline:none;
-}
-.jx-admin-submit{
-  border:0;border-radius:999px;
-  background:#ffd76a;color:#111;
-  padding:10px 16px;font-weight:900;
+#jxPhotoClose{
+  position:absolute;
+  top:14px;
+  right:18px;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:0;
+  background:#222;
+  color:#fff;
+  font-size:25px;
   cursor:pointer;
 }
-#jxAdminStatus{
-  min-height:22px;margin-top:10px;
-  color:#ffd76a;font-size:12px;
-}
-#jxNewPanel{
-  position:absolute!important;
-  right:10px!important;
-  top:56px!important;
-  width:370px!important;
-  max-width:calc(100vw - 20px)!important;
-  max-height:430px!important;
-  overflow-y:auto!important;
-  display:none;
-  background:#292929!important;
-  border:1px solid #444!important;
-  border-radius:10px!important;
-  box-shadow:0 20px 45px rgba(0,0,0,.72)!important;
-  z-index:55000!important;
-}
-.jx-new-head{
-  padding:13px 14px 9px;
-  color:#fff;
-  font-weight:900;
-  border-bottom:1px solid #3d3d3d;
-}
-.jx-new-row{
-  width:100%;border:0;background:transparent;color:#fff;
-  display:flex;gap:10px;align-items:center;
-  padding:9px 12px;text-align:left;cursor:pointer;
-}
-.jx-new-row:hover{background:#393939}
-.jx-new-row img{
-  width:45px;height:45px;border-radius:6px;
-  object-fit:cover;background:#1e1e1e;flex-shrink:0;
-}
-.jx-new-main{min-width:0;flex:1}
-.jx-new-row-title{
-  display:block;font-weight:800;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.jx-new-row-sub{
-  display:block;color:#aaa;font-size:11px;margin-top:2px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+
+@media(max-width:800px){
+  .jx-admin-grid{grid-template-columns:1fr}
+  .jx-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
 
 <body>
-<div id="jxAdminModal" aria-hidden="true">
-  <div class="jx-admin-modal-card">
-    <button type="button" class="jx-admin-close" onclick="jxCloseAdmin()">×</button>
-    <div class="jx-admin-modal-title">🔐 Jassiah Admin</div>
-    <input id="jxAdminEmail" type="email" placeholder="Email" autocomplete="username">
-    <input id="jxAdminPassword" type="password" placeholder="Password" autocomplete="current-password">
-    <button type="button" class="jx-admin-submit" onclick="jxAdminLogin()">Log In</button>
-    <div id="jxAdminStatus"></div>
-  </div>
+<div id="jxPhotoLightbox" onclick="jxClosePhoto(event)">
+  <button id="jxPhotoClose" type="button" onclick="jxClosePhoto(event)">×</button>
+  <img id="jxPhotoLightboxImg" alt="">
 </div>
 
 <div id="authBar" style="
@@ -1005,7 +1107,7 @@ body > #adminLoginPanel{display:none!important}
   <button type="button" class="jx-new-btn" id="jxNewButton" title="What's New" aria-label="What's New">
     🔔<span class="jx-new-dot" id="jxNewDot"></span>
   </button>
-  <button type="button" class="jx-admin-btn" onclick="jxOpenAdmin()">🔐 Admin Login</button>
+  <button type="button" class="jx-admin-btn" onclick="openAdminLogin()">🔐 Admin Login</button>
 </div>
 
   </header>
@@ -1063,6 +1165,107 @@ body > #adminLoginPanel{display:none!important}
           <div id="jxArtistDetail"></div>
         </div>
       </section>
+      <section class="jx-slide">
+        <div class="jx-inner" id="jxAdminHub">
+          <div class="jx-kicker">ADMIN ONLY</div>
+          <div class="jx-brand" style="font-size:38px">Jassiah Admin Hub</div>
+          <div class="jx-muted" style="margin:6px 0 18px">
+            Manage music, artists, albums, and the fan photo gallery.
+          </div>
+
+          <div class="jx-admin-grid">
+
+            <div class="jx-admin-card">
+              <h3>♫ Add New Song</h3>
+              <input id="jxAdminSongTitle" placeholder="Song title">
+              <input id="jxAdminSongArtist" placeholder="Artist" list="jxAdminArtistNames">
+              <datalist id="jxAdminArtistNames"></datalist>
+
+              <label>Music file</label>
+              <input id="jxAdminMusicFile" type="file" accept="audio/*">
+
+              <label>Cover art</label>
+              <input id="jxAdminCoverFile" type="file" accept="image/*">
+
+              <button type="button" class="jx-admin-primary" onclick="jxAdminUploadSong()">
+                Upload Song
+              </button>
+              <div id="jxAdminSongStatus" class="jx-admin-status"></div>
+            </div>
+
+            <div class="jx-admin-card">
+              <h3>🎤 Create Artist Profile</h3>
+              <input id="jxAdminArtistName" placeholder="Artist name">
+
+              <label>Artist picture</label>
+              <input id="jxAdminArtistImage" type="file" accept="image/*">
+
+              <button type="button" class="jx-admin-primary" onclick="jxAdminCreateArtist()">
+                Create Artist
+              </button>
+              <div id="jxAdminArtistStatus" class="jx-admin-status"></div>
+            </div>
+
+            <div class="jx-admin-card">
+              <h3>💿 Add Album</h3>
+              <input id="jxAdminAlbumName" placeholder="Album name">
+
+              <label>Album cover</label>
+              <input id="jxAdminAlbumCover" type="file" accept="image/*">
+
+              <label>Select songs for this album</label>
+              <div id="jxAdminAlbumSongs" class="jx-song-checks"></div>
+
+              <button type="button" class="jx-admin-primary" onclick="jxAdminCreateAlbum()">
+                Create Album
+              </button>
+              <div id="jxAdminAlbumStatus" class="jx-admin-status"></div>
+            </div>
+
+            <div class="jx-admin-card">
+              <h3>🗑️ Delete Artist</h3>
+              <select id="jxAdminDeleteArtist"></select>
+
+              <button type="button" class="jx-admin-danger" onclick="jxAdminDeleteArtist()">
+                Delete Artist Profile
+              </button>
+              <div class="jx-admin-status">
+                Songs stay on the site; only the artist profile is removed.
+              </div>
+            </div>
+
+            <div class="jx-admin-card" style="grid-column:1/-1">
+              <h3>🖼️ Fan Photo Gallery</h3>
+              <div style="color:#999;font-size:11px;margin-bottom:9px">
+                Upload artist photos here. They appear on the public Home page under the artist cards.
+              </div>
+
+              <label>Choose a fan photo</label>
+              <input id="jxAdminFanPhoto" type="file" accept="image/*">
+
+              <input id="jxAdminFanCaption" placeholder="Caption (optional)">
+
+              <button type="button" class="jx-admin-primary" onclick="jxAdminUploadFanPhoto()">
+                Upload Photo
+              </button>
+
+              <button type="button" class="jx-admin-secondary" onclick="jxLoadFanGallery()">
+                Refresh Gallery
+              </button>
+
+              <div id="jxAdminFanStatus" class="jx-admin-status"></div>
+              <div id="jxAdminFanGallery" class="jx-gallery-grid" style="margin-top:12px"></div>
+            </div>
+
+          </div>
+
+          <button type="button" class="jx-admin-secondary" style="margin-top:18px"
+            onclick="jxGo(0)">
+            ← Back to Home
+          </button>
+        </div>
+      </section>
+
 
     </div>
   </main>
@@ -4272,7 +4475,9 @@ loadSongs=async function(){
   return result;
 };
 
-function jxNew(){ window.jxToggleNewStable?.(); }
+function jxNew(){
+  alert("What's New will use the recent songs and artist profiles on your site.");
+}
 
 document.addEventListener("DOMContentLoaded",()=>{
   jxRenderHome();
@@ -4713,28 +4918,196 @@ const jxOldRenderLikedClean=window.jxRenderLikedSongsFeature;
 
 </script>
 
-<script id="jassiah-stable-auth-news-player">
+<script id="jassiah-admin-hub-clean">
+/* =========================================================
+   ADMIN HUB + STABLE WHAT'S NEW + FAN GALLERY
+   ========================================================= */
+
 (function(){
 
-  /* ================= AUTH MODAL ================= */
+  const FAN_PREFIX="fan-photos";
+
+  function isAdmin(){
+    return !!(typeof currentUser!=="undefined" && currentUser);
+  }
+
+  function esc(v){
+    return typeof escapeHtml==="function" ? escapeHtml(v) :
+      String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  }
+
+  function cleanFileName(name){
+    if(typeof cleanName==="function")return cleanName(name);
+    return String(name||"file").replace(/[^a-zA-Z0-9._-]/g,"_");
+  }
+
+  function getProfiles(){
+    return (typeof artistProfiles!=="undefined" && artistProfiles)
+      ? artistProfiles : {};
+  }
+
+  function getSongs(){
+    return (typeof songs!=="undefined" && Array.isArray(songs))
+      ? songs : [];
+  }
+
+  function getAlbums(){
+    return (typeof albums!=="undefined" && albums) ? albums : {};
+  }
+
+  /* ---------- What's New ---------- */
+  const NEWS_SEEN="jassiahWhatsNewStableV1";
+
+  function newsStamp(){
+    let latest=0;
+
+    getSongs().forEach(song=>{
+      const d=new Date(song.created_at||song.date_added||song.added_at||0).getTime();
+      if(Number.isFinite(d))latest=Math.max(latest,d);
+
+      const id=Number(song.id)||0;
+      latest=Math.max(latest,id);
+    });
+
+    Object.values(getProfiles()).forEach(profile=>{
+      const d=new Date(profile?.created_at||profile?.date_added||0).getTime();
+      if(Number.isFinite(d))latest=Math.max(latest,d);
+    });
+
+    return latest;
+  }
+
+  function newsDot(){
+    const dot=document.getElementById("jxNewDot");
+    if(dot){
+      const latest=newsStamp();
+      const seen=Number(localStorage.getItem(NEWS_SEEN)||0);
+      dot.style.display=(latest>0&&latest>seen)?"block":"none";
+    }
+  }
+
+  function renderNewsPanel(){
+    const panel=document.getElementById("jxNewPanel");
+    if(!panel)return;
+
+    const items=[];
+
+    getSongs().forEach(song=>{
+      items.push({
+        type:"song",
+        id:Number(song.id),
+        title:song.title||"Untitled",
+        sub:song.artist||"Unknown Artist",
+        image:(typeof coverUrl==="function"?coverUrl(song):""),
+        stamp:new Date(song.created_at||song.date_added||song.added_at||0).getTime()||0
+      });
+    });
+
+    Object.entries(getProfiles()).forEach(([name,profile])=>{
+      items.push({
+        type:"artist",
+        name,
+        title:name,
+        sub:"Artist profile",
+        image:profile?.image||"",
+        stamp:new Date(profile?.created_at||profile?.date_added||0).getTime()||0
+      });
+    });
+
+    items.sort((a,b)=>b.stamp-a.stamp);
+
+    let out='<div class="jx-new-head">🔔 What\'s New</div>';
+
+    if(!items.length){
+      out+='<div style="padding:16px;color:#aaa">Nothing new yet.</div>';
+    }else{
+      out+=items.slice(0,20).map(item=>{
+        return item.type==="song"
+          ? `<button class="jx-new-row" type="button" onclick="jxPickNewsStable(${item.id})">
+               <img src="${esc(item.image)}" alt="">
+               <span class="jx-new-main">
+                 <span class="jx-new-row-title">${esc(item.title)}</span>
+                 <span class="jx-new-row-sub">${esc(item.sub)}</span>
+               </span>
+             </button>`
+          : `<button class="jx-new-row" type="button" onclick="jxPickNewsArtistStable('${escapeJs(item.name)}')">
+               <img src="${esc(item.image)}" alt="">
+               <span class="jx-new-main">
+                 <span class="jx-new-row-title">${esc(item.title)}</span>
+                 <span class="jx-new-row-sub">${esc(item.sub)}</span>
+               </span>
+             </button>`;
+      }).join("");
+    }
+
+    panel.innerHTML=out;
+  }
+
+  window.jxPickNewsStable=function(id){
+    const panel=document.getElementById("jxNewPanel");
+    if(panel)panel.style.display="none";
+
+    const index=getSongs().findIndex(s=>Number(s.id)===Number(id));
+    if(index>=0 && typeof playSong==="function")playSong(index);
+  };
+
+  window.jxPickNewsArtistStable=function(name){
+    const panel=document.getElementById("jxNewPanel");
+    if(panel)panel.style.display="none";
+
+    if(typeof jxOpenArtist==="function")jxOpenArtist(name);
+  };
+
+  function bindNewsBell(){
+    const bell=document.getElementById("jxNewButton");
+    if(!bell)return;
+
+    bell.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+
+      const panel=document.getElementById("jxNewPanel");
+      if(!panel)return;
+
+      if(panel.style.display==="block"){
+        panel.style.display="none";
+        return;
+      }
+
+      renderNewsPanel();
+      panel.style.display="block";
+
+      const latest=newsStamp();
+      if(latest>0)localStorage.setItem(NEWS_SEEN,String(latest));
+      newsDot();
+    };
+  }
+
+  /* ---------- Admin login ---------- */
   window.jxOpenAdmin=function(){
     const modal=document.getElementById("jxAdminModal");
-    const status=document.getElementById("jxAdminStatus");
 
-    if(!modal)return;
+    if(!modal){
+      alert("Admin login window is missing.");
+      return;
+    }
 
-    if(status)status.textContent="";
     modal.classList.add("open");
     modal.setAttribute("aria-hidden","false");
 
-    document.getElementById("jxAdminEmail")?.focus();
+    const email=document.getElementById("jxAdminEmail");
+    const password=document.getElementById("jxAdminPassword");
+
+    if(email)email.focus();
+    if(password)password.value="";
   };
 
   window.jxCloseAdmin=function(){
     const modal=document.getElementById("jxAdminModal");
-    if(!modal)return;
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden","true");
+    if(modal){
+      modal.classList.remove("open");
+      modal.setAttribute("aria-hidden","true");
+    }
   };
 
   window.jxAdminLogin=async function(){
@@ -4750,9 +5123,7 @@ const jxOldRenderLikedClean=window.jxRenderLikedSongsFeature;
     if(status)status.textContent="Logging in...";
 
     try{
-      const {data,error}=await client.auth.signInWithPassword({
-        email,password
-      });
+      const {data,error}=await client.auth.signInWithPassword({email,password});
 
       if(error){
         if(status)status.textContent="Login failed: "+error.message;
@@ -4760,11 +5131,14 @@ const jxOldRenderLikedClean=window.jxRenderLikedSongsFeature;
       }
 
       currentUser=data.user;
+
       if(typeof updateAdminVisibility==="function"){
         updateAdminVisibility();
       }
 
       jxCloseAdmin();
+      jxPrepareAdminHub();
+      jxGo(6);
 
       const pw=document.getElementById("jxAdminPassword");
       if(pw)pw.value="";
@@ -4774,308 +5148,551 @@ const jxOldRenderLikedClean=window.jxRenderLikedSongsFeature;
     }
   };
 
-  document.addEventListener("keydown",e=>{
-    if(e.key==="Escape")jxCloseAdmin();
-  });
-
-  /* ================= WHAT'S NEW ================= */
-  const NEWS_SEEN_KEY="jassiahNewsSeenV2";
-
-  function newsSongDate(song){
-    const d=new Date(song.created_at||song.date_added||song.added_at||0);
-    return Number.isNaN(d.getTime())?0:d.getTime();
+  /* ---------- Admin hub ---------- */
+  function requireAdmin(){
+    if(!isAdmin()){
+      alert("Please log in as admin first.");
+      return false;
+    }
+    return true;
   }
 
-  function newsArtistDate(profile){
-    const d=new Date(profile?.created_at||profile?.date_added||0);
-    return Number.isNaN(d.getTime())?0:d.getTime();
+  function readImage(file){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(String(reader.result||""));
+      reader.onerror=reject;
+      reader.readAsDataURL(file);
+    });
   }
 
-  function currentNewestNewsStamp(){
-    let latest=0;
+  function refreshArtistSelectors(){
+    const names=Object.keys(getProfiles()).filter(n=>String(n).trim()).sort((a,b)=>a.localeCompare(b));
 
-    (typeof songs!=="undefined"?songs:[]).forEach(song=>{
-      latest=Math.max(latest,newsSongDate(song));
-    });
-
-    Object.values(
-      typeof artistProfiles!=="undefined"?artistProfiles:{}
-    ).forEach(profile=>{
-      latest=Math.max(latest,newsArtistDate(profile));
-    });
-
-    /* Use the newest song id as a fallback when created_at is absent. */
-    const songIds=(typeof songs!=="undefined"?songs:[])
-      .map(s=>Number(s.id)||0);
-
-    if(songIds.length){
-      latest=Math.max(latest,Math.max(...songIds));
+    const dl=document.getElementById("jxAdminArtistNames");
+    if(dl){
+      dl.innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join("");
     }
 
-    return latest;
-  }
-
-  function newsHasNew(){
-    const latest=currentNewestNewsStamp();
-    const seen=Number(localStorage.getItem(NEWS_SEEN_KEY)||0);
-
-    return latest>0 && latest>seen;
-  }
-
-  function newsSetDot(){
-    const dot=document.getElementById("jxNewDot");
-    if(dot)dot.style.display=newsHasNew()?"block":"none";
-  }
-
-  function newsRenderPanel(){
-    const panel=document.getElementById("jxNewPanel");
-    if(!panel)return;
-
-    const items=[];
-
-    (typeof songs!=="undefined"?songs:[]).forEach(song=>{
-      items.push({
-        type:"song",
-        id:Number(song.id),
-        title:song.title||"Untitled",
-        sub:song.artist||"Unknown Artist",
-        image:(typeof coverUrl==="function"?coverUrl(song):""),
-        stamp:newsSongDate(song)
-      });
-    });
-
-    Object.entries(
-      typeof artistProfiles!=="undefined"?artistProfiles:{}
-    ).forEach(([name,profile])=>{
-      items.push({
-        type:"artist",
-        name,
-        title:name,
-        sub:"Artist profile",
-        image:profile?.image||"",
-        stamp:newsArtistDate(profile)
-      });
-    });
-
-    items.sort((a,b)=>b.stamp-a.stamp);
-
-    let out='<div class="jx-new-head">🔔 What\'s New</div>';
-
-    if(!items.length){
-      out+='<div style="padding:16px;color:#aaa">Nothing new yet.</div>';
-    }else{
-      out+=items.slice(0,20).map(item=>{
-        const action=item.type==="song"
-          ? `jxPickNewsSong(${item.id})`
-          : `jxPickNewsArtist('${escapeJs(item.name)}')`;
-
-        return `
-          <button type="button" class="jx-new-row" onclick="${action}">
-            <img src="${escapeHtml(item.image)}" alt="">
-            <span class="jx-new-main">
-              <span class="jx-new-row-title">${escapeHtml(item.title)}</span>
-              <span class="jx-new-row-sub">${escapeHtml(item.sub)}</span>
-            </span>
-          </button>
-        `;
-      }).join("");
+    const del=document.getElementById("jxAdminDeleteArtist");
+    if(del){
+      del.innerHTML=names.length
+        ? names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")
+        : '<option value="">No artists</option>';
     }
-
-    panel.innerHTML=out;
-    newsSetDot();
   }
 
-  window.jxToggleNewStable=function(){
-    const panel=document.getElementById("jxNewPanel");
-    if(!panel)return;
+  function refreshAlbumSongs(){
+    const box=document.getElementById("jxAdminAlbumSongs");
+    if(!box)return;
 
-    if(panel.style.display==="block"){
-      panel.style.display="none";
+    const list=getSongs();
+
+    box.innerHTML=list.length
+      ? list.map(song=>`
+          <label class="jx-song-check">
+            <input type="checkbox" value="${Number(song.id)}">
+            <span>${esc(song.title||"Untitled")} — ${esc(song.artist||"")}</span>
+          </label>
+        `).join("")
+      : '<div style="color:#777;padding:8px">No songs yet.</div>';
+  }
+
+  window.jxPrepareAdminHub=function(){
+    if(!requireAdmin())return;
+    refreshArtistSelectors();
+    refreshAlbumSongs();
+    jxLoadFanGallery();
+  };
+
+  window.jxAdminUploadSong=async function(){
+    if(!requireAdmin())return;
+
+    const status=document.getElementById("jxAdminSongStatus");
+    const title=document.getElementById("jxAdminSongTitle")?.value.trim();
+    const artist=document.getElementById("jxAdminSongArtist")?.value.trim();
+    const music=document.getElementById("jxAdminMusicFile")?.files?.[0];
+    const cover=document.getElementById("jxAdminCoverFile")?.files?.[0];
+
+    if(!title||!artist||!music){
+      if(status)status.textContent="Enter title, artist, and music file.";
       return;
     }
 
-    newsRenderPanel();
+    if(status)status.textContent="Uploading song...";
 
-    const latest=currentNewestNewsStamp();
-    if(latest>0)localStorage.setItem(NEWS_SEEN_KEY,String(latest));
-
-    panel.style.display="block";
-    newsSetDot();
-  };
-
-  window.jxPickNewsSong=function(id){
-    const panel=document.getElementById("jxNewPanel");
-    if(panel)panel.style.display="none";
-
-    const index=(typeof songs!=="undefined"?songs:[])
-      .findIndex(song=>Number(song.id)===Number(id));
-
-    if(index>=0 && typeof playSong==="function"){
-      playSong(index);
-    }
-  };
-
-  window.jxPickNewsArtist=function(name){
-    const panel=document.getElementById("jxNewPanel");
-    if(panel)panel.style.display="none";
-
-    if(typeof jxOpenArtist==="function"){
-      jxOpenArtist(name);
-    }
-  };
-
-  /* ================= PLAYER PERSISTENCE ================= */
-  const PLAYER_KEY="jassiahPlayerStateV3";
-
-  function getAudio(){
-    return document.getElementById("playerAudio");
-  }
-
-  function savePlayer(){
     try{
-      const audio=getAudio();
+      const musicPath="songs/"+Date.now()+"_"+cleanFileName(music.name);
 
-      if(!audio || typeof songs==="undefined")return;
-      if(typeof currentIndex==="undefined")return;
-      if(currentIndex<0 || !songs[currentIndex])return;
+      const {error:musicError}=await client.storage
+        .from("music")
+        .upload(musicPath,music,{
+          upsert:false,
+          contentType:music.type
+        });
 
-      const state={
-        songId:Number(songs[currentIndex].id),
-        time:Number(audio.currentTime)||0,
-        volume:Number(audio.volume),
-        muted:Boolean(audio.muted),
-        paused:Boolean(audio.paused)
+      if(musicError)throw musicError;
+
+      let coverUrlValue=null;
+
+      if(cover){
+        const coverPath="covers/"+Date.now()+"_"+cleanFileName(cover.name);
+
+        const {error:coverError}=await client.storage
+          .from("music")
+          .upload(coverPath,cover,{
+            upsert:false,
+            contentType:cover.type
+          });
+
+        if(coverError)throw coverError;
+
+        coverUrlValue=client.storage
+          .from("music")
+          .getPublicUrl(coverPath).data.publicUrl;
+      }
+
+      const {error:dbError}=await client.from("songs").insert({
+        title,
+        artist,
+        file_path:musicPath,
+        cover_url:coverUrlValue
+      });
+
+      if(dbError)throw dbError;
+
+      if(status)status.textContent="Song uploaded successfully.";
+
+      document.getElementById("jxAdminSongTitle").value="";
+      document.getElementById("jxAdminSongArtist").value="";
+      document.getElementById("jxAdminMusicFile").value="";
+      document.getElementById("jxAdminCoverFile").value="";
+
+      if(typeof loadSongs==="function")await loadSongs();
+      refreshAlbumSongs();
+      refreshArtistSelectors();
+      renderNewsPanel();
+      newsDot();
+
+    }catch(error){
+      console.error(error);
+      if(status)status.textContent="Upload failed: "+(error?.message||"Unknown error");
+    }
+  };
+
+  window.jxAdminCreateArtist=function(){
+    if(!requireAdmin())return;
+
+    const name=document.getElementById("jxAdminArtistName")?.value.trim();
+    const file=document.getElementById("jxAdminArtistImage")?.files?.[0];
+    const status=document.getElementById("jxAdminArtistStatus");
+
+    if(!name||!file){
+      if(status)status.textContent="Enter an artist name and choose a picture.";
+      return;
+    }
+
+    readImage(file).then(image=>{
+      const profiles=getProfiles();
+
+      profiles[name]={
+        image,
+        created_at:new Date().toISOString()
       };
 
-      localStorage.setItem(PLAYER_KEY,JSON.stringify(state));
-    }catch(error){
-      console.warn("Player state save failed",error);
-    }
-  }
-
-  async function restorePlayer(){
-    try{
-      const raw=localStorage.getItem(PLAYER_KEY);
-      if(!raw || typeof songs==="undefined" || !songs.length)return;
-
-      const state=JSON.parse(raw);
-      const index=songs.findIndex(
-        song=>Number(song.id)===Number(state.songId)
+      localStorage.setItem(
+        "jassiahArtistProfiles",
+        JSON.stringify(profiles)
       );
 
-      if(index<0)return;
+      document.getElementById("jxAdminArtistName").value="";
+      document.getElementById("jxAdminArtistImage").value="";
 
-      const audio=getAudio();
-      if(!audio)return;
+      if(status)status.textContent="Artist profile created.";
 
-      const song=songs[index];
-      const url=typeof musicUrl==="function"?musicUrl(song):"";
-      if(!url)return;
+      refreshArtistSelectors();
+      if(typeof jxRenderHome==="function")jxRenderHome();
+      if(typeof jxRenderArtists==="function")jxRenderArtists();
+      renderNewsPanel();
+      newsDot();
+    }).catch(error=>{
+      console.error(error);
+      if(status)status.textContent="Could not read that picture.";
+    });
+  };
 
-      currentIndex=index;
+  window.jxAdminCreateAlbum=function(){
+    if(!requireAdmin())return;
 
-      /* Restore display without starting audio automatically. */
-      if(typeof setNowPlaying==="function"){
-        setNowPlaying(song);
+    const name=document.getElementById("jxAdminAlbumName")?.value.trim();
+    const cover=document.getElementById("jxAdminAlbumCover")?.files?.[0];
+    const status=document.getElementById("jxAdminAlbumStatus");
+
+    if(!name){
+      if(status)status.textContent="Enter an album name.";
+      return;
+    }
+
+    const checks=[...document.querySelectorAll("#jxAdminAlbumSongs input[type=checkbox]:checked")]
+      .map(el=>Number(el.value));
+
+    const save=(coverUrlValue)=>{
+      const data=getAlbums();
+
+      if(data[name]){
+        if(status)status.textContent="That album already exists.";
+        return;
       }
 
-      if(audio.src!==url){
-        audio.src=url;
-        audio.load();
-      }
-
-      const apply=()=>{
-        try{
-          if(Number.isFinite(Number(state.time))){
-            audio.currentTime=Math.max(0,Number(state.time));
-          }
-        }catch(_){}
-
-        if(Number.isFinite(Number(state.volume))){
-          audio.volume=Math.max(0,Math.min(1,Number(state.volume)));
-        }
-
-        audio.muted=Boolean(state.muted);
-
-        /* Browser autoplay restrictions mean refresh may stay paused.
-           The track and exact position are still restored. */
-        if(typeof updatePlayerButton==="function"){
-          updatePlayerButton(!state.paused);
-        }
-        if(typeof updateCurrentFavoriteButton==="function"){
-          updateCurrentFavoriteButton();
-        }
+      data[name]={
+        cover:coverUrlValue||"",
+        songs:checks
       };
 
-      if(audio.readyState>=1){
-        apply();
-      }else{
-        audio.addEventListener("loadedmetadata",apply,{once:true});
+      localStorage.setItem("jassiahAlbums",JSON.stringify(data));
+
+      document.getElementById("jxAdminAlbumName").value="";
+      document.getElementById("jxAdminAlbumCover").value="";
+
+      if(status)status.textContent="Album created.";
+
+      refreshAlbumSongs();
+      if(typeof jxRenderAlbums==="function")jxRenderAlbums();
+    };
+
+    if(cover){
+      readImage(cover).then(save).catch(error=>{
+        console.error(error);
+        if(status)status.textContent="Could not read the cover.";
+      });
+    }else{
+      save("");
+    }
+  };
+
+  window.jxAdminDeleteArtist=function(){
+    if(!requireAdmin())return;
+
+    const select=document.getElementById("jxAdminDeleteArtist");
+    const name=select?.value||"";
+    if(!name)return;
+
+    if(!confirm(
+      'Delete the artist profile "'+name+'"?\n\n'+
+      "The artist songs will stay on the site."
+    ))return;
+
+    const profiles=getProfiles();
+
+    if(!profiles[name]){
+      return;
+    }
+
+    delete profiles[name];
+
+    localStorage.setItem(
+      "jassiahArtistProfiles",
+      JSON.stringify(profiles)
+    );
+
+    refreshArtistSelectors();
+
+    if(typeof jxRenderHome==="function")jxRenderHome();
+    if(typeof jxRenderArtists==="function")jxRenderArtists();
+
+    if(typeof jxArtist!=="undefined" && jxArtist===name){
+      jxGo(2);
+    }
+  };
+
+  /* ---------- Fan photo gallery ---------- */
+  function fanGalleryMarkup(items){
+    if(!items.length){
+      return '<div style="color:#777;font-size:11px">No fan photos yet.</div>';
+    }
+
+    return items.map(item=>`
+      <div class="jx-gallery-card">
+        <img src="${esc(item.url)}"
+          alt="${esc(item.name)}"
+          onclick="jxOpenPhoto('${escapeJs(item.url)}')"
+          onerror="this.parentElement.style.display='none'">
+        <div class="jx-gallery-caption">${esc(item.name||"Fan photo")}</div>
+      </div>
+    `).join("");
+  }
+
+  /* Use a tiny public manifest in localStorage on this browser only as a
+     fallback; the public gallery primarily reads Supabase Storage objects. */
+  window.jxLoadFanGallery=async function(){
+    const targets=[
+      document.getElementById("jxAdminFanGallery"),
+      document.getElementById("jxHomeFanGallery")
+    ].filter(Boolean);
+
+    let items=[];
+
+    try{
+      const {data,error}=await client.storage
+        .from("music")
+        .list(FAN_PREFIX,{
+          limit:100,
+          offset:0,
+          sortBy:{column:"created_at",order:"desc"}
+        });
+
+      if(!error && Array.isArray(data)){
+        items=data
+          .filter(file=>file?.name)
+          .map(file=>({
+            name:file.name.replace(/^\d+_/,""),
+            url:client.storage
+              .from("music")
+              .getPublicUrl(FAN_PREFIX+"/"+file.name).data.publicUrl
+          }));
+      }else if(error){
+        console.warn("Fan gallery list:",error.message);
       }
     }catch(error){
-      console.warn("Player state restore failed",error);
+      console.warn("Fan gallery:",error);
     }
-  }
 
-  const audio=getAudio();
-  if(audio){
-    audio.addEventListener("timeupdate",savePlayer);
-    audio.addEventListener("pause",savePlayer);
-    audio.addEventListener("volumechange",savePlayer);
-  }
-
-  window.addEventListener("beforeunload",savePlayer);
-
-  /* Wrap playSong only to save state AFTER the original function runs.
-     Audio behavior remains the original working implementation. */
-  if(typeof window.playSong==="function"){
-    const originalPlaySong=window.playSong;
-    window.playSong=function(index){
-      const result=originalPlaySong.apply(this,arguments);
-      setTimeout(savePlayer,120);
-      return result;
-    };
-  }
-
-  /* Save when next/previous choose another track too. */
-  ["nextSong","previousSong","togglePlayer"].forEach(name=>{
-    if(typeof window[name]==="function"){
-      const original=window[name];
-      window[name]=function(){
-        const result=original.apply(this,arguments);
-        setTimeout(savePlayer,120);
-        return result;
-      };
+    if(!items.length){
+      try{
+        items=JSON.parse(
+          localStorage.getItem("jassiahFanGalleryFallback")||"[]"
+        );
+      }catch(_){
+        items=[];
+      }
     }
-  });
 
-  /* ================= STARTUP ================= */
-  document.addEventListener("DOMContentLoaded",()=>{
+    targets.forEach(box=>{
+      box.innerHTML=fanGalleryMarkup(items);
+    });
+  };
+
+  window.jxAdminUploadFanPhoto=async function(){
+    if(!requireAdmin())return;
+
+    const file=document.getElementById("jxAdminFanPhoto")?.files?.[0];
+    const caption=document.getElementById("jxAdminFanCaption")?.value.trim();
+    const status=document.getElementById("jxAdminFanStatus");
+
+    if(!file){
+      if(status)status.textContent="Choose a picture first.";
+      return;
+    }
+
+    if(status)status.textContent="Uploading photo...";
+
+    try{
+      const path=
+        FAN_PREFIX+"/"+Date.now()+"_"+cleanFileName(file.name);
+
+      const {error}=await client.storage
+        .from("music")
+        .upload(path,file,{
+          upsert:false,
+          contentType:file.type
+        });
+
+      if(error)throw error;
+
+      const url=client.storage
+        .from("music")
+        .getPublicUrl(path).data.publicUrl;
+
+      /* Local fallback manifest is also kept so the uploader immediately
+         sees the photo even if storage listing permissions are not present. */
+      let local=[];
+      try{
+        local=JSON.parse(
+          localStorage.getItem("jassiahFanGalleryFallback")||"[]"
+        );
+      }catch(_){}
+
+      local.unshift({
+        name:caption||file.name,
+        url
+      });
+
+      localStorage.setItem(
+        "jassiahFanGalleryFallback",
+        JSON.stringify(local.slice(0,50))
+      );
+
+      if(status)status.textContent="Photo uploaded.";
+
+      document.getElementById("jxAdminFanPhoto").value="";
+      document.getElementById("jxAdminFanCaption").value="";
+
+      await jxLoadFanGallery();
+    }catch(error){
+      console.error(error);
+      if(status)status.textContent="Photo upload failed: "+(error?.message||"Unknown error");
+    }
+  };
+
+  window.jxOpenPhoto=function(url){
+    const modal=document.getElementById("jxPhotoLightbox");
+    const image=document.getElementById("jxPhotoLightboxImg");
+    if(!modal||!image)return;
+    image.src=url;
+    modal.classList.add("open");
+  };
+
+  window.jxClosePhoto=function(event){
+    if(event && event.target && event.target.id!=="jxPhotoLightbox" &&
+       event.target.id!=="jxPhotoClose")return;
+
+    document.getElementById("jxPhotoLightbox")?.classList.remove("open");
+  };
+
+  /* ---------- Admin page navigation ---------- */
+  window.jxGoAdmin=function(){
+    if(!requireAdmin())return;
+    jxPrepareAdminHub();
+    jxGo(6);
+  };
+
+  /* Extend the existing slider to include page 6 = Admin Hub. */
+  window.jxGo=function(page){
+    jxPage=Math.max(0,Math.min(6,Number(page)||0));
+
+    const track=document.getElementById("jxTrack");
+    if(track){
+      track.style.transform=`translateX(-${jxPage*100}%)`;
+    }
+
+    document.querySelectorAll(".jx-lbtn").forEach(btn=>{
+      btn.classList.toggle("active",Number(btn.dataset.p)===Math.min(jxPage,5));
+    });
+
+    if(jxPage===0)jxRenderHome();
+    if(jxPage===1)jxRenderSongs();
+    if(jxPage===2)jxRenderArtists();
+    if(jxPage===3)jxRenderSongs();
+    if(jxPage===4)jxRenderPlaylists();
+    if(jxPage===5)jxRenderAlbums();
+
+    if(jxPage===6){
+      if(!isAdmin()){
+        alert("Please log in as admin first.");
+        jxPage=0;
+        if(track)track.style.transform="translateX(0)";
+        return;
+      }
+      jxPrepareAdminHub();
+    }
+  };
+
+  window.jxBack=function(){
+    jxGo(jxPage<=0?6:jxPage-1);
+  };
+
+  window.jxForward=function(){
+    jxGo(jxPage>=6?0:jxPage+1);
+  };
+
+  /* ---------- Home gallery ---------- */
+  function ensureHomeGallery(){
+    const home=document.querySelector(".jx-slide");
+    if(!home)return;
+
+    if(!document.getElementById("jxHomeFanGallery")){
+      const panel=document.createElement("div");
+      panel.className="jx-gallery-panel";
+      panel.innerHTML=`
+        <div class="jx-gallery-title">🖼️ Fan Photos</div>
+        <div class="jx-gallery-sub">
+          Photos shared through Jassiah Music.
+        </div>
+        <div id="jxHomeFanGallery" class="jx-gallery-grid"></div>
+      `;
+
+      const inner=home.querySelector(".jx-inner");
+      if(inner)inner.appendChild(panel);
+    }
+
+    jxLoadFanGallery();
+  }
+
+  /* ---------- Fix the visible top-right buttons ---------- */
+  function bindTopButtons(){
     const bell=document.getElementById("jxNewButton");
+    const admin=document.querySelector(".jx-admin-btn");
 
     if(bell){
       bell.onclick=function(e){
         e.preventDefault();
         e.stopPropagation();
-        jxToggleNewStable();
+
+        const panel=document.getElementById("jxNewPanel");
+        if(!panel)return;
+
+        if(panel.style.display==="block"){
+          panel.style.display="none";
+        }else{
+          renderNewsPanel();
+          panel.style.display="block";
+
+          const latest=newsStamp();
+          if(latest>0)localStorage.setItem(NEWS_SEEN,String(latest));
+
+          newsDot();
+        }
       };
     }
 
-    document.addEventListener("click",e=>{
-      if(!e.target.closest("#jxNewButton") &&
-         !e.target.closest("#jxNewPanel")){
-        const panel=document.getElementById("jxNewPanel");
-        if(panel)panel.style.display="none";
+    if(admin){
+      admin.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(isAdmin()){
+          jxGoAdmin();
+        }else{
+          jxOpenAdmin();
+        }
+      };
+    }
+
+    newsDot();
+  }
+
+  document.addEventListener("click",e=>{
+    if(!e.target.closest("#jxNewButton") &&
+       !e.target.closest("#jxNewPanel")){
+      const panel=document.getElementById("jxNewPanel");
+      if(panel)panel.style.display="none";
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    bindTopButtons();
+    ensureHomeGallery();
+
+    setTimeout(()=>{
+      bindTopButtons();
+      ensureHomeGallery();
+      newsDot();
+    },1500);
+
+    const input=document.getElementById("jxSearch");
+    if(input){
+      input.style.pointerEvents="auto";
+      input.style.position="relative";
+      input.style.zIndex="35000";
+    }
+
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape"){
+        jxCloseAdmin();
+        document.getElementById("jxNewPanel")?.style.setProperty("display","none");
+        document.getElementById("jxPhotoLightbox")?.classList.remove("open");
       }
     });
-
-    newsSetDot();
-
-    /* Restore after the existing Supabase load has populated songs. */
-    setTimeout(restorePlayer,1800);
-
-    /* Re-evaluate the dot/list after data arrives. */
-    setTimeout(newsSetDot,1800);
   });
 
 })();
