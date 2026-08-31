@@ -242,9 +242,9 @@ audio{width:100%;height:40px}
   .player-progress{display:none}
   .player-volume{display:none}
   .player-buttons{gap:3px}
-  .player-icon{width:31px;height:31px}
+  .player-icon{width:32px;height:32px}
   .player-play{width:40px;height:40px}
-  .player-icon svg{width:15px;height:15px}
+  .player-icon svg{width:16px;height:16px}
   .player-play svg{width:19px;height:19px}
 }
 
@@ -321,21 +321,20 @@ audio{width:100%;height:40px}
   <div id="msg"></div>
 </div>
 
+<section class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <h2 style="margin:0">♫ Playlists</h2>
+    <button onclick="createPlaylist()" style="background:linear-gradient(135deg,#f0c653,#9d7014);color:#111;border:0;border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer">+ Create Playlist</button>
+  </div>
+  <div id="playlists" style="margin-top:15px"></div>
+</section>
+
 <input id="search" class="search" type="text"
        placeholder="🔎 Search songs or artists..."
        oninput="filterSongs()">
 
 <div class="panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-  <h2 style="margin-bottom:0">Your Songs</h2>
-  <button
-    id="favoritesFilter"
-    onclick="toggleFavoritesOnly()"
-    style="background:#111;color:#ffd76a;border:1px solid #9f741c;border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer"
-  >
-    ♡ Favorites
-  </button>
-</div>
+  <h2>Your Songs</h2>
   <div id="songs"><div class="empty">Loading your music...</div></div>
 </div>
 
@@ -352,17 +351,6 @@ audio{width:100%;height:40px}
   </div>
 
   <div class="player-buttons">
-
-    <button
-      id="favoritePlayerBtn"
-      class="player-icon"
-      title="Favorite current song"
-      aria-label="Favorite current song"
-      onclick="toggleCurrentFavorite()">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 20s-7-4.6-9-8.7C1.2 7.7 3.3 5 6.3 5c1.9 0 3.3 1 4.1 2.3C11.2 6 12.7 5 14.6 5c3 0 5.1 2.7 3.3 6.3C19 15.4 12 20 12 20z"></path>
-      </svg>
-    </button>
 
     <button
       id="shuffleBtn"
@@ -473,8 +461,8 @@ let songs=[];
 let currentIndex=-1;
 let shuffle=false;
 let repeat=false;
-let favorites=JSON.parse(localStorage.getItem("jassiahFavorites")||"[]").map(Number);
-let favoritesOnly=false;
+let playlists=JSON.parse(localStorage.getItem("jassiahPlaylists")||"{}");
+let playlistQueue=null;
 
 const player=document.getElementById("playerAudio");
 const playButton=document.getElementById("playButton");
@@ -536,6 +524,7 @@ async function loadSongs(){
 
   songs=data||[];
   renderSongs(songs);
+  renderPlaylists();
 }
 
 function renderSongs(list){
@@ -581,11 +570,10 @@ function renderSongs(list){
         <div class="actions">
 
           <button
-            class="favoriteSongBtn"
-            onclick="toggleFavorite(${song.id})"
+            onclick="addSongToPlaylist(${song.id})"
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
-            ${favorites.includes(Number(song.id)) ? "♥ Favorited" : "♡ Favorite"}
+            + Playlist
           </button>
 
           <button class="edit"
@@ -649,6 +637,8 @@ function renderSongs(list){
         s=>Number(s.id)===Number(song.id)
       );
 
+      playlistQueue=null;
+
       setNowPlaying(song);
 
       /* Keep the bottom player synchronized */
@@ -671,27 +661,6 @@ function setNowPlaying(song){
     coverUrl(song);
 
   updatePlayerButton(true);
-  updateCurrentFavoriteButton();
-}
-
-function toggleCurrentFavorite(){
-  if(currentIndex<0 || !songs[currentIndex])return;
-  toggleFavorite(songs[currentIndex].id);
-}
-
-function updateCurrentFavoriteButton(){
-  const btn=document.getElementById("favoritePlayerBtn");
-  if(!btn || currentIndex<0 || !songs[currentIndex])return;
-
-  const isFavorite=favorites.includes(
-    Number(songs[currentIndex].id)
-  );
-
-  btn.classList.toggle("active",isFavorite);
-  btn.setAttribute("aria-pressed",String(isFavorite));
-  btn.title=isFavorite
-    ? "Remove from Favorites"
-    : "Add to Favorites";
 }
 
 function playSong(index){
@@ -732,48 +701,61 @@ function togglePlayer(){
 }
 
 function nextSong(){
-  if(!songs.length)return;
+  const queue=playlistQueue ? playlistQueue.songs : songs;
 
-  if(shuffle && songs.length>1){
-    let next=currentIndex;
+  if(!queue.length)return;
+
+  let next;
+
+  if(shuffle && queue.length>1){
+    next=currentIndex;
 
     while(next===currentIndex){
-      next=Math.floor(Math.random()*songs.length);
+      next=Math.floor(Math.random()*queue.length);
     }
-
-    playSong(next);
-    return;
+  }else{
+    next=currentIndex+1;
+    if(next>=queue.length)next=0;
   }
 
-  let next=currentIndex+1;
+  currentIndex=next;
 
-  if(next>=songs.length){
-    next=0;
-  }
+  const song=queue[next];
+  const url=musicUrl(song);
 
-  playSong(next);
+  if(!url)return;
+
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
 }
 
-function previousSong(){
-  if(!songs.length)return;
 
-  /*
-    If the song has played for more than 3 seconds,
-    Previous restarts the current song.
-  */
+function previousSong(){
+  const queue=playlistQueue ? playlistQueue.songs : songs;
+
+  if(!queue.length)return;
+
   if(player.currentTime>3){
     player.currentTime=0;
     return;
   }
 
   let previous=currentIndex-1;
+  if(previous<0)previous=queue.length-1;
 
-  if(previous<0){
-    previous=songs.length-1;
-  }
+  currentIndex=previous;
 
-  playSong(previous);
+  const song=queue[previous];
+  const url=musicUrl(song);
+
+  if(!url)return;
+
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
 }
+
 
 function toggleShuffle(){
   shuffle=!shuffle;
@@ -860,66 +842,244 @@ function formatTime(value){
   return minutes+":"+seconds;
 }
 
-function filterSongs(){
-  const q=document.getElementById("search").value.toLowerCase().trim();
 
-  const filtered=songs.filter(song=>{
-    const matchesSearch =
-      String(song.title||"").toLowerCase().includes(q) ||
-      String(song.artist||"").toLowerCase().includes(q);
-
-    const matchesFavorites =
-      !favoritesOnly ||
-      favorites.includes(Number(song.id));
-
-    return matchesSearch && matchesFavorites;
-  });
-
-  renderSongs(filtered);
+function savePlaylists(){
+  localStorage.setItem(
+    "jassiahPlaylists",
+    JSON.stringify(playlists)
+  );
 }
 
-function toggleFavorite(id){
-  id=Number(id);
+function createPlaylist(){
+  const name=prompt("Enter a playlist name:");
+  if(!name)return;
 
-  if(favorites.includes(id)){
-    favorites=favorites.filter(x=>x!==id);
-  }else{
-    favorites.push(id);
+  const n=name.trim();
+  if(!n)return;
+
+  if(playlists[n]){
+    alert("That playlist already exists.");
+    return;
   }
 
-  localStorage.setItem(
-    "jassiahFavorites",
-    JSON.stringify(favorites)
+  playlists[n]=[];
+  savePlaylists();
+  renderPlaylists();
+}
+
+function addSongToPlaylist(songId){
+  const names=Object.keys(playlists);
+
+  if(!names.length){
+    alert("Create a playlist first.");
+    return;
+  }
+
+  const choice=prompt(
+    "Enter the playlist name:\n\n"+names.join("\n")
   );
 
-  filterSongs();
-  updateFavoritesButton();
-  updateCurrentFavoriteButton();
-}
+  if(!choice)return;
 
-function toggleFavoritesOnly(){
-  favoritesOnly=!favoritesOnly;
-  filterSongs();
-  updateFavoritesButton();
-}
+  const name=choice.trim();
 
-function updateFavoritesButton(){
-  const btn=document.getElementById("favoritesFilter");
-  if(!btn)return;
-
-  if(favoritesOnly){
-    btn.textContent="♥ Showing Favorites";
-    btn.style.background="#3b2c09";
-    btn.style.borderColor="#ffd76a";
-    btn.style.color="#ffe89c";
-  }else{
-    btn.textContent="♡ Favorites";
-    btn.style.background="#111";
-    btn.style.borderColor="#9f741c";
-    btn.style.color="#ffd76a";
+  if(!playlists[name]){
+    alert("Playlist not found.");
+    return;
   }
+
+  const id=Number(songId);
+
+  if(playlists[name].includes(id)){
+    alert("That song is already in this playlist.");
+    return;
+  }
+
+  playlists[name].push(id);
+  savePlaylists();
+  renderPlaylists();
+  alert("Song added to "+name+"!");
 }
 
+function removeFromPlaylist(name,id){
+  playlists[name]=(playlists[name]||[]).filter(
+    x=>Number(x)!==Number(id)
+  );
+
+  savePlaylists();
+  renderPlaylists();
+}
+
+function deletePlaylist(name){
+  if(!confirm('Delete playlist "'+name+'"?'))return;
+
+  delete playlists[name];
+
+  if(
+    playlistQueue &&
+    playlistQueue.name===name
+  ){
+    playlistQueue=null;
+  }
+
+  savePlaylists();
+  renderPlaylists();
+}
+
+function playPlaylist(name){
+  const queue=(playlists[name]||[])
+    .map(id=>songs.find(s=>Number(s.id)===Number(id)))
+    .filter(Boolean);
+
+  if(!queue.length){
+    alert("This playlist is empty.");
+    return;
+  }
+
+  playlistQueue={
+    name:name,
+    songs:queue
+  };
+
+  currentIndex=0;
+
+  const song=queue[0];
+  const url=musicUrl(song);
+
+  if(!url){
+    alert("The first song has no playable file.");
+    return;
+  }
+
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
+}
+
+function renderPlaylists(){
+  const box=document.getElementById("playlists");
+  if(!box)return;
+
+  const names=Object.keys(playlists);
+
+  if(!names.length){
+    box.innerHTML='<div style="color:#888">No playlists yet.</div>';
+    return;
+  }
+
+  box.innerHTML=names.map(name=>{
+    const items=(playlists[name]||[])
+      .map(id=>songs.find(s=>Number(s.id)===Number(id)))
+      .filter(Boolean);
+
+    return `
+      <div style="
+        background:#111;
+        border:1px solid #332817;
+        border-radius:10px;
+        padding:14px;
+        margin-bottom:10px;
+      ">
+        <div style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          gap:10px;
+          flex-wrap:wrap;
+        ">
+          <div>
+            <div style="font-size:18px;font-weight:bold">
+              ${escapeHtml(name)}
+            </div>
+            <div style="color:#999;font-size:13px;margin-top:4px">
+              ${items.length} song${items.length===1?"":"s"}
+            </div>
+          </div>
+
+          <div style="display:flex;gap:7px">
+            <button
+              onclick="playPlaylist('${escapeJs(name)}')"
+              style="background:#ffd76a;color:#111;border:0;border-radius:7px;padding:8px 12px;font-weight:bold;cursor:pointer"
+            >
+              ▶ Play
+            </button>
+
+            <button
+              onclick="deletePlaylist('${escapeJs(name)}')"
+              style="background:#111;color:#ff7568;border:1px solid #8d382f;border-radius:7px;padding:8px 12px;font-weight:bold;cursor:pointer"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-top:10px">
+          ${
+            items.length
+            ? items.map(song=>`
+              <div style="
+                border-top:1px solid #222;
+                padding:8px 0;
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:10px;
+              ">
+                <div style="min-width:0;flex:1">
+                  <div style="
+                    font-weight:bold;
+                    white-space:nowrap;
+                    overflow:hidden;
+                    text-overflow:ellipsis;
+                  ">
+                    ${escapeHtml(song.title||"Untitled")}
+                  </div>
+                  <div style="color:#999;font-size:12px">
+                    ${escapeHtml(song.artist||"Unknown Artist")}
+                  </div>
+                </div>
+
+                <button
+                  onclick="removeFromPlaylist('${escapeJs(name)}',${song.id})"
+                  style="background:#222;color:#ff7568;border:1px solid #70332d;border-radius:6px;padding:6px 9px;cursor:pointer"
+                >
+                  Remove
+                </button>
+              </div>
+            `).join("")
+            : '<div style="color:#888">No songs in this playlist.</div>'
+          }
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function escapeJs(value){
+  return String(value??"")
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'")
+    .replace(/\n/g,"\\n")
+    .replace(/\r/g,"\\r");
+}
+
+function filterSongs(){
+  const q=document.getElementById("search")
+    .value
+    .toLowerCase()
+    .trim();
+
+  renderSongs(
+    songs.filter(song=>
+      String(song.title||"")
+        .toLowerCase()
+        .includes(q) ||
+      String(song.artist||"")
+        .toLowerCase()
+        .includes(q)
+    )
+  );
+}
 
 function showEdit(id){
   const area=document.getElementById("edit-"+id);
@@ -982,8 +1142,7 @@ async function saveEdit(id){
     return;
   }
 
-  await updateFavoritesButton();
-loadSongs();
+  await loadSongs();
 }
 
 async function uploadSong(){
