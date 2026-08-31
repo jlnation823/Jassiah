@@ -729,6 +729,31 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   color:#ffd76a!important;
   font-family:Arial,sans-serif!important;
 }
+
+/* FINAL: remove every added per-song play button */
+.jc-song-cell .jc-play-small,
+.jx-row-play,
+.jx-artist-play{display:none!important}
+
+/* Like/check button is the only control in the last song-list column. */
+.jc-list-like{
+  width:34px!important;
+  height:34px!important;
+  min-width:34px!important;
+  border-radius:50%!important;
+  border:1px solid #7d5e1c!important;
+  background:#111!important;
+  color:#ffd76a!important;
+  font-size:19px!important;
+  font-weight:900!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  cursor:pointer!important;
+  padding:0!important;
+}
+.jc-list-like.liked{background:#ffd76a!important;color:#111!important}
+#jcPhotosNav{font-weight:900!important;color:#ffd76a!important}
 </style>
 </head>
 
@@ -1213,7 +1238,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
     <button class="jc-nav" data-page="2" id="jcArtistsNav" title="Artists">🎤</button>
     <button class="jc-nav" data-page="3" id="jcLikedNav" title="Liked Songs">✓</button>
     <button class="jc-nav" data-page="4" id="jcPlaylistsNav" title="Playlists">☷</button>
-    <button class="jc-nav" data-page="5" id="jcAlbumsNav" title="Albums">💿</button><button class="jc-nav" data-page="6" onclick="jcGo(6)" title="Fan Photos" aria-label="Fan Photos">🖼️</button>
+    <button class="jc-nav" data-page="5" id="jcAlbumsNav" title="Albums">💿</button><button class="jc-nav" data-page="6" id="jcPhotosNav" title="Fan Photos" aria-label="Fan Photos">P</button>
   </aside>
 
   <header class="jc-top">
@@ -5308,6 +5333,313 @@ initializeAuth();
     setTimeout(()=>{
       restorePersistentPlayer();
     },2600);
+  });
+
+})();
+</script>
+
+<script id="jassiah-final-public-pages">
+(function(){
+
+  const PLAYER_KEY="jassiahPlayerExactV1";
+
+  const esc=v=>typeof escapeHtml==="function"?escapeHtml(v):String(v??"");
+  const jesc=v=>typeof escapeJs==="function"?escapeJs(v):String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+
+  function allSongs(){
+    return (typeof songs!=="undefined" && Array.isArray(songs)) ? songs : [];
+  }
+  function favs(){
+    return (typeof favorites!=="undefined" && Array.isArray(favorites)) ? favorites : [];
+  }
+
+  function songCover(song){
+    try{return coverUrl(song)||""}catch(_){return""}
+  }
+
+  function songDate(song){
+    const d=new Date(song.created_at||song.date_added||song.added_at||0);
+    return Number.isNaN(d.getTime())?"Recently added":
+      d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+  }
+
+  function songDuration(song){
+    const v=song.duration_seconds??song.duration??song.length;
+    if(Number.isFinite(Number(v))&&Number(v)>0){
+      return formatTime(Number(v));
+    }
+    return "0:00";
+  }
+
+  function artistPrimary(credit){
+    const value=String(credit||"").trim().toLowerCase();
+    const names=(typeof artistProfiles!=="undefined"&&artistProfiles)
+      ?Object.keys(artistProfiles):[];
+    const found=names.sort((a,b)=>b.length-a.length).find(name=>{
+      const n=name.toLowerCase();
+      return value===n||value.startsWith(n+" ft")||value.startsWith(n+" feat")||
+        value.startsWith(n+" featuring");
+    });
+    return found || String(credit||"").split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+  }
+
+  function isLiked(song){
+    return favs().map(Number).includes(Number(song.id));
+  }
+
+  window.jcToggleLikeFinal=function(id){
+    if(typeof toggleFavorite==="function"){
+      toggleFavorite(Number(id));
+    }else{
+      const n=Number(id);
+      if(typeof favorites==="undefined")window.favorites=[];
+      favorites=favorites.map(Number);
+      favorites.includes(n)
+        ? favorites=favorites.filter(x=>x!==n)
+        : favorites.push(n);
+      localStorage.setItem("jassiahFavorites",JSON.stringify(favorites));
+      if(typeof updateCurrentFavoriteButton==="function"){
+        updateCurrentFavoriteButton();
+      }
+    }
+
+    renderFinalSongPages();
+  };
+
+  function row(song,index,number){
+    const primary=artistPrimary(song.artist);
+    return `
+      <div class="jc-row" onclick="playSong(${index})">
+        <div style="text-align:center;color:#888">${number}</div>
+
+        <div class="jc-song-cell">
+          <img class="jc-cover" src="${esc(songCover(song))}" alt="">
+          <div class="jc-song-main">
+            <div class="jc-song-title">${esc(song.title||"Untitled")}</div>
+            <div class="jc-song-credit">${esc(song.artist||"Unknown Artist")}</div>
+          </div>
+        </div>
+
+        <div class="jc-artist-cell"
+             onclick="event.stopPropagation();jcOpenArtistFinal('${jesc(primary)}')">
+          ${esc(song.artist||"Unknown Artist")}
+        </div>
+
+        <div class="jc-date">${esc(songDate(song))}</div>
+
+        <div class="jc-last">
+          <button type="button"
+            class="jc-list-like ${isLiked(song)?"liked":""}"
+            aria-label="${isLiked(song)?"Remove from Liked Songs":"Add to Liked Songs"}"
+            title="${isLiked(song)?"Remove from Liked Songs":"Add to Liked Songs"}"
+            onclick="event.stopPropagation();jcToggleLikeFinal(${Number(song.id)})">
+            ${isLiked(song)?"✓":"+"}
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  function table(list){
+    if(!list.length)return'<div class="jc-muted">No songs yet.</div>';
+    return `
+      <div class="jc-table">
+        <div class="jc-head">
+          <div>#</div><div>Title</div><div>Artist</div><div>Date added</div><div>✓</div>
+        </div>
+        ${list.map((song,i)=>{
+          const index=allSongs().findIndex(s=>Number(s.id)===Number(song.id));
+          return row(song,index,i+1);
+        }).join("")}
+      </div>
+    `;
+  }
+
+  window.renderFinalSongPages=function(){
+    const songsBox=document.getElementById("jcSongs");
+    if(songsBox)songsBox.innerHTML=table(allSongs());
+
+    const likedBox=document.getElementById("jcLiked");
+    if(likedBox){
+      const likedIds=favs().map(Number);
+      likedBox.innerHTML=table(
+        allSongs().filter(song=>likedIds.includes(Number(song.id)))
+      );
+    }
+  };
+
+  window.jcOpenArtistFinal=function(name){
+    const clean=String(name||"").trim();
+    const list=allSongs().filter(s=>artistPrimary(s.artist).toLowerCase()===clean.toLowerCase());
+    const profile=(typeof artistProfiles!=="undefined"&&artistProfiles)
+      ?artistProfiles[clean]:null;
+    const image=profile?.image||(list[0]?songCover(list[0]):"");
+    const box=document.getElementById("jcArtistPage");
+    const track=document.getElementById("jcTrack");
+
+    if(!box||!track)return;
+
+    box.innerHTML=`
+      <div class="jc-detail">
+        <img src="${esc(image)}" alt="${esc(clean)}">
+        <div style="min-width:0">
+          <div class="jc-kicker">ARTIST PROFILE</div>
+          <div class="jc-detail-name">${esc(clean)}</div>
+          <div class="jc-muted" style="margin-top:7px">
+            ${list.length} song${list.length===1?"":"s"}
+          </div>
+        </div>
+      </div>
+      <div class="jc-section">Songs by ${esc(clean)}</div>
+      ${table(list)}
+    `;
+
+    /* IMPORTANT: page 7 = Artist Details, page 6 = Fan Photos. */
+    track.style.transform="translateX(-700%)";
+  };
+
+  /* ---------- Explicit page buttons ---------- */
+  function bindPageButtons(){
+    const map=[
+      ["jcHomeNav",0],
+      ["jcSongsNav",1],
+      ["jcArtistsNav",2],
+      ["jcLikedNav",3],
+      ["jcPlaylistsNav",4],
+      ["jcAlbumsNav",5],
+      ["jcPhotosNav",6]
+    ];
+
+    map.forEach(([id,n])=>{
+      const btn=document.getElementById(id);
+      if(!btn)return;
+
+      btn.removeAttribute("onclick");
+
+      btn.addEventListener("click",function(e){
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(typeof window.jcGo==="function"){
+          window.jcGo(n);
+        }else{
+          const track=document.getElementById("jcTrack");
+          if(track)track.style.transform=`translateX(-${n*100}%)`;
+        }
+
+        if(n===1||n===3)renderFinalSongPages();
+        if(n===6&&typeof jcLoadFanPhotos==="function")jcLoadFanPhotos();
+      });
+    });
+  }
+
+  /* ---------- Player: persist exact song and position ---------- */
+  function saveExactPlayer(){
+    try{
+      if(typeof player==="undefined" || typeof currentIndex==="undefined")return;
+      if(currentIndex<0||!allSongs()[currentIndex])return;
+
+      const song=allSongs()[currentIndex];
+
+      localStorage.setItem(PLAYER_KEY,JSON.stringify({
+        id:Number(song.id),
+        file:String(song.file_path||""),
+        time:Number(player.currentTime)||0,
+        volume:Number(player.volume),
+        muted:Boolean(player.muted),
+        wasPlaying:!player.paused
+      }));
+    }catch(_){}
+  }
+
+  function restoreExactPlayer(){
+    try{
+      if(typeof player==="undefined")return;
+      const raw=localStorage.getItem(PLAYER_KEY);
+      if(!raw)return;
+
+      const state=JSON.parse(raw);
+      const list=allSongs();
+      if(!list.length)return;
+
+      let index=list.findIndex(s=>Number(s.id)===Number(state.id));
+      if(index<0&&state.file){
+        index=list.findIndex(s=>String(s.file_path||"")===String(state.file));
+      }
+      if(index<0)return;
+
+      const song=list[index];
+      const url=musicUrl(song);
+      if(!url)return;
+
+      currentIndex=index;
+
+      /* Do not call playSong(): that would reset playback to the beginning. */
+      player.src=url;
+      player.load();
+
+      const apply=()=>{
+        try{
+          const wanted=Math.max(0,Number(state.time)||0);
+          if(Number.isFinite(player.duration)&&player.duration>0){
+            player.currentTime=Math.min(wanted,player.duration);
+          }else{
+            player.currentTime=wanted;
+          }
+        }catch(_){}
+
+        if(Number.isFinite(Number(state.volume))){
+          player.volume=Math.max(0,Math.min(1,Number(state.volume)));
+        }
+        player.muted=Boolean(state.muted);
+
+        if(typeof setNowPlaying==="function"){
+          setNowPlaying(song);
+        }
+
+        if(typeof updatePlayerButton==="function"){
+          updatePlayerButton(false);
+        }
+      };
+
+      player.addEventListener("loadedmetadata",apply,{once:true});
+      setTimeout(apply,300);
+    }catch(error){
+      console.warn("Exact player restore failed",error);
+    }
+  }
+
+  function hookPlayer(){
+    if(typeof player==="undefined")return;
+
+    if(player.dataset.jcExactSave!=="1"){
+      player.dataset.jcExactSave="1";
+      player.addEventListener("timeupdate",saveExactPlayer);
+      player.addEventListener("pause",saveExactPlayer);
+      player.addEventListener("volumechange",saveExactPlayer);
+      player.addEventListener("ended",saveExactPlayer);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    bindPageButtons();
+    renderFinalSongPages();
+    hookPlayer();
+
+    /* Wait until Supabase's original loadSongs() has filled the array. */
+    setTimeout(()=>{
+      renderFinalSongPages();
+      hookPlayer();
+      restoreExactPlayer();
+    },1300);
+
+    setTimeout(restoreExactPlayer,2600);
+  });
+
+  window.addEventListener("beforeunload",saveExactPlayer);
+  window.addEventListener("pagehide",saveExactPlayer);
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="hidden")saveExactPlayer();
   });
 
 })();
