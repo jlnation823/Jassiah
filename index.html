@@ -2118,6 +2118,7 @@ window.currentArtistName="";
 window.currentArtistSongs=[];
 
 
+
 function openArtistPage(artistName){
   const name=String(artistName||"").trim();
 
@@ -2132,7 +2133,7 @@ function openArtistPage(artistName){
   const hero=document.getElementById("artistHero");
   const list=document.getElementById("artistSongList");
 
-  if(!page||!hero||!list){
+  if(!page || !hero || !list){
     alert("Artist page is not available.");
     return;
   }
@@ -2140,9 +2141,13 @@ function openArtistPage(artistName){
   window.currentArtistName=name;
   window.currentArtistSongs=artistSongs;
 
-  const profile=artistProfiles[name]||{};
-  const fallback=document.querySelector(".logo")?.src||"";
-  const image=profile.image||fallback;
+  const profile=artistProfiles[name] || {};
+  const fallback=
+    document.querySelector(".logo")?.src ||
+    document.querySelector("header img")?.src ||
+    "";
+
+  const image=profile.image || fallback;
 
   hero.innerHTML=`
     <img
@@ -2160,7 +2165,7 @@ function openArtistPage(artistName){
       "
     >
 
-    <div style="min-width:0;flex:1">
+    <div style="flex:1;min-width:0">
 
       <div style="
         color:#ad9457;
@@ -2184,14 +2189,14 @@ function openArtistPage(artistName){
         ${artistSongs.length}
         song${artistSongs.length===1?"":"s"}
       </div>
+
       <div style="
         color:#777;
         font-size:11px;
-        margin-top:8px;
+        margin-top:7px;
       ">
-        Featured artists remain listed in each song's original credit.
+        Collaborations stay listed in their original song credits.
       </div>
-
 
       <button
         onclick="playArtistAll()"
@@ -2229,84 +2234,87 @@ function openArtistPage(artistName){
     </div>
   `;
 
-  if(!artistSongs.length){
-    list.innerHTML=`
-      <div style="
-        color:#999;
-        text-align:center;
-        padding:25px;
-      ">
-        This artist has no songs on the site yet.
-      </div>
-    `;
-  }else{
-    list.innerHTML=artistSongs.map(song=>{
-      const index=songs.findIndex(
-        s=>Number(s.id)===Number(song.id)
-      );
+  list.innerHTML=artistSongs.length
+    ? artistSongs.map(song=>{
+        const index=songs.findIndex(
+          s=>Number(s.id)===Number(song.id)
+        );
 
-      return `
-        <div style="
-          display:flex;
-          align-items:center;
-          gap:12px;
-          padding:11px 0;
-          border-bottom:1px solid #222;
-        ">
+        return `
+          <div style="
+            display:flex;
+            align-items:center;
+            gap:12px;
+            padding:11px 0;
+            border-bottom:1px solid #222;
+          ">
 
-          <img
-            src="${escapeHtml(song.cover_url||image)}"
-            onerror="this.src='${escapeJs(image)}'"
-            alt=""
-            style="
-              width:62px;
-              height:62px;
-              object-fit:cover;
-              border-radius:8px;
-            "
-          >
-
-          <div style="flex:1;min-width:0">
+            <img
+              src="${escapeHtml(song.cover_url||image)}"
+              onerror="this.src='${escapeJs(image)}'"
+              alt=""
+              style="
+                width:64px;
+                height:64px;
+                object-fit:cover;
+                border-radius:8px;
+              "
+            >
 
             <div style="
-              font-weight:bold;
-              white-space:nowrap;
-              overflow:hidden;
-              text-overflow:ellipsis;
+              flex:1;
+              min-width:0;
             ">
-              ${escapeHtml(song.title||"Untitled")}
+
+              <div style="
+                font-weight:bold;
+                white-space:nowrap;
+                overflow:hidden;
+                text-overflow:ellipsis;
+              ">
+                ${escapeHtml(song.title||"Untitled")}
+              </div>
+
+              <div style="
+                color:#ffd76a;
+                font-size:12px;
+                margin-top:3px;
+                word-break:break-word;
+              ">
+                ${escapeHtml(song.artist||"Unknown Artist")}
+              </div>
+
             </div>
 
-            <div style="
-              color:#999;
-              font-size:12px;
-              margin-top:3px;
-            ">
-              ${escapeHtml(song.artist||name)}
-            </div>
+            <button
+              onclick="playSong(${index})"
+              style="
+                width:40px;
+                height:40px;
+                border-radius:50%;
+                background:#ffd76a;
+                color:#111;
+                border:0;
+                font-weight:bold;
+                cursor:pointer;
+              "
+              title="Play"
+            >
+              ▶
+            </button>
 
           </div>
-
-          <button
-            onclick="playArtistSong(${index})"
-            style="
-              width:40px;
-              height:40px;
-              border-radius:50%;
-              background:#ffd76a;
-              color:#111;
-              border:0;
-              font-weight:bold;
-              cursor:pointer;
-            "
-          >
-            ▶
-          </button>
-
-        </div>
-      `;
-    }).join("");
-  }
+        `;
+      }).join("")
+    : `
+      <div style="
+        text-align:center;
+        color:#999;
+        padding:25px;
+      ">
+        No songs have been added for this artist yet.
+      </div>
+    `;
 
   [
     "homeDashboard",
@@ -2397,36 +2405,28 @@ function closeArtistPage(){
 
 
 
+
 function songsForArtist(artistName){
   const name=String(artistName||"").trim().toLowerCase();
 
   if(!name)return [];
 
+  /*
+    One artist profile represents the artist's whole catalog.
+
+    Example:
+      Jamil Landin
+      Jamil Landin ft Moneyman Keyz
+      Jamil Landin ft Charlie Woods
+      Jamil Landin ft Jessica Lane
+
+    All four belong to the single Jamil Landin profile.
+    The original artist credit on each song is NOT changed.
+  */
   return songs.filter(song=>{
     const credited=String(song.artist||"").trim().toLowerCase();
 
-    /*
-      The first artist name is the PRIMARY artist.
-      Everything after "ft", "feat", "featuring", "&", "x",
-      or "with" stays in the displayed credit, but does not
-      create another artist profile.
-
-      Example:
-      "Jamil Landin ft Charlie Woods"
-      stays exactly that on the song, and belongs under
-      Jamil Landin's artist page.
-    */
-    if(credited===name)return true;
-
-    return (
-      credited.startsWith(name+" ft ") ||
-      credited.startsWith(name+" feat ") ||
-      credited.startsWith(name+" featuring ") ||
-      credited.startsWith(name+" & ") ||
-      credited.startsWith(name+" x ") ||
-      credited.startsWith(name+" with ") ||
-      credited.startsWith(name+" with ") 
-    );
+    return credited.includes(name);
   });
 }
 
@@ -2627,11 +2627,13 @@ function createArtistProfile(){
 
 
 
+
 function renderArtists(){
   const grid=document.getElementById("artistsGrid");
   if(!grid)return;
 
   const datalist=document.getElementById("artistNames");
+
   const profileNames=Object.keys(artistProfiles)
     .filter(name=>String(name).trim())
     .sort((a,b)=>a.localeCompare(b));
@@ -2644,30 +2646,28 @@ function renderArtists(){
 
   if(!profileNames.length){
     grid.innerHTML=
-      '<div style="color:#888">No artist profiles yet. Create an artist profile above.</div>';
+      '<div style="color:#888">No artist profiles yet. Create one above.</div>';
     return;
   }
 
   grid.innerHTML=profileNames.map(name=>{
     const artistSongs=songsForArtist(name);
-    const profile=artistProfiles[name]||{};
+    const profile=artistProfiles[name] || {};
 
-    /*
-      Use ONLY the profile picture the artist uploaded.
-      A featured artist on a song does not create a profile.
-    */
     const image=
       profile.image ||
       document.querySelector(".logo")?.src ||
       "";
 
     return `
-      <div style="
-        background:#111;
-        border:1px solid #332817;
-        border-radius:13px;
-        overflow:hidden;
-      ">
+      <div
+        style="
+          background:#111;
+          border:1px solid #332817;
+          border-radius:13px;
+          overflow:hidden;
+        "
+      >
 
         <img
           src="${escapeHtml(image)}"
@@ -2694,7 +2694,11 @@ function renderArtists(){
             ${escapeHtml(name)}
           </div>
 
-          <div style="color:#999;font-size:12px;margin-top:4px">
+          <div style="
+            color:#999;
+            font-size:12px;
+            margin-top:4px;
+          ">
             ${artistSongs.length}
             song${artistSongs.length===1?"":"s"}
           </div>
@@ -2734,11 +2738,11 @@ function renderArtists(){
           </button>
 
         </div>
+
       </div>
     `;
   }).join("");
 }
-
 
 function playArtistByName(name){
   const artistSongs=songs.filter(song =>
