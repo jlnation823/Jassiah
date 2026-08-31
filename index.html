@@ -615,19 +615,109 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   .jc-admin-grid{grid-template-columns:1fr}.jc-detail{flex-direction:column;align-items:flex-start}.jc-detail img{width:140px;height:140px}
 }
 
-/* USER REQUEST: no extra large play buttons beside song rows */
-.jc-song-cell .jc-play-small,
-.jx-row-play,
-.jx-artist-play{
-  display:none!important;
+/* =========================================================
+   JASSIAH: SONG MANAGEMENT + FAN PHOTOS SLIDE
+   ========================================================= */
+
+.jc-manage-list{
+  background:#101010;
+  border:1px solid #2a2a2a;
+  border-radius:9px;
+  overflow:hidden;
+  margin-top:12px;
 }
-.jc-song-cell{
-  position:relative!important;
-  padding-right:0!important;
+.jc-manage-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:9px 10px;
+  border-bottom:1px solid #222;
 }
-#jcDeleteArtist{
-  width:100%;
-  box-sizing:border-box;
+.jc-manage-row:last-child{border-bottom:0}
+.jc-manage-cover{
+  width:44px;height:44px;border-radius:5px;object-fit:cover;background:#222;flex-shrink:0;
+}
+.jc-manage-main{min-width:0;flex:1}
+.jc-manage-title{
+  font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.jc-manage-credit{
+  color:#999;font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.jc-manage-actions{
+  display:flex;gap:5px;flex-shrink:0;align-items:center;
+}
+.jc-manage-actions button{
+  width:32px;height:32px;padding:0;border-radius:7px;
+  border:1px solid #5a4718;background:#181818;color:#ffd76a;
+  font-weight:900;cursor:pointer;
+}
+.jc-manage-actions .danger{
+  width:auto;padding:0 8px;color:#ff9696;border-color:#713434;background:#2c1515;
+}
+.jc-order-list{
+  background:#101010;border:1px solid #2a2a2a;border-radius:9px;
+  margin-top:10px;overflow:hidden;
+}
+.jc-order-row{
+  display:flex;align-items:center;gap:8px;padding:8px 9px;border-bottom:1px solid #222;
+}
+.jc-order-row:last-child{border-bottom:0}
+.jc-order-row img{
+  width:40px;height:40px;border-radius:5px;object-fit:cover;background:#222;
+}
+.jc-order-name{min-width:0;flex:1}
+.jc-order-name strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jc-order-name span{display:block;color:#888;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jc-order-btn{
+  width:31px;height:31px;border-radius:7px;border:1px solid #5d4818;
+  background:#181818;color:#ffd76a;cursor:pointer;font-weight:900;
+}
+.jc-order-btn:disabled{opacity:.3;cursor:default}
+
+.jc-photo-admin-card{
+  background:#181818;border:1px solid #2c2c2c;border-radius:9px;overflow:hidden;
+}
+.jc-photo-admin-card img{
+  width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;
+}
+.jc-photo-admin-caption{
+  padding:7px 8px;color:#ddd;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.jc-photo-delete{
+  display:block;width:calc(100% - 12px);margin:0 6px 7px;padding:7px 9px;
+  border:1px solid #713434;border-radius:7px;background:#2c1515;color:#ff9696;
+  font-size:11px;font-weight:900;cursor:pointer;
+}
+.jc-photo-delete:hover{background:#481b1b}
+
+.jc-fan-page-title{
+  display:flex;align-items:center;gap:13px;margin-bottom:16px;
+}
+.jc-fan-page-icon{
+  width:72px;height:72px;border-radius:9px;
+  background:#1a1a1a;border:1px solid #3a321f;
+  display:flex;align-items:center;justify-content:center;
+  font-size:30px;color:#ffd76a;
+}
+.jc-fan-page-sub{color:#999;font-size:12px;margin-top:3px}
+.jc-fan-public-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;
+}
+.jc-fan-public-card{
+  background:#181818;border:1px solid #2b2b2b;border-radius:10px;overflow:hidden;
+}
+.jc-fan-public-card img{
+  width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;
+}
+.jc-fan-public-caption{
+  padding:8px;color:#ddd;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+
+@media(max-width:700px){
+  .jc-fan-public-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .jc-manage-row{align-items:flex-start}
+  .jc-manage-actions{flex-wrap:wrap;justify-content:flex-end}
 }
 </style>
 </head>
@@ -1113,7 +1203,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
     <button class="jc-nav" data-page="2" onclick="jcGo(2)">🎤</button>
     <button class="jc-nav" data-page="3" onclick="jcGo(3)">✓</button>
     <button class="jc-nav" data-page="4" onclick="jcGo(4)">☷</button>
-    <button class="jc-nav" data-page="5" onclick="jcGo(5)">💿</button>
+    <button class="jc-nav" data-page="5" onclick="jcGo(5)">💿</button><button class="jc-nav" data-page="6" onclick="jcGo(6)" title="Fan Photos">🖼</button>
   </aside>
 
   <header class="jc-top">
@@ -1145,12 +1235,6 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
           <div class="jc-muted">Your music. Your favorites. Your world.</div>
           <div class="jc-section">Artists</div>
           <div id="jcHomeArtists" class="jc-artist-grid"></div>
-
-          <div class="jc-gallery">
-            <div style="color:#ffd76a;font-size:20px;font-weight:900">🖼️ Fan Photos</div>
-            <div class="jc-muted" style="font-size:11px;margin-top:4px">Photos shared through Jassiah Music.</div>
-            <div id="jcHomeGallery" class="jc-gallery-grid"></div>
-          </div>
         </div>
       </section>
 
@@ -1179,6 +1263,18 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
         <div id="jcAlbums"></div>
       </div></section>
 
+
+      <section class="jc-slide"><div class="jc-inner">
+        <div class="jc-fan-page-title">
+          <div class="jc-fan-page-icon">🖼</div>
+          <div>
+            <div class="jc-section" style="margin:0">Fan Photos</div>
+            <div class="jc-fan-page-sub">Photos shared with the Jassiah Music community.</div>
+          </div>
+        </div>
+        <div id="jcFanPublicGallery" class="jc-fan-public-grid"></div>
+      </div></section>
+
       <section class="jc-slide"><div class="jc-inner">
         <div id="jcArtistPage"></div>
       </div></section>
@@ -1186,7 +1282,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
       <section class="jc-slide"><div class="jc-inner" id="jcAdminHub">
         <div class="jc-kicker">ADMIN ONLY</div>
         <div class="jc-brand" style="font-size:37px">Jassiah Admin Hub</div>
-        <div class="jc-muted" style="margin:5px 0 18px">Manage your music, artists, albums, and fan photos.</div>
+        <div class="jc-muted" style="margin:5px 0 18px">Manage songs, artist profiles, albums, song order, and fan photos.</div>
 
         <div class="jc-admin-grid">
           <div class="jc-admin-card">
@@ -1220,12 +1316,29 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
           <div class="jc-admin-card">
             <h3>🗑️ Delete Artist</h3>
             <label>Artist name</label>
-            <input id="jcDeleteArtist" list="jcDeleteArtistList"
-              placeholder="Type artist name...">
+            <input id="jcDeleteArtist" list="jcDeleteArtistList" placeholder="Type artist name...">
             <datalist id="jcDeleteArtistList"></datalist>
             <button class="jc-admin-btn jc-admin-danger" onclick="jcDeleteArtist()">Delete Artist Profile</button>
-            <div class="jc-muted" style="font-size:11px;margin-top:6px">Songs remain on the site.</div>
             <div id="jcDeleteArtistStatus" class="jc-admin-status"></div>
+          </div>
+
+          <div class="jc-admin-card" style="grid-column:1/-1">
+            <h3>🗑️ Delete Songs</h3>
+            <input id="jcDeleteSongSearch" placeholder="Search songs or artists..." oninput="jcRenderDeleteSongList()">
+            <div id="jcDeleteSongList" class="jc-manage-list"></div>
+            <div id="jcDeleteSongStatus" class="jc-admin-status"></div>
+          </div>
+
+          <div class="jc-admin-card" style="grid-column:1/-1">
+            <h3>↕️ Reorder Songs for an Artist</h3>
+            <input id="jcOrderArtist" list="jcOrderArtistList"
+              placeholder="Type artist name..." oninput="jcRenderOrderList()">
+            <datalist id="jcOrderArtistList"></datalist>
+            <div class="jc-muted" style="font-size:11px;margin-top:4px">
+              Use ↑ and ↓ to change the song order shown on that artist's page.
+            </div>
+            <div id="jcOrderList" class="jc-order-list"></div>
+            <div id="jcOrderStatus" class="jc-admin-status"></div>
           </div>
 
           <div class="jc-admin-card" style="grid-column:1/-1">
@@ -1234,12 +1347,19 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
             <input id="jcFanPhoto" type="file" accept="image/*">
             <input id="jcFanCaption" placeholder="Caption (optional)">
             <button class="jc-admin-btn jc-admin-primary" onclick="jcUploadFanPhoto()">Upload Photo</button>
-            <button class="jc-admin-btn jc-admin-muted" onclick="jcLoadGallery()">Refresh</button>
+            <button class="jc-admin-btn jc-admin-muted" onclick="jcLoadFanPhotos()">Refresh</button>
             <div id="jcFanStatus" class="jc-admin-status"></div>
             <div id="jcAdminGallery" class="jc-gallery-grid"></div>
           </div>
         </div>
+
+        <button type="button" class="jc-admin-btn jc-admin-muted" style="margin-top:16px" onclick="jcGo(0)">
+          ← Back to Home
+        </button>
       </div></section>
+
+
+      
 
     </div>
   </main>
@@ -1478,7 +1598,7 @@ async function loadSongs(){
   renderFeaturedSong();
   renderRecentlyAdded();
   renderArtists();
-  if(typeof renderFavoriteSongs === "function") renderFavoriteSongs();
+  renderFavoriteSongs();
   renderHomeDashboard();
   renderHomeDashboard();
 }
@@ -3942,6 +4062,7 @@ initializeAuth();
               <div class="jc-song-title">${esc(song.title||"Untitled")}</div>
               <div class="jc-song-credit">${esc(song.artist||"Unknown Artist")}</div>
             </div>
+            <button class="jc-play-small" type="button" onclick="event.stopPropagation();playSong(${idx})">▶</button>
           </div>
           <div class="jc-artist-cell" onclick="event.stopPropagation();jcOpenArtist('${jsEsc(artist)}')">${esc(song.artist||"Unknown Artist")}</div>
           <div class="jc-date">${esc(added(song))}</div>
@@ -4337,186 +4458,519 @@ initializeAuth();
 })();
 </script>
 
-<script id="jassiah-login-only-fix">
+<script id="jassiah-management-features">
 (function(){
-  /* Keep the Admin Hub as its own page (index 7). */
-  const oldJcGo=window.jcGo;
-  window.jcGo=function(n){
-    const pageNumber=Number(n);
+  const ORDER_TABLE="artist_song_order";
+  const FAN_BUCKET="music";
+  const FAN_PREFIX="fan-photos";
 
-    /* Allow the Admin Hub to be page 7. */
-    if(pageNumber===7){
-      const track=document.getElementById("jcTrack");
-      if(track)track.style.transform="translateX(-700%)";
+  function songsNow(){
+    return (typeof songs!=="undefined"&&Array.isArray(songs)) ? songs : [];
+  }
+  function profilesNow(){
+    return (typeof artistProfiles!=="undefined"&&artistProfiles) ? artistProfiles : {};
+  }
+  function adminNow(){
+    return !!(typeof currentUser!=="undefined"&&currentUser);
+  }
+  const esc=v=>typeof escapeHtml==="function"?escapeHtml(v):String(v??"");
+  const jesc=v=>typeof escapeJs==="function"?escapeJs(v):String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
 
-      /* Don't mark a normal navigation button active for Admin Hub. */
-      document.querySelectorAll(".jc-nav").forEach(b=>b.classList.remove("active"));
-
-      if(typeof jcPrepareAdmin==="function"){
-        jcPrepareAdmin();
-      }
-
-      return;
-    }
-
-    oldJcGo(pageNumber);
-  };
-
-  function bindLoginButton(){
-    const button=document.getElementById("jcAdminButton");
-    if(!button)return;
-
-    /* Remove any inline handler that could trigger a slide. */
-    button.removeAttribute("onclick");
-
-    button.onclick=function(event){
-      event.preventDefault();
-      event.stopPropagation();
-
-      if(typeof currentUser!=="undefined" && currentUser){
-        /* Already logged in: go directly to the Admin Hub. */
-        jcGo(7);
-      }else{
-        /* Logged out: ONLY open the login box. */
-        jcOpenLogin();
-      }
-
-      return false;
-    };
-
-    /* A pointerdown guard prevents a nearby/underlying slider from receiving
-       the same click in browsers that retarget layered elements. */
-    button.onpointerdown=function(event){
-      event.stopPropagation();
-    };
+  function artistNamesNow(){
+    return Object.keys(profilesNow()).filter(x=>String(x).trim()).sort((a,b)=>a.localeCompare(b));
+  }
+  function primaryArtistNow(credit){
+    const c=String(credit||"").trim().toLowerCase();
+    const hit=artistNamesNow().sort((a,b)=>b.length-a.length).find(n=>{
+      const x=n.toLowerCase();
+      return c===x||c.startsWith(x+" ft")||c.startsWith(x+" feat")||c.startsWith(x+" featuring");
+    });
+    return hit||String(credit||"").split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+  }
+  function coverNow(song){
+    try{return coverUrl(song)||""}catch(_){return ""}
+  }
+  function dateNow(song){
+    const d=new Date(song.created_at||song.date_added||song.added_at||0);
+    return Number.isNaN(d.getTime())?"Recently added":d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
   }
 
-  /* After successful login, send the user to Admin Hub page 7, not page 6. */
-  if(typeof window.jcLogin==="function"){
-    const originalLogin=window.jcLogin;
-    window.jcLogin=async function(){
-      const result=await originalLogin.apply(this,arguments);
+  /* ===== Searchable selectors ===== */
+  function refreshAdminNames(){
+    const a=document.getElementById("jcDeleteArtistList");
+    const b=document.getElementById("jcOrderArtistList");
+    const names=artistNamesNow();
 
-      if(typeof currentUser!=="undefined" && currentUser){
-        const b=document.getElementById("jcAdminButton");
-        if(b)b.textContent="⚙ Admin Hub";
-        jcGo(7);
-      }
-
-      return result;
-    };
+    if(a)a.innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join("");
+    if(b)b.innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join("");
   }
 
-  document.addEventListener("DOMContentLoaded",()=>{
-    bindLoginButton();
-    setTimeout(bindLoginButton,300);
-    setTimeout(bindLoginButton,1200);
-  });
-})();
-</script>
+  function refreshAlbumSongChecks(){
+    const box=document.getElementById("jcAlbumSongs");
+    if(!box)return;
 
-<script id="jassiah-exact-user-fixes">
-(function(){
-
-  /* ---------- Delete Artist: searchable ---------- */
-  function refreshDeleteArtistList(){
-    const list=document.getElementById("jcDeleteArtistList");
-    if(!list)return;
-
-    const names = typeof artistNames==="function"
-      ? artistNames()
-      : Object.keys(
-          (typeof artistProfiles!=="undefined"&&artistProfiles)
-            ? artistProfiles : {}
-        ).sort((a,b)=>a.localeCompare(b));
-
-    list.innerHTML=names.map(name=>
-      `<option value="${escapeHtml(name)}"></option>`
-    ).join("");
+    box.innerHTML=songsNow().map(song=>`
+      <label class="jc-check-row">
+        <input type="checkbox" value="${Number(song.id)}">
+        ${esc(song.title||"Untitled")} — ${esc(song.artist||"")}
+      </label>
+    `).join("");
   }
 
-  /* Replace the old select-based delete routine. */
-  window.jcDeleteArtist=function(){
-    const status=document.getElementById("jcDeleteArtistStatus");
-    const input=document.getElementById("jcDeleteArtist");
-    const name=(input?.value||"").trim();
+  /* ===== Delete Songs ===== */
+  function filePathFromPublicUrl(url){
+    const marker="/storage/v1/object/public/"+FAN_BUCKET+"/";
+    const pos=String(url||"").indexOf(marker);
+    if(pos<0)return"";
+    return decodeURIComponent(String(url).slice(pos+marker.length));
+  }
 
-    if(typeof currentUser==="undefined" || !currentUser){
-      if(status)status.textContent="Please log in as admin first.";
-      return;
-    }
+  window.jcRenderDeleteSongList=function(){
+    const box=document.getElementById("jcDeleteSongList");
+    if(!box)return;
 
-    if(!name){
-      if(status)status.textContent="Type an artist name.";
-      return;
-    }
+    const q=(document.getElementById("jcDeleteSongSearch")?.value||"").toLowerCase().trim();
 
-    const profilesMap=(
-      typeof artistProfiles!=="undefined"&&artistProfiles
-    ) ? artistProfiles : {};
-
-    const exact=Object.keys(profilesMap).find(
-      n=>n.toLowerCase()===name.toLowerCase()
+    const list=songsNow().filter(song=>
+      String(song.title||"").toLowerCase().includes(q)||
+      String(song.artist||"").toLowerCase().includes(q)
     );
 
+    box.innerHTML=list.length?list.map(song=>`
+      <div class="jc-manage-row">
+        <img class="jc-manage-cover" src="${esc(coverNow(song))}" alt="">
+        <div class="jc-manage-main">
+          <div class="jc-manage-title">${esc(song.title||"Untitled")}</div>
+          <div class="jc-manage-credit">${esc(song.artist||"")} · ${esc(dateNow(song))}</div>
+        </div>
+        <div class="jc-manage-actions">
+          <button class="danger" type="button" onclick="jcDeleteSongAdmin(${Number(song.id)})">Delete</button>
+        </div>
+      </div>
+    `).join(""):'<div style="padding:12px;color:#777;font-size:11px">No matching songs.</div>';
+  };
+
+  window.jcDeleteSongAdmin=async function(id){
+    if(!adminNow()){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    const song=songsNow().find(s=>Number(s.id)===Number(id));
+    if(!song)return;
+
+    if(!confirm('Delete "'+(song.title||"this song")+'"?'))return;
+
+    const status=document.getElementById("jcDeleteSongStatus");
+    if(status)status.textContent="Deleting...";
+
+    try{
+      const paths=[];
+      if(song.file_path)paths.push(String(song.file_path));
+      const coverPath=filePathFromPublicUrl(song.cover_url);
+      if(coverPath)paths.push(coverPath);
+
+      if(paths.length){
+        const storage=await client.storage.from(FAN_BUCKET).remove(paths);
+        if(storage.error)throw storage.error;
+      }
+
+      const row=await client.from("songs").delete().eq("id",id);
+      if(row.error)throw row.error;
+
+      if(status)status.textContent="Song deleted.";
+
+      if(typeof loadSongs==="function")await loadSongs();
+
+      refreshAlbumSongChecks();
+      jcRenderDeleteSongList();
+      jcRenderOrderList();
+      if(typeof renderHome==="function")renderHome();
+      if(typeof renderArtists==="function")renderArtists();
+
+    }catch(error){
+      console.error(error);
+      if(status)status.textContent="Delete failed: "+(error?.message||"Unknown error");
+    }
+  };
+
+  /* ===== Persistent artist-song order ===== */
+  let orderMap={};
+
+  async function loadOrderMap(){
+    try{
+      const {data,error}=await client
+        .from(ORDER_TABLE)
+        .select("artist_name,song_ids");
+
+      if(error){
+        console.warn("Song order table:",error.message);
+        return;
+      }
+
+      orderMap={};
+      (data||[]).forEach(row=>{
+        orderMap[String(row.artist_name)]=Array.isArray(row.song_ids)
+          ?row.song_ids.map(Number):[];
+      });
+    }catch(error){
+      console.warn("Song order load:",error);
+    }
+  }
+
+  function sortArtistSongs(list,name){
+    const saved=orderMap[String(name)]||[];
+
+    if(!saved.length)return list.slice();
+
+    const rank=new Map(saved.map((id,i)=>[Number(id),i]));
+    return list.slice().sort((a,b)=>{
+      const ai=rank.has(Number(a.id))?rank.get(Number(a.id)):999999+iForSort(a);
+      const bi=rank.has(Number(b.id))?rank.get(Number(b.id)):999999+iForSort(b);
+      return ai-bi;
+    });
+  }
+
+  function iForSort(song){
+    const n=Number(song?.id);
+    return Number.isFinite(n)?n:0;
+  }
+
+  window.jcRenderOrderList=function(){
+    const box=document.getElementById("jcOrderList");
+    if(!box)return;
+
+    const name=(document.getElementById("jcOrderArtist")?.value||"").trim();
+    if(!name){
+      box.innerHTML='<div style="padding:12px;color:#777;font-size:11px">Type an artist name to manage song order.</div>';
+      return;
+    }
+
+    const exact=artistNamesNow().find(n=>n.toLowerCase()===name.toLowerCase());
     if(!exact){
-      if(status)status.textContent="Artist not found. Check the name.";
+      box.innerHTML='<div style="padding:12px;color:#777;font-size:11px">Artist not found.</div>';
+      return;
+    }
+
+    const list=sortArtistSongs(
+      songsNow().filter(s=>primaryArtistNow(s.artist).toLowerCase()===exact.toLowerCase()),
+      exact
+    );
+
+    box.innerHTML=list.length?list.map((song,i)=>`
+      <div class="jc-order-row">
+        <img src="${esc(coverNow(song))}" alt="">
+        <div class="jc-order-name">
+          <strong>${esc(song.title||"Untitled")}</strong>
+          <span>${esc(song.artist||"")}</span>
+        </div>
+        <button class="jc-order-btn" type="button" ${i===0?"disabled":""}
+          onclick="jcMoveArtistSong(${Number(song.id)},-1)">↑</button>
+        <button class="jc-order-btn" type="button" ${i===list.length-1?"disabled":""}
+          onclick="jcMoveArtistSong(${Number(song.id)},1)">↓</button>
+      </div>
+    `).join(""):'<div style="padding:12px;color:#777;font-size:11px">No songs for this artist.</div>';
+  };
+
+  window.jcMoveArtistSong=async function(id,direction){
+    if(!adminNow())return;
+
+    const input=document.getElementById("jcOrderArtist");
+    const name=(input?.value||"").trim();
+    const exact=artistNamesNow().find(n=>n.toLowerCase()===name.toLowerCase());
+    if(!exact)return;
+
+    let list=sortArtistSongs(
+      songsNow().filter(s=>primaryArtistNow(s.artist).toLowerCase()===exact.toLowerCase()),
+      exact
+    );
+
+    const at=list.findIndex(s=>Number(s.id)===Number(id));
+    if(at<0)return;
+
+    const to=at+direction;
+    if(to<0||to>=list.length)return;
+
+    const tmp=list[at];
+    list[at]=list[to];
+    list[to]=tmp;
+
+    const ids=list.map(s=>Number(s.id));
+    orderMap[exact]=ids;
+
+    const status=document.getElementById("jcOrderStatus");
+    if(status)status.textContent="Saving order...";
+
+    try{
+      const {error}=await client.from(ORDER_TABLE).upsert(
+        {artist_name:exact,song_ids:ids,updated_at:new Date().toISOString()},
+        {onConflict:"artist_name"}
+      );
+
+      if(error)throw error;
+
+      if(status)status.textContent="Order saved.";
+      jcRenderOrderList();
+
+      /* Refresh the public artist page if it is currently open. */
+      if(typeof jcOpenArtist==="function" && typeof jcArtist!=="undefined" && jcArtist===exact){
+        jcOpenArtist(exact);
+      }
+    }catch(error){
+      console.error(error);
+      if(status)status.textContent="Order could not be saved. Run the SQL setup supplied with this file.";
+    }
+  };
+
+  /* ===== Delete Artist ===== */
+  window.jcDeleteArtist=async function(){
+    if(!adminNow()){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    const input=document.getElementById("jcDeleteArtist");
+    const status=document.getElementById("jcDeleteArtistStatus");
+    const name=(input?.value||"").trim();
+
+    const exact=artistNamesNow().find(n=>n.toLowerCase()===name.toLowerCase());
+    if(!exact){
+      if(status)status.textContent="Artist not found.";
       return;
     }
 
     if(!confirm('Delete artist profile "'+exact+'"?'))return;
 
-    delete profilesMap[exact];
+    const p=profilesNow();
+    delete p[exact];
+    localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
 
-    localStorage.setItem(
-      "jassiahArtistProfiles",
-      JSON.stringify(profilesMap)
-    );
-
-    if(status)status.textContent="Artist profile deleted.";
     if(input)input.value="";
+    if(status)status.textContent="Artist profile deleted.";
 
-    refreshDeleteArtistList();
+    refreshAdminNames();
 
     if(typeof renderHome==="function")renderHome();
     if(typeof renderArtists==="function")renderArtists();
+
+    if(typeof jcArtist!=="undefined"&&jcArtist===exact)jcGo(2);
   };
 
-  /* ---------- Security/session state ----------
-     A visitor's browser session is separate from the admin's browser.
-     We explicitly initialize currentUser from Supabase here so we don't
-     accidentally treat a stale client-side variable as an admin session. */
-  async function syncAdminSession(){
+  /* ===== Fan Photos: Supabase Storage ===== */
+  async function listFanPhotos(){
     try{
-      if(typeof client==="undefined" || !client.auth)return;
+      const {data,error}=await client.storage.from(FAN_BUCKET).list(FAN_PREFIX,{
+        limit:200,offset:0,sortBy:{column:"created_at",order:"desc"}
+      });
 
-      const {data,error}=await client.auth.getSession();
-      if(error){
-        console.warn("Auth session check:",error.message);
-        return;
-      }
+      if(error)throw error;
 
-      currentUser=data?.session?.user||null;
-
-      const button=document.getElementById("jcAdminButton");
-
-      if(button){
-        button.textContent=currentUser
-          ? "⚙ Admin Hub"
-          : "🔐 Admin Login";
-      }
+      return (data||[])
+        .filter(f=>f?.name)
+        .map(f=>{
+          const path=FAN_PREFIX+"/"+f.name;
+          return {
+            name:f.name.replace(/^\d+_/,""),
+            path,
+            url:client.storage.from(FAN_BUCKET).getPublicUrl(path).data.publicUrl
+          };
+        });
     }catch(error){
-      console.warn("Auth initialization:",error);
+      console.warn("Fan photo list:",error);
+      return[];
     }
   }
 
-  /* ---------- Startup ---------- */
-  document.addEventListener("DOMContentLoaded",()=>{
-    refreshDeleteArtistList();
-    syncAdminSession();
+  function fanPhotoMarkup(items,admin){
+    if(!items.length){
+      return '<div style="color:#777;font-size:11px;padding:8px">No fan photos yet.</div>';
+    }
 
-    /* Keep the searchable list current after Supabase/local data loads. */
-    setTimeout(refreshDeleteArtistList,1200);
+    return items.map(item=>`
+      <div class="${admin?"jc-photo-admin-card":"jc-fan-public-card"}">
+        <img src="${esc(item.url)}" alt="" onclick="jcOpenPhoto('${jesc(item.url)}')">
+        <div class="${admin?"jc-photo-admin-caption":"jc-fan-public-caption"}">${esc(item.name||"Fan photo")}</div>
+        ${admin?`<button type="button" class="jc-photo-delete"
+          onclick="jcDeleteFanPhoto('${jesc(item.path)}')">Delete</button>`:""}
+      </div>
+    `).join("");
+  }
+
+  window.jcLoadFanPhotos=async function(){
+    const items=await listFanPhotos();
+
+    const pub=document.getElementById("jcFanPublicGallery");
+    const admin=document.getElementById("jcAdminGallery");
+
+    if(pub)pub.innerHTML=fanPhotoMarkup(items,false);
+    if(admin)admin.innerHTML=fanPhotoMarkup(items,true);
+  };
+
+  window.jcUploadFanPhoto=async function(){
+    if(!adminNow()){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    const file=document.getElementById("jcFanPhoto")?.files?.[0];
+    const caption=(document.getElementById("jcFanCaption")?.value||"").trim();
+    const status=document.getElementById("jcFanStatus");
+
+    if(!file){
+      if(status)status.textContent="Choose a picture first.";
+      return;
+    }
+
+    if(status)status.textContent="Uploading photo...";
+
+    try{
+      const path=FAN_PREFIX+"/"+Date.now()+"_"+cleanName(file.name);
+      const result=await client.storage.from(FAN_BUCKET).upload(path,file,{
+        upsert:false,contentType:file.type
+      });
+
+      if(result.error)throw result.error;
+
+      if(caption){
+        let caps={};
+        try{caps=JSON.parse(localStorage.getItem("jassiahFanPhotoCaptions")||"{}")}catch(_){}
+        caps[path]=caption;
+        localStorage.setItem("jassiahFanPhotoCaptions",JSON.stringify(caps));
+      }
+
+      document.getElementById("jcFanPhoto").value="";
+      document.getElementById("jcFanCaption").value="";
+      if(status)status.textContent="Photo uploaded.";
+
+      await jcLoadFanPhotos();
+      const dotStamp=Date.now();
+      localStorage.setItem("jassiahLastFanPhotoUpload",String(dotStamp));
+    }catch(error){
+      console.error(error);
+      if(status)status.textContent="Photo upload failed: "+(error?.message||"Unknown error");
+    }
+  };
+
+  window.jcDeleteFanPhoto=async function(path){
+    if(!adminNow()){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    if(!confirm("Delete this fan photo?"))return;
+
+    try{
+      const {error}=await client.storage.from(FAN_BUCKET).remove([path]);
+      if(error)throw error;
+
+      try{
+        const caps=JSON.parse(localStorage.getItem("jassiahFanPhotoCaptions")||"{}");
+        delete caps[path];
+        localStorage.setItem("jassiahFanPhotoCaptions",JSON.stringify(caps));
+      }catch(_){}
+
+      await jcLoadFanPhotos();
+    }catch(error){
+      console.error(error);
+      alert("Could not delete photo: "+(error?.message||"Unknown error"));
+    }
+  };
+
+  window.jcOpenPhoto=function(url){
+    const m=document.getElementById("jcLightbox");
+    const img=document.getElementById("jcLightboxImg");
+    if(!m||!img)return;
+    img.src=url;m.classList.add("open");
+  };
+  window.jcCloseLightbox=function(e){
+    if(!e||e.target.id==="jcLightbox"||e.target.closest(".jc-close-x")){
+      document.getElementById("jcLightbox")?.classList.remove("open");
+    }
+  };
+
+  /* ===== Navigation: 0 Home, 1 Songs, 2 Artists, 3 Liked,
+     4 Playlists, 5 Albums, 6 Fan Photos, 7 Artist Detail, 8 Admin ===== */
+  window.jcGo=function(n){
+    page=Math.max(0,Math.min(8,Number(n)||0));
+    const track=document.getElementById("jcTrack");
+    if(track)track.style.transform=`translateX(-${page*100}%)`;
+
+    document.querySelectorAll(".jc-nav").forEach(btn=>{
+      btn.classList.toggle("active",Number(btn.dataset.page)===Math.min(page,6));
+    });
+
+    if(page===0)renderHome();
+    if(page===1)renderSongs();
+    if(page===2)renderArtists();
+    if(page===3)renderSongs();
+    if(page===4)renderPlaylists();
+    if(page===5)renderAlbums();
+    if(page===6)jcLoadFanPhotos();
+    if(page===8){
+      if(!adminNow()){
+        alert("Please log in as admin first.");
+        page=0;
+        if(track)track.style.transform="translateX(0)";
+        return;
+      }
+      refreshAdminNames();
+      refreshAlbumSongChecks();
+      jcRenderDeleteSongList();
+      jcRenderOrderList();
+      jcLoadFanPhotos();
+    }
+  };
+  window.jcBack=function(){jcGo(page<=0?5:page-1)};
+  window.jcForward=function(){jcGo(page>=5?0:page+1)};
+
+  /* ===== Admin button/login ===== */
+  function bindAdminButton(){
+    const b=document.getElementById("jcAdminButton");
+    if(!b)return;
+
+    b.onclick=function(e){
+      e.preventDefault();
+      e.stopPropagation();
+
+      if(adminNow()){
+        refreshAdminNames();
+        refreshAlbumSongChecks();
+        jcRenderDeleteSongList();
+        jcRenderOrderList();
+        jcGo(8);
+      }else{
+        if(typeof jcOpenLogin==="function")jcOpenLogin();
+      }
+    };
+  }
+
+  /* ===== Start ===== */
+  document.addEventListener("DOMContentLoaded",async()=>{
+    await loadOrderMap();
+    refreshAdminNames();
+    refreshAlbumSongChecks();
+    jcRenderDeleteSongList();
+    jcRenderOrderList();
+    jcLoadFanPhotos();
+    bindAdminButton();
+
+    /* Keep home free of fan photos. */
+    const oldHome=document.getElementById("jcHomeGallery");
+    if(oldHome){
+      oldHome.closest(".jc-gallery")?.remove();
+    }
+
+    /* One delayed repaint after Supabase data has populated songs. */
+    setTimeout(async()=>{
+      await loadOrderMap();
+      refreshAlbumSongChecks();
+      jcRenderDeleteSongList();
+      jcRenderOrderList();
+      jcLoadFanPhotos();
+      renderHome();
+      renderSongs();
+      renderArtists();
+    },1400);
   });
 
 })();
