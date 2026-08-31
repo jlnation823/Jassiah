@@ -529,6 +529,61 @@ body:not(.admin-mode) .admin-only{
 </head>
 
 <body>
+<div id="jassiahStep5EditArtist" style="
+  position:fixed;inset:0;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.78);z-index:50000;padding:16px;box-sizing:border-box;
+">
+  <div style="
+    width:min(430px,100%);box-sizing:border-box;
+    background:#181818;border:1px solid #6b531c;border-radius:12px;
+    padding:18px;box-shadow:0 25px 70px rgba(0,0,0,.75);
+  ">
+    <div style="font-size:21px;font-weight:900;color:#ffd76a;margin-bottom:14px">
+      ✏️ Edit Artist
+    </div>
+
+    <label style="display:block;color:#aaa;font-size:12px;margin-bottom:5px">
+      Artist name
+    </label>
+    <input id="step5ArtistName" type="text"
+      style="
+        width:100%;box-sizing:border-box;
+        background:#242424;color:#fff;border:1px solid #444;
+        border-radius:7px;padding:10px;margin-bottom:12px;
+      ">
+
+    <label style="display:block;color:#aaa;font-size:12px;margin-bottom:5px">
+      Artist picture
+    </label>
+    <input id="step5ArtistImage" type="file" accept="image/*"
+      style="
+        width:100%;box-sizing:border-box;
+        background:#242424;color:#ddd;border:1px solid #444;
+        border-radius:7px;padding:8px;margin-bottom:13px;
+      ">
+
+    <div style="display:flex;gap:8px">
+      <button type="button" onclick="step5SaveArtist()"
+        style="
+          background:#ffd76a;color:#111;border:0;border-radius:999px;
+          padding:10px 15px;font-weight:900;cursor:pointer;
+        "
+      >Save Changes</button>
+
+      <button type="button" onclick="step5CloseArtist()"
+        style="
+          background:#333;color:#fff;border:1px solid #555;border-radius:999px;
+          padding:10px 15px;font-weight:800;cursor:pointer;
+        "
+      >Cancel</button>
+    </div>
+
+    <div id="step5ArtistStatus"
+      style="min-height:20px;margin-top:9px;color:#ffd76a;font-size:12px">
+    </div>
+  </div>
+</div>
+
 <div id="authBar" style="
   width:min(950px,94%);
   margin:8px auto 10px;
@@ -3630,6 +3685,172 @@ document.addEventListener("DOMContentLoaded",()=>{
       attributeFilter:["class"]
     });
   }
+});
+
+/* STEP 5 ONLY: Edit Artist */
+let step5EditingArtist="";
+
+function step5OpenArtist(name){
+  if(typeof currentUser!=="undefined" && !currentUser){
+    alert("Please log in as admin to edit an artist.");
+    return;
+  }
+
+  step5EditingArtist=String(name||"").trim();
+
+  const profile=(typeof artistProfiles!=="undefined" ? artistProfiles[step5EditingArtist] : {}) || {};
+
+  const modal=document.getElementById("jassiahStep5EditArtist");
+  const nameInput=document.getElementById("step5ArtistName");
+  const imageInput=document.getElementById("step5ArtistImage");
+  const status=document.getElementById("step5ArtistStatus");
+
+  if(!modal||!nameInput||!imageInput||!status){
+    alert("Edit Artist window could not be opened.");
+    return;
+  }
+
+  nameInput.value=step5EditingArtist;
+  imageInput.value="";
+  status.textContent="";
+  modal.style.display="flex";
+  nameInput.focus();
+}
+
+/* Force all existing Edit Artist buttons to use this editor. */
+window.openEditArtist=function(name){
+  step5OpenArtist(name);
+};
+
+function step5CloseArtist(){
+  const modal=document.getElementById("jassiahStep5EditArtist");
+  if(modal)modal.style.display="none";
+  step5EditingArtist="";
+}
+
+function step5SaveArtist(){
+  if(typeof currentUser!=="undefined" && !currentUser){
+    alert("Please log in as admin.");
+    return;
+  }
+
+  const oldName=String(step5EditingArtist||"").trim();
+  const newName=String(document.getElementById("step5ArtistName")?.value||"").trim();
+  const imageInput=document.getElementById("step5ArtistImage");
+  const status=document.getElementById("step5ArtistStatus");
+
+  if(!oldName){
+    status.textContent="No artist selected.";
+    return;
+  }
+
+  if(!newName){
+    status.textContent="Enter an artist name.";
+    return;
+  }
+
+  const profiles=(typeof artistProfiles!=="undefined")?artistProfiles:{};
+  const oldProfile=profiles[oldName]||{};
+
+  const finish=(image)=>{
+    profiles[newName]={
+      image:image||oldProfile.image||""
+    };
+
+    if(oldName!==newName){
+      delete profiles[oldName];
+
+      if(typeof songs!=="undefined"){
+        songs.forEach(song=>{
+          const credit=String(song.artist||"");
+          const low=credit.toLowerCase();
+          const oldLow=oldName.toLowerCase();
+
+          if(low===oldLow){
+            song.artist=newName;
+          }else if(
+            low.startsWith(oldLow+" ft") ||
+            low.startsWith(oldLow+" feat") ||
+            low.startsWith(oldLow+" featuring")
+          ){
+            song.artist=newName+credit.substring(oldName.length);
+          }
+        });
+      }
+
+      if(typeof songs!=="undefined" && typeof client!=="undefined"){
+        Promise.all(
+          songs.map(song=>
+            client.from("songs")
+              .update({artist:song.artist})
+              .eq("id",song.id)
+          )
+        ).catch(error=>console.error("Artist update:",error));
+      }
+    }
+
+    if(typeof saveArtistProfiles==="function"){
+      saveArtistProfiles();
+    }else{
+      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(profiles));
+    }
+
+    status.textContent="Artist profile saved.";
+
+    setTimeout(()=>{
+      step5CloseArtist();
+
+      try{
+        if(typeof renderArtists==="function")renderArtists();
+      }catch(_){}
+
+      try{
+        if(typeof renderHomeDashboard==="function")renderHomeDashboard();
+      }catch(_){}
+
+      try{
+        if(typeof loadSongs==="function")loadSongs();
+      }catch(_){}
+    },300);
+  };
+
+  if(imageInput?.files?.length){
+    const reader=new FileReader();
+
+    reader.onload=()=>{
+      finish(String(reader.result||""));
+    };
+
+    reader.onerror=()=>{
+      status.textContent="Could not read that picture.";
+    };
+
+    reader.readAsDataURL(imageInput.files[0]);
+  }else{
+    finish("");
+  }
+}
+
+document.addEventListener("keydown",event=>{
+  if(event.key==="Escape"){
+    step5CloseArtist();
+  }
+});
+
+document.addEventListener("DOMContentLoaded",()=>{
+  /* Make sure any existing inline Edit Artist control reaches the new editor. */
+  document.querySelectorAll('[onclick*="openEditArtist"]').forEach(el=>{
+    el.onclick=function(event){
+      event.preventDefault();
+      const match=this.getAttribute("onclick").match(
+        /openEditArtist\(['"]([^'"]+)['"]\)/
+      );
+
+      if(match){
+        step5OpenArtist(match[1]);
+      }
+    };
+  });
 });
 </script>
 
