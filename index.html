@@ -371,508 +371,744 @@ body:not(.admin-mode) .admin-only{
 }
 
 /* =========================================================
-   JASSIAH STREAMING LAYOUT
-   Spotify-inspired structure with Jassiah gold branding.
-   Existing music/player logic is preserved.
+   JASSIAH — SPOTIFY-INSPIRED STREAMING LAYOUT
    ========================================================= */
+
+:root{
+  --j-black:#000;
+  --j-dark:#121212;
+  --j-dark2:#181818;
+  --j-dark3:#232323;
+  --j-line:#2a2a2a;
+  --j-muted:#a7a7a7;
+  --j-gold:#ffd76a;
+  --j-gold2:#a77818;
+}
 
 body{
   background:#000 !important;
   color:#fff;
-  padding-bottom:105px !important;
+  padding-bottom:96px !important;
 }
 
-#authBar{
-  position:fixed !important;
-  top:10px !important;
-  right:16px !important;
-  width:auto !important;
-  margin:0 !important;
-  z-index:20000 !important;
-}
-
-#adminLoginPanel{
-  position:fixed !important;
-  top:58px !important;
-  right:16px !important;
-  z-index:20001 !important;
+body > header{
+  display:none !important;
 }
 
 .j-sidebar{
   position:fixed;
   left:0;
   top:0;
-  bottom:95px;
-  width:228px;
-  background:#000;
-  border-right:1px solid #161616;
+  bottom:96px;
+  width:72px;
+  background:#050505;
+  border-right:1px solid #1b1b1b;
   z-index:12000;
-  padding:18px 12px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:12px 0;
   box-sizing:border-box;
 }
 
-.j-brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:8px 10px 22px;
-  color:#ffd76a;
-  font-size:28px;
-  font-weight:900;
-  letter-spacing:.4px;
-}
-
-.j-brand-mark{
-  width:35px;
-  height:35px;
+.j-logo{
+  width:43px;
+  height:43px;
   border-radius:50%;
-  border:2px solid #ffd76a;
+  border:2px solid var(--j-gold);
+  color:var(--j-gold);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:18px;
-}
-
-.j-side-group{
-  color:#6e6e6e;
-  font-size:10px;
-  text-transform:uppercase;
-  letter-spacing:1.8px;
-  font-weight:800;
-  padding:17px 11px 7px;
+  font-size:20px;
+  font-weight:900;
+  margin:2px 0 14px;
 }
 
 .j-side-nav{
   display:flex;
   flex-direction:column;
-  gap:3px;
-}
-
-.j-side-nav button{
+  align-items:center;
+  gap:8px;
   width:100%;
-  text-align:left;
-  background:transparent;
-  color:#aaa;
-  border:0;
-  border-radius:7px;
-  padding:11px 12px;
-  font-weight:800;
-  cursor:pointer;
-  transition:.15s;
 }
 
-.j-side-nav button:hover,
-.j-side-nav button.active{
+.j-side-btn{
+  width:46px;
+  height:46px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:#9b9b9b;
+  font-size:20px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+}
+
+.j-side-btn:hover,
+.j-side-btn.active{
   color:#fff;
   background:#1c1c1c;
 }
 
-.j-side-nav button.active{
-  box-shadow:inset 3px 0 0 #ffd76a;
+.j-side-btn.active{
+  box-shadow:inset 3px 0 0 var(--j-gold);
 }
 
-.j-main-offset{
-  margin-left:228px;
-  width:calc(100% - 228px);
+.j-side-btn::after{
+  content:attr(data-label);
+  position:absolute;
+  left:58px;
+  top:50%;
+  transform:translateY(-50%);
+  white-space:nowrap;
+  background:#292929;
+  color:#fff;
+  padding:7px 9px;
+  border-radius:6px;
+  font-size:11px;
+  font-weight:700;
+  opacity:0;
+  pointer-events:none;
+  transition:.12s;
+}
+
+.j-side-btn:hover::after{
+  opacity:1;
+}
+
+.j-main{
+  margin-left:72px;
+  margin-right:320px;
   min-height:100vh;
 }
 
 .j-topbar{
   position:fixed;
-  left:228px;
-  right:0;
   top:0;
-  height:64px;
+  left:72px;
+  right:320px;
+  height:62px;
   z-index:11000;
   background:rgba(18,18,18,.96);
-  border-bottom:1px solid #1f1f1f;
+  border-bottom:1px solid #1e1e1e;
   display:flex;
-  align-items:center;
   justify-content:center;
-  gap:10px;
+  align-items:center;
   backdrop-filter:blur(12px);
 }
 
-.j-top-arrows{
+.j-history{
   position:absolute;
-  left:16px;
+  left:14px;
   display:flex;
-  gap:5px;
+  gap:6px;
 }
 
-.j-round-icon{
-  width:36px;
-  height:36px;
-  border-radius:50%;
+.j-history button,
+.j-top-icon{
+  width:34px;
+  height:34px;
   border:0;
+  border-radius:50%;
   background:#111;
   color:#ddd;
-  font-size:20px;
   cursor:pointer;
 }
 
-.j-round-icon:hover{
-  background:#252525;
+.j-history button:hover,
+.j-top-icon:hover{
+  background:#262626;
 }
 
 .j-search-wrap{
-  width:min(620px,65vw);
+  width:min(620px,62%);
+  position:relative;
 }
 
 #jTopSearch{
   width:100%;
   box-sizing:border-box;
-  padding:12px 18px 12px 42px;
-  border-radius:999px;
   background:#242424;
-  border:1px solid #242424;
   color:#fff;
+  border:1px solid transparent;
+  border-radius:999px;
+  padding:11px 44px 11px 42px;
   outline:none;
   font-size:14px;
 }
 
 #jTopSearch:focus{
-  border-color:#555;
+  border-color:#666;
 }
 
 .j-search-icon{
   position:absolute;
-  margin-left:15px;
-  margin-top:10px;
-  color:#999;
+  left:15px;
+  top:10px;
+  color:#aaa;
   pointer-events:none;
 }
 
-.j-content{
-  padding:82px 24px 25px;
-  max-width:1200px;
-  margin:0 auto;
-}
-
-.j-content .wrap{
-  margin:0 !important;
-  width:100% !important;
-  max-width:none !important;
-}
-
-/* Make the existing sections feel like streaming-app sections. */
-.home-dashboard,
-.featured-panel,
-.panel{
-  scroll-margin-top:80px;
-}
-
-.home-shell{
-  background:
-    radial-gradient(circle at 20% 0,rgba(255,215,106,.18),transparent 40%),
-    linear-gradient(135deg,#211a0a,#121212 58%,#090909) !important;
-  border:1px solid #4e3c16 !important;
-  border-radius:14px !important;
-}
-
-.home-title{
-  font-size:48px !important;
-}
-
-.panel{
-  background:rgba(18,18,18,.95) !important;
-  border-color:#252525 !important;
-  box-shadow:none !important;
-}
-
-.panel h2{
-  color:#fff;
-}
-
-.search{
-  background:#242424 !important;
-  border-color:#242424 !important;
-  border-radius:999px !important;
-}
-
-/* Bottom player — same general positions as a desktop streaming player. */
-.player{
-  left:0 !important;
-  right:0 !important;
-  bottom:0 !important;
-  height:92px !important;
-  padding:8px 18px !important;
-  display:grid !important;
-  grid-template-columns:minmax(255px,31%) minmax(300px,1fr) minmax(150px,22%);
-  grid-template-rows:52px 28px;
-  column-gap:15px;
-  row-gap:1px;
-  align-items:center;
-  background:rgba(10,10,10,.98) !important;
-  border-top:1px solid #2c2c2c !important;
-  box-shadow:0 -12px 35px rgba(0,0,0,.55) !important;
-}
-
-.player img{
-  grid-column:1;
-  grid-row:1 / span 2;
-  width:62px !important;
-  height:62px !important;
-  border-radius:7px !important;
-  border:1px solid #3f3f3f;
-}
-
-.player-song-info{
-  grid-column:1;
-  grid-row:1 / span 2;
-  margin-left:74px;
-  width:auto !important;
-  min-width:0;
-  align-self:center;
-}
-
-.player-buttons{
-  grid-column:2;
-  grid-row:1;
-  justify-content:center !important;
-}
-
-.player-progress{
-  grid-column:2;
-  grid-row:2;
-  width:100%;
-  min-width:0 !important;
-}
-
-.player-volume{
-  grid-column:3;
-  grid-row:1 / span 2;
-  justify-self:end;
-}
-
-.player-play{
-  background:#fff !important;
-  color:#000 !important;
-  width:45px !important;
-  height:45px !important;
-}
-
-.player-icon{
-  width:37px !important;
-  height:37px !important;
-}
-
-.player-progress input{
-  accent-color:#d6a33d !important;
-}
-
-.player-volume input{
-  accent-color:#d6a33d !important;
-}
-
-.j-mobile-nav{
-  display:none;
-}
-
-/* Make artist cards feel like streaming-app tiles. */
-#artistsGrid{
-  display:grid !important;
-  grid-template-columns:repeat(auto-fill,minmax(170px,1fr)) !important;
-  gap:16px !important;
-}
-
-#artistsGrid > div{
-  background:#181818 !important;
-  border:1px solid #242424 !important;
-  border-radius:10px !important;
-  padding:10px !important;
-}
-
-#artistsGrid > div:hover{
-  background:#232323 !important;
-}
-
-#artistsGrid img{
-  border-radius:7px !important;
-  width:100% !important;
-  aspect-ratio:1/1 !important;
-  object-fit:cover !important;
-}
-
-/* Desktop home quick cards */
-.j-home-strip{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:18px;
-}
-
-.j-home-strip button{
+.j-search-clear{
+  position:absolute;
+  right:10px;
+  top:5px;
+  width:30px;
+  height:30px;
   border:0;
-  background:#181818;
+  background:transparent;
+  color:#aaa;
+  font-size:20px;
+  cursor:pointer;
+}
+
+#jSearchResults{
+  position:absolute;
+  top:47px;
+  left:0;
+  right:0;
+  background:#292929;
   border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+  overflow:hidden;
+  display:none;
+  max-height:420px;
+  overflow-y:auto;
+}
+
+.j-search-group{
+  padding:9px 14px 5px;
+  color:#999;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1.4px;
+  font-weight:900;
+}
+
+.j-search-item{
+  width:100%;
+  border:0;
+  background:transparent;
   color:#fff;
-  padding:10px;
   display:flex;
   align-items:center;
   gap:10px;
   text-align:left;
+  padding:9px 12px;
   cursor:pointer;
 }
 
-.j-home-strip button:hover{
+.j-search-item:hover{
+  background:#3a3a3a;
+}
+
+.j-search-item img{
+  width:42px;
+  height:42px;
+  border-radius:5px;
+  object-fit:cover;
+  background:#1b1b1b;
+  flex-shrink:0;
+}
+
+.j-search-main{
+  min-width:0;
+  flex:1;
+}
+
+.j-search-title{
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.j-search-sub{
+  color:#aaa;
+  font-size:12px;
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.j-rightbar{
+  position:fixed;
+  right:0;
+  top:0;
+  bottom:96px;
+  width:320px;
+  background:#080808;
+  border-left:1px solid #1c1c1c;
+  z-index:1000;
+  padding:15px;
+  box-sizing:border-box;
+  overflow-y:auto;
+}
+
+.j-now-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#fff;
+  font-weight:900;
+  margin-bottom:14px;
+}
+
+.j-now-actions{
+  display:flex;
+  gap:5px;
+}
+
+.j-now-actions button{
+  border:0;
+  background:transparent;
+  color:#aaa;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.j-now-art{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  border-radius:9px;
+  background:#1d1d1d;
+}
+
+.j-now-title{
+  color:#fff;
+  font-size:21px;
+  font-weight:900;
+  margin-top:13px;
+  line-height:1.2;
+}
+
+.j-now-artist{
+  color:var(--j-gold);
+  font-size:14px;
+  margin-top:5px;
+  font-weight:700;
+  word-break:break-word;
+}
+
+.j-now-section{
+  border-top:1px solid #272727;
+  margin-top:18px;
+  padding-top:14px;
+}
+
+.j-now-section h4{
+  margin:0 0 10px;
+  font-size:13px;
+  color:#ddd;
+}
+
+.j-artist-mini{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.j-artist-mini img{
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  object-fit:cover;
+  background:#222;
+}
+
+.j-artist-mini-name{
+  font-weight:800;
+  color:#fff;
+}
+
+.j-content{
+  padding:78px 24px 26px;
+  max-width:1150px;
+  margin:0 auto;
+}
+
+.j-section-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:10px 0 14px;
+}
+
+.j-section-bar h2{
+  margin:0;
+  font-size:27px;
+}
+
+.j-hero-card{
+  border-radius:12px;
+  padding:28px;
+  background:
+    radial-gradient(circle at 20% 0,rgba(255,215,106,.16),transparent 42%),
+    linear-gradient(135deg,#211b0d,#151515 55%,#0d0d0d);
+  border:1px solid #3c2f18;
+}
+
+.j-hero-kicker{
+  color:#b39a5d;
+  font-size:10px;
+  letter-spacing:3px;
+  font-weight:900;
+}
+
+.j-hero-title{
+  font:italic 46px Georgia,serif;
+  color:var(--j-gold);
+  margin-top:6px;
+}
+
+.j-hero-sub{
+  color:#aaa;
+  margin-top:5px;
+}
+
+.j-pill-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin:17px 0;
+}
+
+.j-pill{
+  border:0;
+  border-radius:999px;
   background:#242424;
+  color:#ddd;
+  padding:8px 12px;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
 }
 
-.j-home-strip img{
-  width:48px;height:48px;border-radius:5px;object-fit:cover;background:#222;
+.j-pill:hover{
+  background:#333;
 }
 
-/* Don't let the hidden legacy container create blank space. */
-.j-hide-legacy{
-  display:none !important;
+.j-pill.active{
+  color:#111;
+  background:#fff;
 }
 
-@media(max-width:900px){
-  .j-sidebar{
-    width:190px;
+.j-stat-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-top:17px;
+}
+
+.j-stat{
+  background:#151515;
+  border:1px solid #252525;
+  border-radius:9px;
+  padding:11px;
+}
+
+.j-stat strong{
+  color:var(--j-gold);
+  font-size:22px;
+}
+
+.j-stat span{
+  display:block;
+  color:#898989;
+  font-size:11px;
+  margin-top:3px;
+}
+
+.j-table{
+  background:#121212;
+  border-radius:10px;
+  overflow:hidden;
+  border:1px solid #202020;
+}
+
+.j-table-head,
+.j-table-row{
+  display:grid;
+  grid-template-columns:46px minmax(260px,2.4fr) minmax(190px,1.5fr) minmax(130px,1fr) 80px;
+  align-items:center;
+  column-gap:10px;
+}
+
+.j-table-head{
+  padding:10px 12px;
+  color:#909090;
+  font-size:11px;
+  border-bottom:1px solid #272727;
+  text-transform:none;
+}
+
+.j-table-row{
+  padding:9px 12px;
+  min-height:66px;
+  border-bottom:1px solid #202020;
+  cursor:pointer;
+}
+
+.j-table-row:last-child{
+  border-bottom:0;
+}
+
+.j-table-row:hover{
+  background:#1d1d1d;
+}
+
+.j-num{
+  color:#888;
+  text-align:center;
+}
+
+.j-track{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.j-track-cover{
+  width:48px;
+  height:48px;
+  border-radius:5px;
+  object-fit:cover;
+  background:#222;
+  flex-shrink:0;
+}
+
+.j-track-main{
+  min-width:0;
+}
+
+.j-track-title{
+  color:#fff;
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.j-track-artist{
+  color:#aaa;
+  font-size:12px;
+  margin-top:3px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.j-artist-link{
+  color:#ddd;
+  text-decoration:none;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.j-artist-link:hover{
+  color:var(--j-gold);
+}
+
+.j-date{
+  color:#aaa;
+  font-size:12px;
+}
+
+.j-duration{
+  color:#aaa;
+  font-size:12px;
+  text-align:right;
+}
+
+.j-row-play{
+  opacity:0;
+  width:32px;
+  height:32px;
+  margin-right:8px;
+  border-radius:50%;
+  border:0;
+  background:var(--j-gold);
+  color:#111;
+  cursor:pointer;
+}
+
+.j-table-row:hover .j-row-play{
+  opacity:1;
+}
+
+.j-feature-grid{
+  display:grid;
+  grid-template-columns:1.4fr 1fr;
+  gap:12px;
+}
+
+.j-feature-card{
+  background:#121212;
+  border:1px solid #242424;
+  border-radius:10px;
+  padding:16px;
+}
+
+.j-feature-card h3{
+  margin:0 0 12px;
+  font-size:14px;
+  color:#ddd;
+}
+
+.j-mini-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.j-mini-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  background:#191919;
+  padding:7px;
+  border-radius:7px;
+  cursor:pointer;
+}
+
+.j-mini-row:hover{
+  background:#232323;
+}
+
+.j-mini-row img{
+  width:50px;height:50px;border-radius:5px;object-fit:cover;background:#222;
+}
+
+.j-mini-main{
+  min-width:0;
+  flex:1;
+}
+
+.j-mini-title{
+  font-weight:800;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.j-mini-sub{
+  color:#999;
+  font-size:11px;
+  margin-top:3px;
+}
+
+.j-no-results{
+  padding:15px;
+  color:#8c8c8c;
+}
+
+@media(max-width:1100px){
+  .j-rightbar{
+    width:275px;
   }
-
-  .j-main-offset{
-    margin-left:190px;
-    width:calc(100% - 190px);
+  .j-main{
+    margin-right:275px;
   }
-
   .j-topbar{
-    left:190px;
+    right:275px;
   }
-
-  .j-content{
-    padding-left:14px;
-    padding-right:14px;
-  }
-
-  .player{
-    grid-template-columns:240px minmax(220px,1fr) 120px;
-    column-gap:9px;
+  .j-table-head,
+  .j-table-row{
+    grid-template-columns:36px minmax(220px,2fr) minmax(160px,1.5fr) 110px 70px;
   }
 }
 
-@media(max-width:700px){
-  body{
-    padding-bottom:145px !important;
+@media(max-width:800px){
+  .j-sidebar{
+    top:auto;
+    bottom:96px;
+    left:0;
+    right:0;
+    width:100%;
+    height:55px;
+    border-right:0;
+    border-top:1px solid #242424;
+    flex-direction:row;
+    justify-content:space-around;
+    padding:3px 4px;
   }
 
-  .j-sidebar{
+  .j-logo{
+    width:38px;
+    height:38px;
+    margin:0;
+  }
+
+  .j-side-nav{
+    flex-direction:row;
+    width:auto;
+    flex:1;
+    justify-content:space-around;
+  }
+
+  .j-side-btn{
+    width:44px;
+    height:44px;
+  }
+
+  .j-side-btn::after{
     display:none;
   }
 
-  .j-main-offset{
+  .j-main{
     margin-left:0;
-    width:100%;
+    margin-right:0;
   }
 
   .j-topbar{
     left:0;
-    height:60px;
+    right:0;
+    height:58px;
   }
 
-  .j-top-arrows{
+  .j-history{
     display:none;
   }
 
   .j-search-wrap{
-    width:82vw;
+    width:85%;
   }
 
-  .j-content{
-    padding:74px 10px 22px;
-  }
-
-  #authBar{
-    right:8px !important;
-  }
-
-  #adminLoginPanel{
-    right:8px !important;
-    left:8px !important;
-    width:auto !important;
-  }
-
-  .j-mobile-nav{
-    position:fixed;
-    left:0;
-    right:0;
-    bottom:92px;
-    height:53px;
-    z-index:19000;
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    background:#0b0b0b;
-    border-top:1px solid #242424;
-  }
-
-  .j-mobile-nav button{
-    background:transparent;
-    border:0;
-    color:#898989;
-    font-size:10px;
-    font-weight:800;
-  }
-
-  .j-mobile-nav button.active{
-    color:#ffd76a;
-  }
-
-  .home-title{
-    font-size:34px !important;
-  }
-
-  .j-home-strip{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .player{
-    height:92px !important;
-    padding:7px 10px !important;
-    grid-template-columns:150px 1fr 0;
-    grid-template-rows:45px 35px;
-    column-gap:5px;
-  }
-
-  .player img{
-    width:48px !important;
-    height:48px !important;
-  }
-
-  .player-song-info{
-    margin-left:56px;
-  }
-
-  .player-buttons{
-    gap:3px !important;
-  }
-
-  .player-icon{
-    width:32px !important;
-    height:32px !important;
-  }
-
-  .player-play{
-    width:42px !important;
-    height:42px !important;
-  }
-
-  .player-buttons .player-icon:first-child{
+  .j-rightbar{
     display:none;
   }
 
-  .player-progress{
-    grid-column:1 / span 2;
-    grid-row:2;
+  .j-content{
+    padding:70px 10px 18px;
   }
 
-  .player-volume{
-    display:none !important;
+  .j-stat-grid{
+    grid-template-columns:repeat(2,1fr);
   }
 
-  #artistsGrid{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  .j-feature-grid{
+    grid-template-columns:1fr;
+  }
+
+  .j-table{
+    overflow-x:auto;
+  }
+
+  .j-table-head,
+  .j-table-row{
+    min-width:760px;
+  }
+
+  .j-hero-title{
+    font-size:34px;
   }
 }
 </style>
@@ -880,51 +1116,80 @@ body{
 
 <body>
 <aside class="j-sidebar">
-  <div class="j-brand">
-    <span class="j-brand-mark">J</span>
-    <span>Jassiah</span>
-  </div>
+  <div class="j-logo">J</div>
 
   <nav class="j-side-nav">
-    <button class="active" data-jnav="homeDashboard" onclick="jGo('homeDashboard')">⌂ Home</button>
-    <button data-jnav="songs" onclick="jGo('songs')">♫ Songs</button>
-    <button data-jnav="artistsPanel" onclick="jGo('artistsPanel')">🎤 Artists</button>
-    <button data-jnav="albumPanel" onclick="jGo('albumPanel')">💿 Albums</button>
-    <button data-jnav="playlistPanel" onclick="jGo('playlistPanel')">☷ Playlists</button>
-    <button data-jnav="favoriteSection" onclick="jGo('favoriteSection')">♥ Favorites</button>
+    <button class="j-side-btn active" data-label="Home" onclick="jGoTo('homeDashboard')">⌂</button>
+    <button class="j-side-btn" data-label="Songs" onclick="jGoTo('songs')">♫</button>
+    <button class="j-side-btn" data-label="Artists" onclick="jGoTo('artistsPanel')">🎤</button>
+    <button class="j-side-btn" data-label="Favorites" onclick="jGoTo('songs');setTimeout(()=>{document.getElementById('favoritesFilter')?.click()},250)">♥</button>
+    <button class="j-side-btn" data-label="Playlists" onclick="jGoTo('playlistPanel')">☷</button>
+    <button class="j-side-btn" data-label="Albums" onclick="jGoTo('albumPanel')">💿</button>
   </nav>
-
-  <div class="j-side-group">Your Library</div>
-  <div class="j-subtle" style="padding:0 12px;color:#777;font-size:12px;line-height:1.5">
-    Your songs, artists, albums and playlists.
-  </div>
 </aside>
 
 <div class="j-topbar">
-  <div class="j-top-arrows">
-    <button class="j-round-icon" type="button" onclick="history.back()">‹</button>
-    <button class="j-round-icon" type="button" onclick="history.forward()">›</button>
+  <div class="j-history">
+    <button type="button" onclick="history.back()">‹</button>
+    <button type="button" onclick="history.forward()">›</button>
   </div>
 
   <div class="j-search-wrap">
-    <span class="j-search-icon">🔎</span>
-    <input
-      id="jTopSearch"
-      type="text"
-      placeholder="What do you want to play?"
-      oninput="jSearch(this.value)"
-    >
+    <span class="j-search-icon">⌕</span>
+    <input id="jTopSearch" type="text" placeholder="What do you want to play?" autocomplete="off">
+    <button class="j-search-clear" id="jSearchClear" type="button" onclick="jClearSearch()" style="display:none">×</button>
+    <div id="jSearchResults"></div>
   </div>
 </div>
 
-<nav class="j-mobile-nav">
-  <button class="active" data-jnav="homeDashboard" onclick="jGo('homeDashboard')">⌂<br>Home</button>
-  <button data-jnav="songs" onclick="jGo('songs')">♫<br>Songs</button>
-  <button data-jnav="artistsPanel" onclick="jGo('artistsPanel')">🎤<br>Artists</button>
-  <button data-jnav="albumPanel" onclick="jGo('albumPanel')">💿<br>Albums</button>
-  <button data-jnav="favoriteSection" onclick="jGo('favoriteSection')">♥<br>Favorites</button>
-</nav>
+<aside class="j-rightbar">
+  <div class="j-now-top">
+    <span>Now Playing</span>
+    <div class="j-now-actions">
+      <button type="button" title="Collapse">‹</button>
+      <button type="button" title="More">⋯</button>
+    </div>
+  </div>
 
+  <img
+    id="jNowArt"
+    class="j-now-art"
+    src=""
+    alt="Now playing"
+  >
+
+  <div id="jNowTitle" class="j-now-title">Nothing playing</div>
+  <div id="jNowArtist" class="j-now-artist">Jassiah</div>
+
+  <div class="j-now-section">
+    <h4>About the artist</h4>
+    <div class="j-artist-mini">
+      <img id="jNowArtistImage" src="" alt="">
+      <div id="jNowArtistName" class="j-artist-mini-name">Jassiah</div>
+    </div>
+  </div>
+
+  <div class="j-now-section">
+    <h4>Playing</h4>
+    <button
+      type="button"
+      onclick="togglePlayer()"
+      style="
+        width:100%;
+        border:0;
+        border-radius:999px;
+        padding:10px;
+        background:#ffd76a;
+        color:#111;
+        font-weight:900;
+        cursor:pointer;
+      "
+    >▶ / ❚❚ Play</button>
+  </div>
+</aside>
+
+<div class="j-main">
+  <div class="j-content">
 
 <div id="authBar" style="
   width:min(950px,94%);
@@ -1014,7 +1279,7 @@ body{
 
 
 
-<div class="j-main-offset"><div class="j-content"><div class="wrap">
+<div class="wrap">
 
 <section id="homeDashboard" class="home-dashboard">
   <div class="home-shell">
@@ -1173,7 +1438,7 @@ body{
   ></div>
 </div>
 
-<div class="panel admin-only">
+<div class="panel">
   <h2>♫ Add New Song</h2>
 
   <input id="songTitle" type="text" placeholder="Song title">
@@ -1186,7 +1451,7 @@ body{
   <label>Cover image:</label>
   <input id="coverFile" type="file" accept="image/*">
 
-  <button class="admin-only upload" id="uploadBtn" onclick="uploadSong()">
+  <button class="admin-only" class="upload" id="uploadBtn" onclick="uploadSong()">
     Upload Song
   </button>
 
@@ -1764,116 +2029,6 @@ function renderSongs(list){
   });
 }
 
-
-let jArtistProfiles=[];
-
-async function loadJArtistProfiles(){
-  try{
-    const {data,error}=await client
-      .from("artist_profiles")
-      .select("id,name,image_url")
-      .order("name",{ascending:true});
-
-    if(error){
-      console.error("Artist profile load:",error);
-      return;
-    }
-
-    jArtistProfiles=data||[];
-
-    renderArtistsFromCloud();
-
-    if(currentIndex>=0 && songs[currentIndex]){
-      setNowPlaying(songs[currentIndex]);
-    }
-  }catch(error){
-    console.error("Artist profile load:",error);
-  }
-}
-
-function jArtistImageFor(song){
-  const credit=String(song?.artist||"").trim().toLowerCase();
-
-  if(!credit)return "";
-
-  const profile=jArtistProfiles.find(p=>{
-    const name=String(p.name||"").trim().toLowerCase();
-
-    return (
-      credit===name ||
-      credit.startsWith(name+" ft") ||
-      credit.startsWith(name+" feat") ||
-      credit.startsWith(name+" featuring") ||
-      credit.startsWith(name+" &") ||
-      credit.startsWith(name+" x") ||
-      credit.startsWith(name+" with")
-    );
-  });
-
-  return profile?.image_url||"";
-}
-
-function renderArtistsFromCloud(){
-  const grid=document.getElementById("artistsGrid");
-
-  if(!grid || !Array.isArray(jArtistProfiles))return;
-
-  if(!jArtistProfiles.length)return;
-
-  grid.innerHTML=jArtistProfiles.map(profile=>{
-    const name=String(profile.name||"").trim();
-    if(!name)return "";
-
-    const count=songs.filter(song=>{
-      const credit=String(song.artist||"").trim().toLowerCase();
-      const n=name.toLowerCase();
-
-      return credit===n ||
-        credit.startsWith(n+" ft") ||
-        credit.startsWith(n+" feat") ||
-        credit.startsWith(n+" featuring") ||
-        credit.startsWith(n+" &") ||
-        credit.startsWith(n+" x") ||
-        credit.startsWith(n+" with");
-    }).length;
-
-    return `
-      <div>
-        <img
-          src="${escapeHtml(profile.image_url||"")}"
-          alt="${escapeHtml(name)}"
-          onerror="this.style.opacity='.15'"
-        >
-        <div style="padding-top:9px">
-          <div style="
-            color:#ffd76a;
-            font-size:16px;
-            font-weight:bold;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-          ">
-            ${escapeHtml(name)}
-          </div>
-          <div style="color:#999;font-size:12px;margin-top:4px">
-            ${count} song${count===1?"":"s"}
-          </div>
-          <button
-            onclick="openArtistPage('${escapeJs(name)}')"
-            style="
-              margin-top:9px;width:100%;
-              background:#ffd76a;color:#111;
-              border:0;border-radius:7px;
-              padding:8px;font-weight:bold;cursor:pointer
-            "
-          >View Artist</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-}
-
-
 function setNowPlaying(song){
   document.getElementById("playerTitle").textContent=
     song.title||"Untitled";
@@ -1881,10 +2036,8 @@ function setNowPlaying(song){
   document.getElementById("playerArtist").textContent=
     song.artist||"Unknown Artist";
 
-  const artistImage=jArtistImageFor(song);
-
   document.getElementById("playerCover").src=
-    artistImage || coverUrl(song);
+    coverUrl(song);
 
   updatePlayerButton(true);
   updateCurrentFavoriteButton();
@@ -3763,46 +3916,6 @@ document.addEventListener("keydown",function(event){
   }
 });
 
-
-function jGo(targetId){
-  const el=document.getElementById(targetId);
-
-  if(!el)return;
-
-  document.querySelectorAll("[data-jnav]").forEach(btn=>{
-    btn.classList.toggle(
-      "active",
-      btn.dataset.jnav===targetId
-    );
-  });
-
-  el.scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
-}
-
-function jSearch(value){
-  const q=String(value||"").trim();
-
-  const oldSearch=document.getElementById("search");
-
-  if(oldSearch){
-    oldSearch.value=q;
-  }
-
-  if(q){
-    jGo("songs");
-    filterSongs();
-  }else{
-    jGo("homeDashboard");
-    if(oldSearch){
-      oldSearch.value="";
-      filterSongs();
-    }
-  }
-}
-
 function filterSongs(){
   const q=document.getElementById("search").value.toLowerCase().trim();
 
@@ -3930,11 +4043,6 @@ loadSongs();
 }
 
 async function uploadSong(){
-  if(!currentUser){
-    alert("Please log in as admin to upload a song.");
-    return;
-  }
-
   const title=
     document.getElementById("songTitle")
       .value.trim();
@@ -4054,7 +4162,6 @@ async function deleteSong(id){
 loadSongs();
 
 
-
 function updateAdminVisibility(){
   const loggedIn=!!currentUser;
 
@@ -4069,14 +4176,10 @@ function updateAdminVisibility(){
   if(badge)badge.style.display=loggedIn?"inline-block":"none";
 
   document.querySelectorAll(".admin-only").forEach(el=>{
-    el.style.display=loggedIn ? "" : "none";
+    el.style.display=loggedIn?"":"none";
   });
-
-  const editPanel=document.getElementById("editArtistPanel");
-  if(editPanel && !loggedIn){
-    editPanel.style.display="none";
-  }
 }
+
 function openAdminLogin(){
   const panel=document.getElementById("adminLoginPanel");
   const status=document.getElementById("adminStatus");
@@ -4159,7 +4262,572 @@ async function initializeAuth(){
 initializeAuth();
 
 
-loadJArtistProfiles();
+/* =========================================================
+   JASSIAH MODERN UI LOGIC
+   ========================================================= */
+
+let jCloudArtistProfiles=[];
+
+function jGoTo(id){
+  const target=document.getElementById(id);
+  if(!target)return;
+
+  document.querySelectorAll(".j-side-btn").forEach(btn=>{
+    const map={
+      homeDashboard:"Home",
+      songs:"Songs",
+      artistsPanel:"Artists",
+      playlistPanel:"Playlists",
+      albumPanel:"Albums"
+    };
+
+    btn.classList.toggle(
+      "active",
+      btn.dataset.label===map[id]
+    );
+  });
+
+  target.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+function jSongDate(song){
+  const value=song?.created_at || song?.date_added || song?.added_at;
+
+  if(!value){
+    return "Recently added";
+  }
+
+  const d=new Date(value);
+
+  if(Number.isNaN(d.getTime())){
+    return "Recently added";
+  }
+
+  return d.toLocaleDateString(undefined,{
+    month:"short",
+    day:"numeric",
+    year:"numeric"
+  });
+}
+
+function jFindPrimaryArtist(credit){
+  const text=String(credit||"").trim().toLowerCase();
+
+  if(!text)return null;
+
+  const profiles=[...(Array.isArray(jCloudArtistProfiles)
+    ? jCloudArtistProfiles
+    : [])];
+
+  profiles.sort(
+    (a,b)=>
+      String(b.name||"").length-
+      String(a.name||"").length
+  );
+
+  return profiles.find(profile=>{
+    const name=String(profile.name||"").trim().toLowerCase();
+
+    if(!name)return false;
+
+    return (
+      text===name ||
+      text.startsWith(name+" ft") ||
+      text.startsWith(name+" feat") ||
+      text.startsWith(name+" featuring") ||
+      text.startsWith(name+" &") ||
+      text.startsWith(name+" x") ||
+      text.startsWith(name+" with")
+    );
+  }) || null;
+}
+
+function jArtistPicForSong(song){
+  const profile=jFindPrimaryArtist(song?.artist);
+
+  if(profile?.image_url){
+    return profile.image_url;
+  }
+
+  return "";
+}
+
+async function jLoadCloudArtists(){
+  try{
+    const {data,error}=await client
+      .from("artist_profiles")
+      .select("id,name,image_url,created_at")
+      .order("name",{ascending:true});
+
+    if(error){
+      console.error("Artist profiles:",error);
+      return;
+    }
+
+    jCloudArtistProfiles=data||[];
+
+    jRenderCloudArtists();
+    jUpdateNowPlayingFromCurrent();
+  }catch(error){
+    console.error(error);
+  }
+}
+
+function jRenderCloudArtists(){
+  const grid=document.getElementById("artistsGrid");
+
+  if(!grid)return;
+
+  if(!jCloudArtistProfiles.length){
+    return;
+  }
+
+  grid.innerHTML=jCloudArtistProfiles.map(profile=>{
+    const name=String(profile.name||"").trim();
+
+    const count=songs.filter(song=>{
+      const credit=String(song.artist||"").trim().toLowerCase();
+      const n=name.toLowerCase();
+
+      return credit===n ||
+        credit.startsWith(n+" ft") ||
+        credit.startsWith(n+" feat") ||
+        credit.startsWith(n+" featuring") ||
+        credit.startsWith(n+" &") ||
+        credit.startsWith(n+" x") ||
+        credit.startsWith(n+" with");
+    }).length;
+
+    return `
+      <div>
+        <img
+          src="${escapeHtml(profile.image_url||"")}"
+          alt="${escapeHtml(name)}"
+          onerror="this.style.opacity='.15'"
+        >
+
+        <div style="padding-top:9px">
+          <div style="
+            color:#ffd76a;
+            font-size:16px;
+            font-weight:bold;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${escapeHtml(name)}
+          </div>
+
+          <div style="color:#999;font-size:12px;margin-top:4px">
+            ${count} song${count===1?"":"s"}
+          </div>
+
+          <button
+            onclick="openArtistPage('${escapeJs(name)}')"
+            style="
+              margin-top:9px;width:100%;
+              background:#ffd76a;color:#111;
+              border:0;border-radius:7px;
+              padding:8px;font-weight:bold;cursor:pointer
+            "
+          >
+            View Artist
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function jFormatDuration(seconds){
+  if(!Number.isFinite(Number(seconds)) || Number(seconds)<=0){
+    return "—";
+  }
+
+  const total=Math.floor(Number(seconds));
+  const minutes=Math.floor(total/60);
+  const secs=String(total%60).padStart(2,"0");
+
+  return minutes+":"+secs;
+}
+
+function jGetDurationFromSong(song){
+  return (
+    song.duration_seconds ??
+    song.duration ??
+    song.length ??
+    null
+  );
+}
+
+function jProbeDurations(){
+  document.querySelectorAll("[data-song-duration]").forEach(el=>{
+    if(el.dataset.loaded==="1")return;
+
+    const id=Number(el.dataset.songDuration);
+    const song=songs.find(item=>Number(item.id)===id);
+
+    if(!song)return;
+
+    const url=musicUrl(song);
+
+    if(!url)return;
+
+    el.dataset.loaded="1";
+
+    const audio=new Audio();
+
+    audio.preload="metadata";
+
+    audio.addEventListener("loadedmetadata",()=>{
+      el.textContent=jFormatDuration(audio.duration);
+      audio.src="";
+    });
+
+    audio.addEventListener("error",()=>{
+      el.textContent=jFormatDuration(
+        jGetDurationFromSong(song)
+      );
+      audio.src="";
+    });
+
+    audio.src=url;
+  });
+}
+
+function jArtistCell(song){
+  const credit=String(song.artist||"Unknown Artist");
+
+  const primary=jFindPrimaryArtist(credit);
+
+  if(!primary){
+    return `
+      <span class="j-artist-link" title="${escapeHtml(credit)}">
+        ${escapeHtml(credit)}
+      </span>
+    `;
+  }
+
+  return `
+    <a
+      href="#artist-${encodeURIComponent(primary.name)}"
+      class="j-artist-link"
+      onclick="
+        event.preventDefault();
+        openArtistPage('${escapeJs(primary.name)}');
+      "
+      title="Open ${escapeHtml(primary.name)}"
+    >
+      ${escapeHtml(credit)}
+    </a>
+  `;
+}
+
+/* Replace the existing song-card list with the Spotify-style table. */
+const jOriginalRenderSongs=window.renderSongs;
+
+function renderSongs(list){
+  const box=document.getElementById("songs");
+
+  if(!box)return;
+
+  list=Array.isArray(list)?list:[];
+
+  if(!list.length){
+    box.innerHTML=
+      '<div class="j-no-results">No songs found.</div>';
+    return;
+  }
+
+  box.innerHTML=`
+    <div class="j-table">
+
+      <div class="j-table-head">
+        <div>#</div>
+        <div>Title</div>
+        <div>Artist</div>
+        <div>Date added</div>
+        <div style="text-align:right">◷</div>
+      </div>
+
+      ${list.map((song,index)=>{
+        const i=songs.findIndex(
+          item=>Number(item.id)===Number(song.id)
+        );
+
+        const image=coverUrl(song);
+
+        return `
+          <div
+            class="j-table-row"
+            data-song-id="${Number(song.id)}"
+            onclick="playSong(${i})"
+          >
+
+            <div class="j-num">
+              ${index+1}
+            </div>
+
+            <div class="j-track">
+              <img
+                class="j-track-cover"
+                src="${escapeHtml(image)}"
+                alt=""
+              >
+
+              <div class="j-track-main">
+                <div class="j-track-title">
+                  ${escapeHtml(song.title||"Untitled")}
+                </div>
+
+                <div class="j-track-artist">
+                  ${escapeHtml(song.artist||"Unknown Artist")}
+                </div>
+              </div>
+
+              <button
+                class="j-row-play"
+                onclick="event.stopPropagation();playSong(${i})"
+                title="Play"
+              >▶</button>
+            </div>
+
+            <div>
+              ${jArtistCell(song)}
+            </div>
+
+            <div class="j-date">
+              ${escapeHtml(jSongDate(song))}
+            </div>
+
+            <div
+              class="j-duration"
+              data-song-duration="${Number(song.id)}"
+            >
+              ${jFormatDuration(jGetDurationFromSong(song))}
+            </div>
+
+          </div>
+        `;
+      }).join("")}
+
+    </div>
+  `;
+
+  setTimeout(jProbeDurations,120);
+}
+
+/* Right-side Now Playing. */
+function jUpdateNowPlaying(song){
+  if(!song)return;
+
+  const title=document.getElementById("jNowTitle");
+  const artist=document.getElementById("jNowArtist");
+  const art=document.getElementById("jNowArt");
+  const artistName=document.getElementById("jNowArtistName");
+  const artistImage=document.getElementById("jNowArtistImage");
+
+  if(title)title.textContent=song.title||"Untitled";
+  if(artist)artist.textContent=song.artist||"Unknown Artist";
+
+  const songArt=coverUrl(song);
+  const profileArt=jArtistPicForSong(song);
+
+  if(art)art.src=songArt;
+
+  if(artistName){
+    const primary=jFindPrimaryArtist(song.artist);
+    artistName.textContent=
+      primary?.name ||
+      String(song.artist||"Unknown Artist");
+  }
+
+  if(artistImage){
+    artistImage.src=
+      profileArt ||
+      songArt ||
+      "";
+  }
+}
+
+function jUpdateNowPlayingFromCurrent(){
+  if(currentIndex>=0 && songs[currentIndex]){
+    jUpdateNowPlaying(songs[currentIndex]);
+  }
+}
+
+/* Wrap the existing setNowPlaying so the bottom player and right panel
+   update together. */
+const jOriginalSetNowPlaying=setNowPlaying;
+
+setNowPlaying=function(song){
+  jOriginalSetNowPlaying(song);
+  jUpdateNowPlaying(song);
+};
+
+/* Search bar with drop-down suggestions. */
+function jRenderSearchResults(query){
+  const box=document.getElementById("jSearchResults");
+
+  if(!box)return;
+
+  const q=String(query||"").trim().toLowerCase();
+
+  if(!q){
+    box.style.display="none";
+    box.innerHTML="";
+    return;
+  }
+
+  const matchingSongs=songs
+    .map((song,index)=>({song,index}))
+    .filter(({song})=>
+      String(song.title||"").toLowerCase().includes(q) ||
+      String(song.artist||"").toLowerCase().includes(q)
+    )
+    .slice(0,8);
+
+  const matchingArtists=jCloudArtistProfiles
+    .filter(profile=>
+      String(profile.name||"").toLowerCase().includes(q)
+    )
+    .slice(0,5);
+
+  if(!matchingSongs.length && !matchingArtists.length){
+    box.innerHTML='<div class="j-no-results">No results found.</div>';
+    box.style.display="block";
+    return;
+  }
+
+  let out="";
+
+  if(matchingSongs.length){
+    out+=`<div class="j-search-group">Songs</div>`;
+
+    out+=matchingSongs.map(({song,index})=>`
+      <button
+        class="j-search-item"
+        type="button"
+        onclick="jPlaySearchResult(${index})"
+      >
+        <img src="${escapeHtml(coverUrl(song))}" alt="">
+        <span class="j-search-main">
+          <span class="j-search-title">${escapeHtml(song.title||"Untitled")}</span>
+          <span class="j-search-sub">${escapeHtml(song.artist||"Unknown Artist")}</span>
+        </span>
+      </button>
+    `).join("");
+  }
+
+  if(matchingArtists.length){
+    out+=`<div class="j-search-group">Artists</div>`;
+
+    out+=matchingArtists.map(profile=>`
+      <button
+        class="j-search-item"
+        type="button"
+        onclick="jOpenSearchArtist('${escapeJs(profile.name)}')"
+      >
+        <img src="${escapeHtml(profile.image_url||"")}" alt="">
+        <span class="j-search-main">
+          <span class="j-search-title">${escapeHtml(profile.name)}</span>
+          <span class="j-search-sub">Artist</span>
+        </span>
+      </button>
+    `).join("");
+  }
+
+  box.innerHTML=out;
+  box.style.display="block";
+}
+
+function jPlaySearchResult(index){
+  jHideSearch();
+  jGoTo("songs");
+  setTimeout(()=>{
+    playSong(index);
+  },100);
+}
+
+function jOpenSearchArtist(name){
+  jHideSearch();
+  openArtistPage(name);
+}
+
+function jHideSearch(){
+  const box=document.getElementById("jSearchResults");
+  const input=document.getElementById("jTopSearch");
+  const clear=document.getElementById("jSearchClear");
+
+  if(box)box.style.display="none";
+  if(clear)clear.style.display="none";
+  if(input)input.value="";
+}
+
+function jClearSearch(){
+  jHideSearch();
+  jGoTo("homeDashboard");
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const input=document.getElementById("jTopSearch");
+
+  if(input){
+    input.addEventListener("input",()=>{
+      const value=input.value.trim();
+
+      const clear=document.getElementById("jSearchClear");
+
+      if(clear){
+        clear.style.display=value?"block":"none";
+      }
+
+      jRenderSearchResults(value);
+    });
+
+    input.addEventListener("keydown",(event)=>{
+      if(event.key==="Escape"){
+        jHideSearch();
+      }
+
+      if(event.key==="Enter"){
+        const value=input.value.trim();
+
+        if(value){
+          const first=songs.findIndex(song=>
+            String(song.title||"").toLowerCase().includes(value.toLowerCase()) ||
+            String(song.artist||"").toLowerCase().includes(value.toLowerCase())
+          );
+
+          if(first>=0){
+            jPlaySearchResult(first);
+          }
+        }
+      }
+    });
+  }
+
+  document.addEventListener("click",(event)=>{
+    if(!event.target.closest(".j-search-wrap")){
+      const box=document.getElementById("jSearchResults");
+      if(box)box.style.display="none";
+    }
+  });
+});
+
+/* Keep all mirrored sections synced. */
+function jRefreshModern(){
+  renderSongs(songs);
+  jUpdateNowPlayingFromCurrent();
+}
+
+/* Load cloud artist profiles after the main page is ready. */
+setTimeout(()=>{
+  jLoadCloudArtists();
+},200);
 </script>
 
 </body>
