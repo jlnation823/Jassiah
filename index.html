@@ -18,6 +18,7 @@
       font-family: Arial, sans-serif;
       background: #111;
       color: white;
+      padding-bottom: 125px;
     }
 
     header {
@@ -68,14 +69,15 @@
       font-weight: bold;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .upload-button {
       background: #16c45b;
       color: white;
       margin-top: 5px;
-    }
-
-    .upload-button:hover {
-      background: #12a94e;
     }
 
     .song {
@@ -117,9 +119,8 @@
       margin-bottom: 10px;
     }
 
-    audio {
+    .song audio {
       width: 100%;
-      margin-top: 10px;
     }
 
     .buttons {
@@ -137,6 +138,13 @@
       color: white;
     }
 
+    .edit-box {
+      margin-top: 15px;
+      padding: 15px;
+      background: #252525;
+      border-radius: 10px;
+    }
+
     .save-button {
       background: #16c45b;
       color: white;
@@ -146,13 +154,6 @@
     .cancel-button {
       background: #666;
       color: white;
-    }
-
-    .edit-box {
-      margin-top: 15px;
-      padding: 15px;
-      background: #252525;
-      border-radius: 10px;
     }
 
     .message {
@@ -166,15 +167,169 @@
       color: #aaa;
     }
 
-    @media (max-width: 600px) {
-      .song-top {
-        align-items: flex-start;
+    /* =====================================
+       PROFESSIONAL MUSIC PLAYER
+       ===================================== */
+
+    .player {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      background: #181818;
+      border-top: 1px solid #333;
+      padding: 10px 20px;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.4);
+    }
+
+    .player-progress {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    #progress {
+      width: 100%;
+      height: 5px;
+      cursor: pointer;
+      accent-color: #1ed760;
+    }
+
+    .player-main {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .player-cover {
+      width: 55px;
+      height: 55px;
+      object-fit: cover;
+      border-radius: 6px;
+      background: #333;
+      flex-shrink: 0;
+    }
+
+    .player-info {
+      width: 180px;
+      min-width: 130px;
+    }
+
+    .player-title {
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-artist {
+      color: #aaa;
+      font-size: 13px;
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .player-controls button {
+      background: transparent;
+      color: white;
+      font-size: 18px;
+      padding: 8px;
+    }
+
+    .player-controls button:hover {
+      transform: scale(1.12);
+    }
+
+    .play-button {
+      background: white !important;
+      color: black !important;
+      width: 42px;
+      height: 42px;
+      border-radius: 50% !important;
+      font-size: 20px !important;
+    }
+
+    .player-extra {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 130px;
+      justify-content: flex-end;
+    }
+
+    .volume {
+      width: 90px;
+      accent-color: #1ed760;
+    }
+
+    .time {
+      color: #aaa;
+      font-size: 12px;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+
+      .player {
+        padding: 8px 10px;
       }
 
-      .cover {
-        width: 65px;
-        height: 65px;
+      .player-info {
+        width: 120px;
+        min-width: 90px;
       }
+
+      .player-extra {
+        min-width: auto;
+      }
+
+      .volume {
+        width: 60px;
+      }
+
+      .player-controls {
+        gap: 2px;
+      }
+
+      .player-controls button {
+        padding: 5px;
+      }
+
+    }
+
+    @media (max-width: 520px) {
+
+      .player-cover {
+        width: 45px;
+        height: 45px;
+      }
+
+      .player-info {
+        width: 100px;
+      }
+
+      .player-extra {
+        display: none;
+      }
+
+      .player-controls button:nth-child(2),
+      .player-controls button:nth-child(4) {
+        display: none;
+      }
+
     }
   </style>
 </head>
@@ -188,9 +343,7 @@
 
 <div class="container">
 
-  <!-- ============================= -->
-  <!-- UPLOAD SONG -->
-  <!-- ============================= -->
+  <!-- UPLOAD -->
 
   <div class="upload-box">
 
@@ -238,10 +391,7 @@
 
   </div>
 
-
-  <!-- ============================= -->
   <!-- SEARCH -->
-  <!-- ============================= -->
 
   <input
     type="text"
@@ -249,7 +399,6 @@
     class="search"
     placeholder="🔎 Search songs or artists..."
   >
-
 
   <h2>Your Songs</h2>
 
@@ -260,6 +409,122 @@
   </div>
 
 </div>
+
+
+<!-- =====================================
+     PROFESSIONAL PLAYER
+     ===================================== -->
+
+<div class="player">
+
+  <div class="player-progress">
+    <input
+      type="range"
+      id="progress"
+      min="0"
+      max="100"
+      value="0"
+    >
+  </div>
+
+  <div class="player-main">
+
+    <img
+      id="playerCover"
+      class="player-cover"
+      src=""
+      alt="Cover"
+    >
+
+    <div class="player-info">
+
+      <div
+        id="playerTitle"
+        class="player-title"
+      >
+        Nothing playing
+      </div>
+
+      <div
+        id="playerArtist"
+        class="player-artist"
+      >
+        —
+      </div>
+
+    </div>
+
+    <div class="player-controls">
+
+      <button
+        id="shuffleButton"
+        title="Shuffle"
+      >
+        🔀
+      </button>
+
+      <button
+        id="previousButton"
+        title="Previous"
+      >
+        ⏮️
+      </button>
+
+      <button
+        id="playButton"
+        class="play-button"
+        title="Play"
+      >
+        ▶
+      </button>
+
+      <button
+        id="nextButton"
+        title="Next"
+      >
+        ⏭️
+      </button>
+
+      <button
+        id="repeatButton"
+        title="Repeat"
+      >
+        🔁
+      </button>
+
+    </div>
+
+    <div class="player-extra">
+
+      <div
+        id="timeDisplay"
+        class="time"
+      >
+        0:00 / 0:00
+      </div>
+
+      <span>🔊</span>
+
+      <input
+        type="range"
+        id="volume"
+        class="volume"
+        min="0"
+        max="1"
+        step="0.01"
+        value="1"
+      >
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- Hidden audio element -->
+
+<audio id="audio"></audio>
 
 
 <script>
@@ -309,8 +574,50 @@
   const search =
     document.getElementById("search");
 
+  const audio =
+    document.getElementById("audio");
+
+  const playerCover =
+    document.getElementById("playerCover");
+
+  const playerTitle =
+    document.getElementById("playerTitle");
+
+  const playerArtist =
+    document.getElementById("playerArtist");
+
+  const playButton =
+    document.getElementById("playButton");
+
+  const previousButton =
+    document.getElementById("previousButton");
+
+  const nextButton =
+    document.getElementById("nextButton");
+
+  const shuffleButton =
+    document.getElementById("shuffleButton");
+
+  const repeatButton =
+    document.getElementById("repeatButton");
+
+  const progress =
+    document.getElementById("progress");
+
+  const volume =
+    document.getElementById("volume");
+
+  const timeDisplay =
+    document.getElementById("timeDisplay");
+
 
   let songs = [];
+
+  let currentIndex = -1;
+
+  let shuffle = false;
+
+  let repeat = false;
 
 
   // =========================================
@@ -332,7 +639,8 @@
 
       songsContainer.innerHTML =
         `<div class="message">
-          Error loading songs: ${escapeHtml(error.message)}
+          Error loading songs:
+          ${escapeHtml(error.message)}
         </div>`;
 
       return;
@@ -341,6 +649,29 @@
     songs = data || [];
 
     displaySongs();
+
+  }
+
+
+  // =========================================
+  // GET MUSIC URL
+  // =========================================
+
+  function getMusicURL(song) {
+
+    if (!song.file_path) {
+      return "";
+    }
+
+    const { data } =
+      supabaseClient
+        .storage
+        .from("music")
+        .getPublicUrl(
+          song.file_path
+        );
+
+    return data.publicUrl;
 
   }
 
@@ -386,67 +717,40 @@
 
     filteredSongs.forEach(song => {
 
+      const originalIndex =
+        songs.findIndex(
+          item => item.id === song.id
+        );
+
+
       const row =
         document.createElement("div");
 
       row.className = "song";
 
-      // ---------------------------------------
-      // COVER
-      // ---------------------------------------
 
       let coverHTML =
-        `<div class="cover"
-              style="
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                font-size:35px;
-              ">
-              🎵
-         </div>`;
+        `<div
+          class="cover"
+          style="
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:35px;
+          "
+        >
+          🎵
+        </div>`;
 
 
       if (song.cover_url) {
 
         coverHTML =
           `<img
-             class="cover"
-             src="${escapeAttribute(song.cover_url)}"
-             alt="Cover"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-           >
-           <div
-             class="cover"
-             style="
-               display:none;
-               align-items:center;
-               justify-content:center;
-               font-size:35px;
-             "
-           >
-             🎵
-           </div>`;
-
-      }
-
-
-      // ---------------------------------------
-      // MUSIC URL
-      // ---------------------------------------
-
-      let musicURL = "";
-
-      if (song.file_path) {
-
-        const { data } =
-          supabaseClient
-            .storage
-            .from("music")
-            .getPublicUrl(song.file_path);
-
-        musicURL =
-          data.publicUrl;
+            class="cover"
+            src="${escapeAttribute(song.cover_url)}"
+            alt="Cover"
+          >`;
 
       }
 
@@ -460,16 +764,22 @@
           <div class="song-info">
 
             <div class="song-title">
-              ${escapeHtml(song.title || "Untitled")}
+              ${escapeHtml(
+                song.title || "Untitled"
+              )}
             </div>
 
             <div class="artist">
-              ${escapeHtml(song.artist || "Unknown Artist")}
+              ${escapeHtml(
+                song.artist || "Unknown Artist"
+              )}
             </div>
 
             <audio
               controls
-              src="${escapeAttribute(musicURL)}"
+              src="${escapeAttribute(
+                getMusicURL(song)
+              )}"
             ></audio>
 
           </div>
@@ -491,30 +801,56 @@
       `;
 
 
-      // =====================================
-      // EDIT BUTTON
-      // =====================================
+      // CLICK SONG AUDIO
+
+      const songAudio =
+        row.querySelector("audio");
+
+      songAudio.addEventListener(
+        "play",
+        () => {
+
+          currentIndex =
+            originalIndex;
+
+          loadPlayerSong(
+            originalIndex,
+            false
+          );
+
+        }
+      );
+
+
+      // EDIT
 
       row
         .querySelector(".edit-button")
-        .addEventListener("click", () => {
+        .addEventListener(
+          "click",
+          () => {
 
-          showEditBox(row, song);
+            showEditBox(
+              row,
+              song
+            );
 
-        });
+          }
+        );
 
 
-      // =====================================
-      // DELETE BUTTON
-      // =====================================
+      // DELETE
 
       row
         .querySelector(".delete-button")
-        .addEventListener("click", async () => {
+        .addEventListener(
+          "click",
+          async () => {
 
-          await deleteSong(song);
+            await deleteSong(song);
 
-        });
+          }
+        );
 
 
       songsContainer.appendChild(row);
@@ -522,6 +858,362 @@
     });
 
   }
+
+
+  // =========================================
+  // LOAD SONG INTO PLAYER
+  // =========================================
+
+  function loadPlayerSong(
+    index,
+    autoPlay = true
+  ) {
+
+    if (
+      index < 0 ||
+      index >= songs.length
+    ) {
+      return;
+    }
+
+
+    currentIndex = index;
+
+    const song =
+      songs[index];
+
+
+    audio.src =
+      getMusicURL(song);
+
+
+    playerTitle.textContent =
+      song.title || "Untitled";
+
+
+    playerArtist.textContent =
+      song.artist || "Unknown Artist";
+
+
+    if (song.cover_url) {
+
+      playerCover.src =
+        song.cover_url;
+
+    } else {
+
+      playerCover.removeAttribute(
+        "src"
+      );
+
+    }
+
+
+    progress.value = 0;
+
+
+    if (autoPlay) {
+
+      audio.play()
+        .catch(() => {});
+
+    }
+
+  }
+
+
+  // =========================================
+  // PLAY / PAUSE
+  // =========================================
+
+  playButton.addEventListener(
+    "click",
+    () => {
+
+      if (!audio.src) {
+
+        if (songs.length > 0) {
+
+          loadPlayerSong(
+            0,
+            true
+          );
+
+        }
+
+        return;
+      }
+
+
+      if (audio.paused) {
+
+        audio.play();
+
+      } else {
+
+        audio.pause();
+
+      }
+
+    }
+  );
+
+
+  audio.addEventListener(
+    "play",
+    () => {
+
+      playButton.textContent =
+        "⏸";
+
+    }
+  );
+
+
+  audio.addEventListener(
+    "pause",
+    () => {
+
+      playButton.textContent =
+        "▶";
+
+    }
+  );
+
+
+  // =========================================
+  // NEXT SONG
+  // =========================================
+
+  nextButton.addEventListener(
+    "click",
+    () => {
+
+      if (songs.length === 0) {
+        return;
+      }
+
+
+      let nextIndex;
+
+
+      if (shuffle) {
+
+        nextIndex =
+          Math.floor(
+            Math.random() *
+            songs.length
+          );
+
+      } else {
+
+        nextIndex =
+          currentIndex + 1;
+
+        if (
+          nextIndex >=
+          songs.length
+        ) {
+
+          nextIndex = 0;
+
+        }
+
+      }
+
+
+      loadPlayerSong(
+        nextIndex,
+        true
+      );
+
+    }
+  );
+
+
+  // =========================================
+  // PREVIOUS SONG
+  // =========================================
+
+  previousButton.addEventListener(
+    "click",
+    () => {
+
+      if (songs.length === 0) {
+        return;
+      }
+
+
+      // Restart current song if
+      // already several seconds in
+
+      if (audio.currentTime > 5) {
+
+        audio.currentTime = 0;
+
+        return;
+
+      }
+
+
+      let previousIndex =
+        currentIndex - 1;
+
+
+      if (
+        previousIndex < 0
+      ) {
+
+        previousIndex =
+          songs.length - 1;
+
+      }
+
+
+      loadPlayerSong(
+        previousIndex,
+        true
+      );
+
+    }
+  );
+
+
+  // =========================================
+  // SONG FINISHED
+  // =========================================
+
+  audio.addEventListener(
+    "ended",
+    () => {
+
+      if (repeat) {
+
+        audio.currentTime = 0;
+
+        audio.play();
+
+        return;
+
+      }
+
+
+      nextButton.click();
+
+    }
+  );
+
+
+  // =========================================
+  // SHUFFLE
+  // =========================================
+
+  shuffleButton.addEventListener(
+    "click",
+    () => {
+
+      shuffle =
+        !shuffle;
+
+
+      shuffleButton.style.opacity =
+        shuffle ? "1" : "0.5";
+
+    }
+  );
+
+
+  // =========================================
+  // REPEAT
+  // =========================================
+
+  repeatButton.addEventListener(
+    "click",
+    () => {
+
+      repeat =
+        !repeat;
+
+
+      repeatButton.style.opacity =
+        repeat ? "1" : "0.5";
+
+    }
+  );
+
+
+  // =========================================
+  // PROGRESS BAR
+  // =========================================
+
+  audio.addEventListener(
+    "timeupdate",
+    () => {
+
+      if (!audio.duration) {
+        return;
+      }
+
+
+      const percent =
+        (
+          audio.currentTime /
+          audio.duration
+        ) * 100;
+
+
+      progress.value =
+        percent;
+
+
+      timeDisplay.textContent =
+        formatTime(
+          audio.currentTime
+        ) +
+        " / " +
+        formatTime(
+          audio.duration
+        );
+
+    }
+  );
+
+
+  progress.addEventListener(
+    "input",
+    () => {
+
+      if (!audio.duration) {
+        return;
+      }
+
+
+      audio.currentTime =
+        (
+          progress.value / 100
+        ) *
+        audio.duration;
+
+    }
+  );
+
+
+  // =========================================
+  // VOLUME
+  // =========================================
+
+  volume.addEventListener(
+    "input",
+    () => {
+
+      audio.volume =
+        volume.value;
+
+    }
+  );
+
+
+  audio.volume = 1;
 
 
   // =========================================
@@ -545,13 +1237,11 @@
         coverFile.files[0];
 
 
-      // ---------------------------------------
-      // CHECK SONG
-      // ---------------------------------------
-
       if (!title) {
 
-        alert("Please enter a song title.");
+        alert(
+          "Please enter a song title."
+        );
 
         return;
 
@@ -560,7 +1250,9 @@
 
       if (!artistName) {
 
-        alert("Please enter the artist name.");
+        alert(
+          "Please enter the artist name."
+        );
 
         return;
 
@@ -569,7 +1261,9 @@
 
       if (!music) {
 
-        alert("Please choose a music file.");
+        alert(
+          "Please choose a music file."
+        );
 
         return;
 
@@ -578,7 +1272,9 @@
 
       if (!cover) {
 
-        alert("Please choose a cover image.");
+        alert(
+          "Please choose a cover image."
+        );
 
         return;
 
@@ -587,7 +1283,9 @@
 
       if (!music.type.startsWith("audio/")) {
 
-        alert("Please choose a valid audio file.");
+        alert(
+          "Please choose a valid audio file."
+        );
 
         return;
 
@@ -596,7 +1294,9 @@
 
       if (!cover.type.startsWith("image/")) {
 
-        alert("Please choose a valid image file.");
+        alert(
+          "Please choose a valid image file."
+        );
 
         return;
 
@@ -611,18 +1311,16 @@
 
       try {
 
-        // =====================================
-        // CREATE UNIQUE FILE NAMES
-        // =====================================
-
         const timestamp =
           Date.now();
+
 
         const safeMusicName =
           music.name.replace(
             /[^a-zA-Z0-9._-]/g,
             "_"
           );
+
 
         const safeCoverName =
           cover.name.replace(
@@ -644,13 +1342,7 @@
           safeCoverName;
 
 
-        // =====================================
         // UPLOAD MUSIC
-        // =====================================
-
-        uploadStatus.textContent =
-          "Uploading music...";
-
 
         const {
           error: musicError
@@ -674,9 +1366,7 @@
         }
 
 
-        // =====================================
         // UPLOAD COVER
-        // =====================================
 
         uploadStatus.textContent =
           "Uploading cover...";
@@ -704,9 +1394,7 @@
         }
 
 
-        // =====================================
         // GET COVER URL
-        // =====================================
 
         const {
           data: coverData
@@ -723,9 +1411,7 @@
           coverData.publicUrl;
 
 
-        // =====================================
-        // SAVE EVERYTHING TO DATABASE
-        // =====================================
+        // SAVE DATABASE
 
         uploadStatus.textContent =
           "Saving song...";
@@ -752,16 +1438,11 @@
         if (databaseError) {
 
           throw new Error(
-            "Database error: " +
             databaseError.message
           );
 
         }
 
-
-        // =====================================
-        // SUCCESS
-        // =====================================
 
         alert(
           "🎵 Song uploaded successfully!"
@@ -774,6 +1455,7 @@
         coverFile.value = "";
 
         uploadStatus.textContent = "";
+
 
         await loadSongs();
 
@@ -802,10 +1484,14 @@
   // EDIT SONG
   // =========================================
 
-  function showEditBox(row, song) {
+  function showEditBox(
+    row,
+    song
+  ) {
 
-    // Don't create two edit boxes
-    if (row.querySelector(".edit-box")) {
+    if (
+      row.querySelector(".edit-box")
+    ) {
       return;
     }
 
@@ -822,14 +1508,18 @@
       <input
         type="text"
         class="edit-title"
-        value="${escapeAttribute(song.title || "")}"
+        value="${escapeAttribute(
+          song.title || ""
+        )}"
         placeholder="Song title"
       >
 
       <input
         type="text"
         class="edit-artist"
-        value="${escapeAttribute(song.artist || "")}"
+        value="${escapeAttribute(
+          song.artist || ""
+        )}"
         placeholder="Artist"
       >
 
@@ -854,15 +1544,15 @@
     `;
 
 
-    row.appendChild(editBox);
+    row.appendChild(
+      editBox
+    );
 
-
-    // =====================================
-    // CANCEL
-    // =====================================
 
     editBox
-      .querySelector(".cancel-button")
+      .querySelector(
+        ".cancel-button"
+      )
       .addEventListener(
         "click",
         () => {
@@ -873,12 +1563,10 @@
       );
 
 
-    // =====================================
-    // SAVE
-    // =====================================
-
     editBox
-      .querySelector(".save-button")
+      .querySelector(
+        ".save-button"
+      )
       .addEventListener(
         "click",
         async () => {
@@ -925,7 +1613,9 @@
 
     if (!newTitle) {
 
-      alert("Please enter a song title.");
+      alert(
+        "Please enter a song title."
+      );
 
       return;
 
@@ -934,7 +1624,9 @@
 
     if (!newArtist) {
 
-      alert("Please enter an artist.");
+      alert(
+        "Please enter an artist."
+      );
 
       return;
 
@@ -943,7 +1635,9 @@
 
     const saveButton =
       editBox
-        .querySelector(".save-button");
+        .querySelector(
+          ".save-button"
+        );
 
 
     saveButton.disabled = true;
@@ -957,10 +1651,6 @@
       let coverURL =
         song.cover_url || null;
 
-
-      // =====================================
-      // NEW COVER
-      // =====================================
 
       if (newCover) {
 
@@ -1021,10 +1711,6 @@
       }
 
 
-      // =====================================
-      // UPDATE DATABASE
-      // =====================================
-
       const {
         error
       } =
@@ -1071,6 +1757,7 @@
         error.message
       );
 
+
       saveButton.disabled = false;
 
       saveButton.textContent =
@@ -1082,16 +1769,18 @@
 
 
   // =========================================
-  // DELETE SONG
+  // DELETE
   // =========================================
 
-  async function deleteSong(song) {
+  async function deleteSong(
+    song
+  ) {
 
     const confirmed =
       confirm(
-        "Are you sure you want to delete \"" +
+        'Are you sure you want to delete "' +
         (song.title || "this song") +
-        "\"?"
+        '"?'
       );
 
 
@@ -1101,10 +1790,6 @@
 
 
     try {
-
-      // ---------------------------------------
-      // DELETE MUSIC FILE
-      // ---------------------------------------
 
       if (song.file_path) {
 
@@ -1117,10 +1802,6 @@
 
       }
 
-
-      // ---------------------------------------
-      // DELETE DATABASE RECORD
-      // ---------------------------------------
 
       const {
         error
@@ -1180,13 +1861,61 @@
 
 
   // =========================================
+  // FORMAT TIME
+  // =========================================
+
+  function formatTime(
+    seconds
+  ) {
+
+    if (
+      !seconds ||
+      isNaN(seconds)
+    ) {
+
+      return "0:00";
+
+    }
+
+
+    const minutes =
+      Math.floor(
+        seconds / 60
+      );
+
+
+    const remainingSeconds =
+      Math.floor(
+        seconds % 60
+      );
+
+
+    return (
+      minutes +
+      ":" +
+      String(
+        remainingSeconds
+      ).padStart(
+        2,
+        "0"
+      )
+    );
+
+  }
+
+
+  // =========================================
   // SECURITY
   // =========================================
 
-  function escapeHtml(text) {
+  function escapeHtml(
+    text
+  ) {
 
     const div =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     div.textContent =
       text ?? "";
@@ -1196,15 +1925,29 @@
   }
 
 
-  function escapeAttribute(text) {
+  function escapeAttribute(
+    text
+  ) {
 
     return String(
       text ?? ""
     )
-      .replace(/&/g, "&amp;")
-      .replace(/"/g, "&quot;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      );
 
   }
 
