@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>My Music</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -13,32 +12,28 @@
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       margin: 0;
+      padding-bottom: 145px;
       font-family: Arial, sans-serif;
       background: #111;
       color: white;
-      padding-bottom: 125px;
     }
 
     header {
       background: #000;
-      padding: 25px;
+      padding: 22px;
       text-align: center;
       border-bottom: 1px solid #333;
     }
 
     header h1 {
       margin: 0;
-      font-size: 32px;
+      font-size: 30px;
     }
 
     .container {
-      max-width: 900px;
+      max-width: 950px;
       margin: auto;
       padding: 25px;
     }
@@ -46,13 +41,12 @@
     .upload-box {
       background: #1b1b1b;
       padding: 20px;
-      border-radius: 12px;
+      border-radius: 14px;
       margin-bottom: 30px;
     }
 
-    input {
+    input[type="text"] {
       width: 100%;
-      box-sizing: border-box;
       padding: 13px;
       margin: 8px 0;
       border-radius: 8px;
@@ -62,13 +56,15 @@
       font-size: 15px;
     }
 
-    input::placeholder {
-      color: #888;
+    input[type="file"] {
+      margin: 8px 0 15px;
+      width: 100%;
+      color: white;
     }
 
     label {
       display: block;
-      margin-top: 8px;
+      margin-top: 10px;
       font-weight: bold;
     }
 
@@ -93,7 +89,7 @@
     .edit-btn {
       background: #3498db;
       color: white;
-      margin-right: 8px;
+      margin-right: 6px;
     }
 
     .delete-btn {
@@ -106,23 +102,25 @@
       color: white;
     }
 
-    /* SEARCH */
-
     #searchBox {
+      width: 100%;
+      padding: 15px;
       margin-bottom: 25px;
+      border-radius: 10px;
+      border: none;
+      background: #222;
+      color: white;
       font-size: 16px;
     }
 
-    /* SONG CARD */
-
     .song {
       background: #1b1b1b;
-      padding: 18px;
+      padding: 16px;
       border-radius: 12px;
       margin-bottom: 15px;
       display: flex;
-      align-items: center;
       gap: 15px;
+      align-items: flex-start;
     }
 
     .cover {
@@ -150,48 +148,48 @@
       margin-bottom: 10px;
     }
 
-    audio {
+    .song audio {
       width: 100%;
-      margin-top: 5px;
+      margin: 5px 0;
     }
 
     .edit-form {
       display: none;
-      background: #222;
+      background: #242424;
       padding: 15px;
       border-radius: 10px;
       margin-top: 12px;
     }
 
     .message {
-      margin-top: 10px;
+      margin-top: 12px;
       color: #1db954;
     }
 
     /* =========================
-       BIG BOTTOM MUSIC PLAYER
+       BOTTOM MUSIC PLAYER
        ========================= */
 
     #musicPlayer {
       position: fixed;
       left: 0;
+      right: 0;
       bottom: 0;
-      width: 100%;
-      height: 115px;
+      height: 130px;
       background: #181818;
       border-top: 1px solid #333;
-      z-index: 9999;
-      box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.65);
+      z-index: 99999;
+      box-shadow: 0 -5px 25px rgba(0,0,0,0.7);
 
       display: flex;
       align-items: center;
-      padding: 12px 25px;
       gap: 20px;
+      padding: 14px 25px;
     }
 
     #playerCover {
-      width: 82px;
-      height: 82px;
+      width: 90px;
+      height: 90px;
       object-fit: cover;
       border-radius: 8px;
       background: #333;
@@ -199,24 +197,23 @@
     }
 
     #playerInfo {
-      width: 220px;
-      min-width: 160px;
+      width: 210px;
+      min-width: 150px;
       overflow: hidden;
     }
 
     #playerTitle {
       font-size: 18px;
       font-weight: bold;
-      color: white;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     #playerArtist {
-      font-size: 14px;
       color: #aaa;
       margin-top: 6px;
+      font-size: 14px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -225,96 +222,70 @@
     #playerCenter {
       flex: 1;
       min-width: 250px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
     }
 
     #playerControls {
       display: flex;
-      align-items: center;
       justify-content: center;
-      gap: 16px;
+      align-items: center;
+      gap: 15px;
     }
 
     #playerControls button {
       background: transparent;
       color: white;
       border: none;
-      padding: 5px;
       margin: 0;
+      padding: 5px;
       font-size: 20px;
-      cursor: pointer;
-    }
-
-    #playerControls button:hover {
-      transform: scale(1.15);
     }
 
     #playPauseBtn {
-      width: 52px;
-      height: 52px;
-      border-radius: 50% !important;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       background: white !important;
       color: black !important;
-      font-size: 24px !important;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      font-size: 22px !important;
     }
 
-    #playerProgressArea {
-      width: 100%;
-      max-width: 650px;
+    #progressArea {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    #currentTime,
-    #duration {
-      color: #aaa;
-      font-size: 12px;
-      min-width: 38px;
-      text-align: center;
+      gap: 8px;
+      margin-top: 7px;
     }
 
     #progressBar {
       flex: 1;
-      height: 5px;
       cursor: pointer;
       accent-color: #1db954;
     }
 
+    .time {
+      color: #aaa;
+      font-size: 11px;
+      width: 35px;
+      text-align: center;
+    }
+
     #volumeArea {
+      width: 140px;
       display: flex;
       align-items: center;
       gap: 8px;
-      width: 145px;
-    }
-
-    #volumeArea span {
-      font-size: 20px;
     }
 
     #volumeBar {
       width: 100px;
-      cursor: pointer;
       accent-color: #1db954;
+      cursor: pointer;
     }
-
-    /* MOBILE */
 
     @media (max-width: 700px) {
 
       body {
-        padding-bottom: 105px;
-      }
-
-      header h1 {
-        font-size: 26px;
+        padding-bottom: 110px;
       }
 
       .container {
@@ -322,7 +293,7 @@
       }
 
       .song {
-        align-items: flex-start;
+        gap: 10px;
       }
 
       .cover {
@@ -330,14 +301,10 @@
         height: 70px;
       }
 
-      .song-title {
-        font-size: 17px;
-      }
-
       #musicPlayer {
-        height: 100px;
+        height: 105px;
         padding: 8px 10px;
-        gap: 10px;
+        gap: 8px;
       }
 
       #playerCover {
@@ -346,12 +313,12 @@
       }
 
       #playerInfo {
-        width: 115px;
+        width: 105px;
         min-width: 90px;
       }
 
       #playerTitle {
-        font-size: 14px;
+        font-size: 13px;
       }
 
       #playerArtist {
@@ -367,27 +334,17 @@
       }
 
       #playerControls button {
-        font-size: 16px;
+        font-size: 15px;
       }
 
       #playPauseBtn {
-        width: 42px;
-        height: 42px;
-        font-size: 20px !important;
+        width: 40px;
+        height: 40px;
+        font-size: 18px !important;
       }
 
       #volumeArea {
         display: none;
-      }
-
-      #playerProgressArea {
-        gap: 4px;
-      }
-
-      #currentTime,
-      #duration {
-        font-size: 10px;
-        min-width: 30px;
       }
     }
   </style>
@@ -400,8 +357,6 @@
 </header>
 
 <div class="container">
-
-  <!-- UPLOAD -->
 
   <div class="upload-box">
 
@@ -449,24 +404,24 @@
 
   </div>
 
-  <!-- SEARCH -->
-
   <input
-    type="text"
     id="searchBox"
+    type="text"
     placeholder="🔎 Search songs or artists..."
     oninput="searchSongs()"
   >
 
   <h2>Your Songs</h2>
 
-  <div id="songs"></div>
+  <div id="songs">
+    <p>Loading songs...</p>
+  </div>
 
 </div>
 
 
 <!-- =========================
-     BIG MUSIC PLAYER
+     BOTTOM PLAYER
      ========================= -->
 
 <div id="musicPlayer">
@@ -474,7 +429,7 @@
   <img
     id="playerCover"
     src="https://via.placeholder.com/90?text=Music"
-    alt="Album Cover"
+    alt="Cover"
   >
 
   <div id="playerInfo">
@@ -489,61 +444,44 @@
 
   </div>
 
-
   <div id="playerCenter">
 
     <div id="playerControls">
 
-      <button
-        id="shuffleBtn"
-        onclick="toggleShuffle()"
-        title="Shuffle"
-      >
+      <button onclick="toggleShuffle()" id="shuffleBtn">
         🔀
       </button>
 
-      <button
-        onclick="previousSong()"
-        title="Previous"
-      >
+      <button onclick="previousSong()">
         ⏮
       </button>
 
-      <button
-        id="playPauseBtn"
-        onclick="togglePlay()"
-        title="Play/Pause"
-      >
+      <button onclick="togglePlay()" id="playPauseBtn">
         ▶
       </button>
 
-      <button
-        onclick="nextSong()"
-        title="Next"
-      >
+      <button onclick="nextSong()">
         ⏭
       </button>
 
-      <button
-        id="repeatBtn"
-        onclick="toggleRepeat()"
-        title="Repeat"
-      >
+      <button onclick="toggleRepeat()" id="repeatBtn">
         🔁
       </button>
 
     </div>
 
+    <div id="progressArea">
 
-    <div id="playerProgressArea">
-
-      <span id="currentTime">
+      <span
+        class="time"
+        id="currentTime"
+      >
         0:00
       </span>
 
       <input
-        id="progressBar"
         type="range"
+        id="progressBar"
         min="0"
         max="100"
         value="0"
@@ -551,7 +489,10 @@
         oninput="seekSong()"
       >
 
-      <span id="duration">
+      <span
+        class="time"
+        id="duration"
+      >
         0:00
       </span>
 
@@ -559,14 +500,13 @@
 
   </div>
 
-
   <div id="volumeArea">
 
     <span>🔊</span>
 
     <input
-      id="volumeBar"
       type="range"
+      id="volumeBar"
       min="0"
       max="1"
       value="1"
@@ -582,7 +522,7 @@
 <script>
 
   /* =========================
-     SUPABASE
+     SUPABASE CONNECTION
      ========================= */
 
   const SUPABASE_URL =
@@ -599,7 +539,7 @@
 
 
   /* =========================
-     MUSIC PLAYER VARIABLES
+     VARIABLES
      ========================= */
 
   let allSongs = [];
@@ -612,6 +552,10 @@
 
   let repeat = false;
 
+
+  /* =========================
+     PLAYER ELEMENTS
+     ========================= */
 
   const playerCover =
     document.getElementById("playerCover");
@@ -644,13 +588,16 @@
 
   async function loadSongs() {
 
-    const { data, error } =
-      await supabaseClient
-        .from("songs")
-        .select("*")
-        .order("id", {
-          ascending: false
-        });
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("songs")
+      .select("*")
+      .order("id", {
+        ascending: false
+      });
+
 
     if (error) {
 
@@ -661,6 +608,7 @@
 
       return;
     }
+
 
     allSongs = data || [];
 
@@ -674,21 +622,22 @@
 
   function displaySongs(songs) {
 
-    const songsContainer =
+    const container =
       document.getElementById("songs");
 
-    songsContainer.innerHTML = "";
+    container.innerHTML = "";
+
 
     if (!songs || songs.length === 0) {
 
-      songsContainer.innerHTML =
+      container.innerHTML =
         "<p>No songs uploaded yet.</p>";
 
       return;
     }
 
 
-    songs.forEach((song, index) => {
+    songs.forEach(song => {
 
       const div =
         document.createElement("div");
@@ -707,7 +656,7 @@
 
         <img
           class="cover"
-          src="${cover}"
+          src="${escapeAttribute(cover)}"
           alt="Cover"
         >
 
@@ -727,8 +676,10 @@
 
           <audio
             controls
-            src="${song.music_url}"
-            data-index="${index}"
+            preload="metadata"
+            src="${escapeAttribute(
+              song.music_url || ""
+            )}"
           ></audio>
 
           <div>
@@ -748,7 +699,6 @@
             </button>
 
           </div>
-
 
           <div
             id="edit-${song.id}"
@@ -803,7 +753,7 @@
       `;
 
 
-      songsContainer.appendChild(div);
+      container.appendChild(div);
 
 
       const audio =
@@ -812,7 +762,14 @@
 
       audio.addEventListener(
         "play",
-        function() {
+        () => {
+
+          const index =
+            allSongs.findIndex(
+              item =>
+                Number(item.id) ===
+                Number(song.id)
+            );
 
           startPlayer(
             song,
@@ -823,13 +780,42 @@
         }
       );
 
+
+      audio.addEventListener(
+        "pause",
+        () => {
+
+          if (currentAudio === audio) {
+
+            playPauseBtn.textContent =
+              "▶";
+
+          }
+
+        }
+      );
+
+
+      audio.addEventListener(
+        "ended",
+        () => {
+
+          if (currentAudio === audio) {
+
+            songEnded();
+
+          }
+
+        }
+      );
+
     });
 
   }
 
 
   /* =========================
-     START BOTTOM PLAYER
+     START PLAYER
      ========================= */
 
   function startPlayer(
@@ -859,69 +845,24 @@
     playerArtist.textContent =
       song.artist || "Unknown Artist";
 
+
     playerCover.src =
       song.cover_url ||
       "https://via.placeholder.com/90?text=Music";
 
 
-    currentAudio.addEventListener(
-      "timeupdate",
-      updateProgress
-    );
-
-    currentAudio.addEventListener(
-      "loadedmetadata",
-      updateDuration
-    );
-
-    currentAudio.addEventListener(
-      "ended",
-      songEnded
-    );
+    audio.volume =
+      volumeBar.value;
 
 
-    playPauseBtn.textContent = "⏸";
+    playPauseBtn.textContent =
+      "⏸";
 
   }
 
 
   /* =========================
-     PLAY / PAUSE
-     ========================= */
-
-  function togglePlay() {
-
-    if (!currentAudio) {
-
-      if (allSongs.length > 0) {
-
-        playSong(0);
-
-      }
-
-      return;
-    }
-
-
-    if (currentAudio.paused) {
-
-      currentAudio.play();
-
-      playPauseBtn.textContent = "⏸";
-
-    } else {
-
-      currentAudio.pause();
-
-      playPauseBtn.textContent = "▶";
-
-    }
-
-  }
-
-
-  /* =========================
-     PLAY SONG
+     PLAY SELECTED SONG
      ========================= */
 
   function playSong(index) {
@@ -938,20 +879,10 @@
       allSongs[index];
 
 
-    const songCards =
-      document.querySelectorAll(
-        ".song"
-      );
-
-
     const card =
-      Array.from(songCards)
-        .find(
-          element =>
-            Number(
-              element.dataset.songId
-            ) === Number(song.id)
-        );
+      document.querySelector(
+        `.song[data-song-id="${song.id}"]`
+      );
 
 
     if (!card) {
@@ -964,6 +895,7 @@
       );
 
       return;
+
     }
 
 
@@ -972,7 +904,13 @@
 
 
     if (!audio) {
+
+      alert(
+        "The audio player could not be found."
+      );
+
       return;
+
     }
 
 
@@ -1004,15 +942,85 @@
       "https://via.placeholder.com/90?text=Music";
 
 
-    audio.play();
+    audio.volume =
+      volumeBar.value;
 
-    playPauseBtn.textContent = "⏸";
+
+    audio.play()
+      .then(() => {
+
+        playPauseBtn.textContent =
+          "⏸";
+
+      })
+      .catch(error => {
+
+        console.error(
+          "Playback error:",
+          error
+        );
+
+        alert(
+          "The song could not play. Check that the music file is available in your Supabase music bucket."
+        );
+
+      });
 
   }
 
 
   /* =========================
-     PREVIOUS SONG
+     PLAY / PAUSE
+     ========================= */
+
+  function togglePlay() {
+
+    if (!currentAudio) {
+
+      if (allSongs.length > 0) {
+
+        playSong(0);
+
+      }
+
+      return;
+
+    }
+
+
+    if (currentAudio.paused) {
+
+      currentAudio.play()
+        .then(() => {
+
+          playPauseBtn.textContent =
+            "⏸";
+
+        })
+        .catch(error => {
+
+          console.error(error);
+
+          alert(
+            "The song could not play."
+          );
+
+        });
+
+    } else {
+
+      currentAudio.pause();
+
+      playPauseBtn.textContent =
+        "▶";
+
+    }
+
+  }
+
+
+  /* =========================
+     PREVIOUS
      ========================= */
 
   function previousSong() {
@@ -1040,7 +1048,7 @@
 
 
   /* =========================
-     NEXT SONG
+     NEXT
      ========================= */
 
   function nextSong() {
@@ -1089,6 +1097,11 @@
 
   function songEnded() {
 
+    if (!currentAudio) {
+      return;
+    }
+
+
     if (repeat) {
 
       currentAudio.currentTime = 0;
@@ -1114,13 +1127,9 @@
     shuffle = !shuffle;
 
 
-    const button =
-      document.getElementById(
-        "shuffleBtn"
-      );
-
-
-    button.style.opacity =
+    document.getElementById(
+      "shuffleBtn"
+    ).style.opacity =
       shuffle ? "1" : "0.5";
 
   }
@@ -1135,13 +1144,9 @@
     repeat = !repeat;
 
 
-    const button =
-      document.getElementById(
-        "repeatBtn"
-      );
-
-
-    button.style.opacity =
+    document.getElementById(
+      "repeatBtn"
+    ).style.opacity =
       repeat ? "1" : "0.5";
 
   }
@@ -1195,20 +1200,11 @@
   }
 
 
-  /* =========================
-     SEEK
-     ========================= */
-
   function seekSong() {
 
-    if (!currentAudio) {
-      return;
-    }
-
-
     if (
-      !currentAudio.duration ||
-      isNaN(currentAudio.duration)
+      !currentAudio ||
+      !currentAudio.duration
     ) {
       return;
     }
@@ -1223,26 +1219,17 @@
   }
 
 
-  /* =========================
-     VOLUME
-     ========================= */
-
   function changeVolume() {
 
-    if (!currentAudio) {
-      return;
+    if (currentAudio) {
+
+      currentAudio.volume =
+        Number(volumeBar.value);
+
     }
-
-
-    currentAudio.volume =
-      volumeBar.value;
 
   }
 
-
-  /* =========================
-     TIME FORMAT
-     ========================= */
 
   function formatTime(seconds) {
 
@@ -1250,7 +1237,9 @@
       !seconds ||
       isNaN(seconds)
     ) {
+
       return "0:00";
+
     }
 
 
@@ -1260,7 +1249,7 @@
       );
 
 
-    const secs =
+    const secondsLeft =
       Math.floor(
         seconds % 60
       );
@@ -1269,7 +1258,39 @@
     return (
       minutes +
       ":" +
-      String(secs).padStart(2, "0")
+      String(secondsLeft)
+        .padStart(2, "0")
+    );
+
+  }
+
+
+  /* =========================
+     PLAYER EVENTS
+     ========================= */
+
+  setInterval(
+    () => {
+
+      if (
+        currentAudio &&
+        !currentAudio.paused
+      ) {
+
+        updateProgress();
+
+      }
+
+    },
+    250
+  );
+
+
+  if (currentAudio) {
+
+    currentAudio.addEventListener(
+      "loadedmetadata",
+      updateDuration
     );
 
   }
@@ -1281,7 +1302,7 @@
 
   function searchSongs() {
 
-    const search =
+    const value =
       document
         .getElementById("searchBox")
         .value
@@ -1289,7 +1310,7 @@
         .trim();
 
 
-    if (!search) {
+    if (!value) {
 
       displaySongs(allSongs);
 
@@ -1313,8 +1334,8 @@
 
 
         return (
-          title.includes(search) ||
-          artist.includes(search)
+          title.includes(value) ||
+          artist.includes(value)
         );
 
       });
@@ -1326,7 +1347,7 @@
 
 
   /* =========================
-     SHOW EDIT
+     EDIT FORM
      ========================= */
 
   function showEditForm(id) {
@@ -1346,10 +1367,6 @@
 
   }
 
-
-  /* =========================
-     HIDE EDIT
-     ========================= */
 
   function hideEditForm(id) {
 
@@ -1378,17 +1395,30 @@
     const title =
       document.getElementById(
         `title-${id}`
-      ).value;
+      ).value.trim();
+
 
     const artist =
       document.getElementById(
         `artist-${id}`
-      ).value;
+      ).value.trim();
+
 
     const coverInput =
       document.getElementById(
         `cover-${id}`
       );
+
+
+    if (!title) {
+
+      alert(
+        "Please enter a song title."
+      );
+
+      return;
+
+    }
 
 
     let updateData = {
@@ -1413,7 +1443,7 @@
         Date.now() +
         "_" +
         file.name.replace(
-          /\s+/g,
+          /[^a-zA-Z0-9._-]/g,
           "_"
         );
 
@@ -1462,7 +1492,9 @@
     }
 
 
-    const { error } =
+    const {
+      error
+    } =
       await supabaseClient
         .from("songs")
         .update(updateData)
@@ -1486,7 +1518,7 @@
     );
 
 
-    loadSongs();
+    await loadSongs();
 
   }
 
@@ -1542,21 +1574,21 @@
 
 
     message.innerText =
-      "Uploading...";
+      "Uploading music...";
 
 
     const musicFile =
       musicInput.files[0];
 
 
-    /* MUSIC */
+    /* MUSIC FILE */
 
     const musicName =
       "songs/" +
       Date.now() +
       "_" +
       musicFile.name.replace(
-        /\s+/g,
+        /[^a-zA-Z0-9._-]/g,
         "_"
       );
 
@@ -1604,6 +1636,10 @@
       coverInput.files.length > 0
     ) {
 
+      message.innerText =
+        "Uploading cover...";
+
+
       const coverFile =
         coverInput.files[0];
 
@@ -1613,7 +1649,7 @@
         Date.now() +
         "_" +
         coverFile.name.replace(
-          /\s+/g,
+          /[^a-zA-Z0-9._-]/g,
           "_"
         );
 
@@ -1660,6 +1696,10 @@
 
     /* DATABASE */
 
+    message.innerText =
+      "Saving song...";
+
+
     const {
       error: databaseError
     } =
@@ -1689,7 +1729,7 @@
 
 
     message.innerText =
-      "Song uploaded successfully! 🎉";
+      "🎵 Song uploaded successfully!";
 
 
     document.getElementById(
@@ -1709,7 +1749,7 @@
     ).value = "";
 
 
-    loadSongs();
+    await loadSongs();
 
   }
 
@@ -1731,7 +1771,9 @@
     }
 
 
-    const { error } =
+    const {
+      error
+    } =
       await supabaseClient
         .from("songs")
         .delete()
@@ -1750,13 +1792,48 @@
     }
 
 
-    loadSongs();
+    if (
+      currentSongIndex >= 0 &&
+      allSongs[
+        currentSongIndex
+      ] &&
+      Number(
+        allSongs[currentSongIndex].id
+      ) === Number(id)
+    ) {
+
+      if (currentAudio) {
+
+        currentAudio.pause();
+
+      }
+
+      currentAudio = null;
+
+      currentSongIndex = -1;
+
+      playerTitle.textContent =
+        "Select a song";
+
+      playerArtist.textContent =
+        "No song playing";
+
+      playerCover.src =
+        "https://via.placeholder.com/90?text=Music";
+
+      playPauseBtn.textContent =
+        "▶";
+
+    }
+
+
+    await loadSongs();
 
   }
 
 
   /* =========================
-     PROTECT HTML
+     SECURITY
      ========================= */
 
   function escapeHtml(text) {
@@ -1794,7 +1871,7 @@
 
 
   /* =========================
-     START WEBSITE
+     START
      ========================= */
 
   loadSongs();
