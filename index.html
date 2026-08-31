@@ -1068,6 +1068,66 @@ body{
   fill:#ffd76a!important;
   stroke:#ffd76a!important;
 }
+
+/* Detailed microphone-head play button */
+.player-play{
+  position:relative !important;
+  width:54px !important;
+  height:54px !important;
+  border-radius:50% !important;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(255,255,255,.23) 0 2px,transparent 2.5px),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,.18) 0 1px,
+      transparent 1px 4px
+    ),
+    radial-gradient(circle at 50% 45%,#d9d9d9 0%,#8f8f8f 46%,#404040 72%,#171717 100%) !important;
+  color:#111 !important;
+  border:3px solid #b6b6b6 !important;
+  box-shadow:
+    inset 0 0 0 2px #2b2b2b,
+    inset 0 3px 9px rgba(255,255,255,.35),
+    0 2px 8px rgba(0,0,0,.55) !important;
+}
+.player-play::before{
+  content:"";
+  position:absolute;
+  inset:7px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.35);
+  pointer-events:none;
+}
+.player-play::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-7px;
+  transform:translateX(-50%);
+  width:17px;
+  height:9px;
+  border-radius:0 0 9px 9px;
+  background:#b5b5b5;
+  box-shadow:0 3px 0 #555;
+  pointer-events:none;
+}
+.player-play svg{
+  position:relative;
+  z-index:2;
+  width:24px !important;
+  height:24px !important;
+  fill:#171717 !important;
+  filter:drop-shadow(0 1px 1px rgba(255,255,255,.35));
+}
+
+#jTopActions{right:14px}
+@media(max-width:700px){
+  #jTopActions{right:7px}
+  #jTopActions .adminBadge{display:none}
+  #loginButton,#logoutButton{font-size:10px!important;padding:7px 9px!important}
+  #jNewBell{width:34px!important;height:34px!important}
+  .j-search-wrap{width:57%!important}
+}
 </style>
 </head>
 
@@ -1109,28 +1169,146 @@ body{
       <div id="jSearchResults"></div>
     </div>
   </div>
+  <div id="jTopActions" style="
+    position:absolute;
+    right:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  ">
+    <button
+      id="jNewBell"
+      type="button"
+      title="What's New"
+      aria-label="What's New"
+      onclick="jToggleWhatsNew()"
+      style="
+        width:38px;
+        height:38px;
+        border-radius:50%;
+        border:1px solid #333;
+        background:#111;
+        color:#fff;
+        cursor:pointer;
+        font-size:18px;
+        position:relative;
+      "
+    >
+      🔔
+      <span id="jNewDot" style="
+        display:none;
+        position:absolute;
+        right:5px;
+        top:5px;
+        width:7px;
+        height:7px;
+        border-radius:50%;
+        background:#ffd76a;
+        border:1px solid #111;
+      "></span>
+    </button>
+
+    <button
+      id="loginButton"
+      type="button"
+      onclick="openAdminLogin()"
+      style="
+        background:#242424;
+        color:#ffd76a;
+        border:1px solid #5f4b19;
+        border-radius:999px;
+        padding:8px 12px;
+        font-weight:800;
+        cursor:pointer;
+      "
+    >🔐 Log In</button>
+
+    <button
+      id="logoutButton"
+      type="button"
+      onclick="adminLogout()"
+      style="
+        display:none;
+        background:#242424;
+        color:#ffd76a;
+        border:1px solid #5f4b19;
+        border-radius:999px;
+        padding:8px 12px;
+        font-weight:800;
+        cursor:pointer;
+      "
+    >Log Out</button>
+
+    <span id="adminBadge" style="
+      display:none;
+      background:#ffd76a;
+      color:#111;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:900;
+    ">ADMIN</span>
+  </div>
+
+  <div id="jWhatsNewPanel" style="
+    position:absolute;
+    right:14px;
+    top:51px;
+    width:min(380px,calc(100vw - 22px));
+    max-height:440px;
+    overflow-y:auto;
+    display:none;
+    background:#292929;
+    border-radius:9px;
+    box-shadow:0 18px 42px rgba(0,0,0,.58);
+    border:1px solid #3a3a3a;
+  "></div>
+
+  <div id="adminLoginPanel" style="
+    position:absolute;
+    right:14px;
+    top:58px;
+    width:min(360px,calc(100vw - 22px));
+    box-sizing:border-box;
+    background:#181818;
+    border:1px solid #3a301a;
+    border-radius:10px;
+    padding:15px;
+    z-index:16001;
+    box-shadow:0 18px 40px rgba(0,0,0,.58);
+    display:none;
+  ">
+    <div style="font-size:18px;font-weight:900;color:#ffd76a;margin-bottom:10px">🔐 Jassiah Admin</div>
+    <input id="adminEmail" name="jassiah-admin-email" type="email" autocomplete="username" placeholder="Admin email"
+      style="width:100%;box-sizing:border-box;margin:0 0 8px;padding:10px 11px;border-radius:7px;border:1px solid #3b3b3b;background:#242424;color:#fff">
+    <input id="adminPassword" name="jassiah-admin-password" type="password" autocomplete="current-password" placeholder="Password"
+      style="width:100%;box-sizing:border-box;margin:0 0 10px;padding:10px 11px;border-radius:7px;border:1px solid #3b3b3b;background:#242424;color:#fff">
+    <button type="button" onclick="adminLogin()" style="background:#ffd76a;color:#111;border:0;border-radius:999px;padding:9px 14px;font-weight:900;cursor:pointer">Log In</button>
+    <button type="button" onclick="closeAdminLogin()" style="background:#333;color:#fff;border:0;border-radius:999px;padding:9px 14px;font-weight:800;cursor:pointer;margin-left:6px">Cancel</button>
+    <div id="adminStatus" style="min-height:18px;margin-top:9px;color:#ffd76a;font-size:12px"></div>
+  </div>
+
 
   <div class="j-page-viewport" id="jPageViewport">
     <div class="j-page-track" id="jPageTrack">
 
-      <section class="j-page" data-page-name="Home">
-        <div class="j-page-inner">
-          <div class="j-hero">
-            <div class="j-hero-kicker">WELCOME TO</div>
-            <div class="j-hero-title">Jassiah Music</div>
-            <div class="j-hero-sub">Your music. Your favorites. Your world.</div>
+      
+<section class="j-page" data-page-name="Home">
+  <div class="j-page-inner">
+    <div class="j-hero">
+      <div class="j-hero-kicker">WELCOME TO</div>
+      <div class="j-hero-title">Jassiah Music</div>
+      <div class="j-hero-sub">Artists on Jassiah</div>
 
-            <div class="j-home-grid" id="jHomeRecent"></div>
+      <div class="j-section-title" style="margin-top:20px">
+        <h2 style="font-size:22px;margin:0">Artists</h2>
+      </div>
 
-            <div class="j-stat-row">
-              <div class="j-stat"><strong id="jStatSongs">0</strong><span>Songs</span></div>
-              <div class="j-stat"><strong id="jStatArtists">0</strong><span>Artists</span></div>
-              <div class="j-stat"><strong id="jStatFavorites">0</strong><span>Favorites</span></div>
-              <div class="j-stat"><strong id="jStatAlbums">0</strong><span>Albums</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div id="jHomeArtists" class="j-card-grid"></div>
+    </div>
+  </div>
+</section>
+
 
       <section class="j-page" data-page-name="Songs">
         <div class="j-page-inner">
@@ -1199,7 +1377,7 @@ body{
     <div id="jNowArtist" class="j-now-artist" onclick="jOpenCurrentArtist()">Jassiah</div>
 
     <div class="j-now-block">
-      <div class="j-now-label">About the artist</div>
+      <div class="j-now-label">Artist</div>
 
       <div class="j-now-artist-row">
         <img id="jNowArtistImage" alt="Artist" onclick="jOpenCurrentArtist()">
@@ -1209,94 +1387,18 @@ body{
         </div>
       </div>
     </div>
-  </aside>
+  
+  <div class="j-now-block">
+    <div class="j-now-label">Related Songs</div>
+    <div id="jRelatedSongs" style="display:flex;flex-direction:column;gap:7px"></div>
+  </div>
+</aside>
 
 </div>
 
-<div id="authBar" style="
-  width:min(950px,94%);
-  margin:8px auto 10px;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:8px;
-  position:relative;
-  z-index:5000;
-">
-  <span id="adminBadge" style="
-    display:none;
-    background:#ffd76a;
-    color:#111;
-    padding:7px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:bold;
-  ">ADMIN MODE</span>
 
-  <button id="loginButton" type="button" onclick="openAdminLogin()" style="
-    background:#111;
-    color:#ffd76a;
-    border:1px solid #9f741c;
-    border-radius:8px;
-    padding:9px 13px;
-    font-weight:bold;
-    cursor:pointer;
-  ">🔐 Admin Login</button>
 
-  <button id="logoutButton" type="button" onclick="adminLogout()" style="
-    display:none;
-    background:#111;
-    color:#ffd76a;
-    border:1px solid #9f741c;
-    border-radius:8px;
-    padding:9px 13px;
-    font-weight:bold;
-    cursor:pointer;
-  ">Log Out</button>
-</div>
 
-<div id="adminLoginPanel" style="
-  display:none;
-  width:min(430px,90%);
-  margin:10px auto 16px;
-  padding:18px;
-  background:#101010;
-  border:1px solid #604a18;
-  border-radius:12px;
-  position:relative;
-  z-index:5001;
-  box-shadow:0 10px 30px rgba(0,0,0,.45);
-">
-  <h2 style="margin:0 0 10px;color:#ffd76a">🔐 Jassiah Admin</h2>
-  <input id="adminEmail" type="email" placeholder="Email">
-  <input id="adminPassword" type="password" placeholder="Password">
-
-  <button type="button" onclick="adminLogin()" style="
-    background:linear-gradient(135deg,#f0c653,#9d7014);
-    color:#111;
-    border:0;
-    border-radius:8px;
-    padding:10px 15px;
-    font-weight:bold;
-    cursor:pointer;
-  ">Log In</button>
-
-  <button type="button" onclick="closeAdminLogin()" style="
-    background:#333;
-    color:#fff;
-    border:0;
-    border-radius:8px;
-    padding:10px 15px;
-    margin-left:6px;
-    cursor:pointer;
-  ">Cancel</button>
-
-  <div id="adminStatus" style="
-    min-height:20px;
-    margin-top:10px;
-    color:#ffd76a;
-    font-size:13px;
-  "></div>
 </div>
 
 
@@ -5323,6 +5425,730 @@ async function jLoadArtistProfiles(){
 }
 
 jLoadArtistProfiles();
+
+/* =========================================================
+   JASSIAH UI PATCH — ARTISTS, RELATED SONGS, WHAT'S NEW
+   ========================================================= */
+
+function jArtistCatalog(){
+  const names=(jArtistProfiles||[])
+    .map(p=>String(p.name||"").trim())
+    .filter(Boolean);
+
+  const missing=[];
+
+  songs.forEach(song=>{
+    const credit=String(song.artist||"").trim();
+
+    if(!credit)return;
+
+    const exact=jArtistProfiles.find(
+      p=>String(p.name||"").trim().toLowerCase()===credit.toLowerCase()
+    );
+
+    if(exact)return;
+
+    const primary=credit
+      .split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0]
+      .split(/\s+(?:&|x|with)\s+/i)[0]
+      .trim();
+
+    if(primary && !names.some(
+      n=>n.toLowerCase()===primary.toLowerCase()
+    )){
+      missing.push(primary);
+    }
+  });
+
+  return [...names,...missing]
+    .filter((name,index,arr)=>
+      arr.findIndex(
+        x=>x.toLowerCase()===name.toLowerCase()
+      )===index
+    )
+    .sort((a,b)=>a.localeCompare(b));
+}
+
+function jProfileForName(name){
+  const n=String(name||"").trim().toLowerCase();
+
+  return (jArtistProfiles||[]).find(
+    p=>String(p.name||"").trim().toLowerCase()===n
+  ) || null;
+}
+
+function jSongsForArtistFixed(name){
+  const n=String(name||"").trim().toLowerCase();
+
+  if(!n)return [];
+
+  return songs.filter(song=>{
+    const credit=String(song.artist||"").trim().toLowerCase();
+
+    return credit===n ||
+      credit.startsWith(n+" ft") ||
+      credit.startsWith(n+" feat") ||
+      credit.startsWith(n+" featuring") ||
+      credit.startsWith(n+" &") ||
+      credit.startsWith(n+" x") ||
+      credit.startsWith(n+" with");
+  });
+}
+
+function jArtistNameFromCredit(credit){
+  const profile=(jArtistProfiles||[])
+    .slice()
+    .sort((a,b)=>String(b.name||"").length-String(a.name||"").length)
+    .find(p=>{
+      const n=String(p.name||"").trim().toLowerCase();
+      const c=String(credit||"").trim().toLowerCase();
+
+      return n && (
+        c===n ||
+        c.startsWith(n+" ft") ||
+        c.startsWith(n+" feat") ||
+        c.startsWith(n+" featuring") ||
+        c.startsWith(n+" &") ||
+        c.startsWith(n+" x") ||
+        c.startsWith(n+" with")
+      );
+    });
+
+  if(profile)return profile.name;
+
+  return String(credit||"")
+    .split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0]
+    .split(/\s+(?:&|x|with)\s+/i)[0]
+    .trim();
+}
+
+function jRenderHomeArtists(){
+  const box=document.getElementById("jHomeArtists");
+  if(!box)return;
+
+  const names=jArtistCatalog();
+
+  if(!names.length){
+    box.innerHTML='<div class="j-empty">No artists added yet.</div>';
+    return;
+  }
+
+  box.innerHTML=names.map(name=>{
+    const profile=jProfileForName(name);
+    const related=jSongsForArtistFixed(name);
+    const image=profile?.image_url ||
+      (related[0]?coverUrl(related[0]):"");
+
+    return `
+      <div class="j-card">
+        <button
+          type="button"
+          onclick="jOpenArtistDedicated('${escapeJs(name)}')"
+          style="
+            width:100%;
+            border:0;
+            background:transparent;
+            color:inherit;
+            padding:0;
+            cursor:pointer;
+            text-align:left;
+          "
+        >
+          <img
+            src="${escapeHtml(image)}"
+            alt="${escapeHtml(name)}"
+            onerror="this.style.opacity='.35'"
+          >
+
+          <div class="j-card-title">${escapeHtml(name)}</div>
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+function jRenderRelatedSongs(name){
+  const box=document.getElementById("jRelatedSongs");
+  if(!box)return;
+
+  const songsFor=jSongsForArtistFixed(name);
+
+  if(!songsFor.length){
+    box.innerHTML='<div style="color:#777;font-size:12px">No related songs yet.</div>';
+    return;
+  }
+
+  box.innerHTML=songsFor.map(song=>{
+    const index=songs.findIndex(
+      s=>Number(s.id)===Number(song.id)
+    );
+
+    return `
+      <button
+        type="button"
+        onclick="playSong(${index})"
+        style="
+          width:100%;
+          border:0;
+          background:#151515;
+          color:#fff;
+          border-radius:7px;
+          padding:7px;
+          display:flex;
+          gap:9px;
+          align-items:center;
+          text-align:left;
+          cursor:pointer;
+        "
+      >
+        <img
+          src="${escapeHtml(coverUrl(song))}"
+          alt=""
+          style="
+            width:42px;
+            height:42px;
+            border-radius:5px;
+            object-fit:cover;
+            background:#222;
+            flex-shrink:0;
+          "
+        >
+
+        <span style="min-width:0;flex:1">
+          <span style="
+            display:block;
+            font-weight:800;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${escapeHtml(song.title||"Untitled")}
+          </span>
+
+          <span style="
+            display:block;
+            color:#999;
+            font-size:11px;
+            margin-top:2px;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${escapeHtml(song.artist||"")}
+          </span>
+        </span>
+      </button>
+    `;
+  }).join("");
+}
+
+function jOpenArtistDedicated(name,remember=true){
+  name=String(name||"").trim();
+
+  if(!name)return;
+
+  const page=document.getElementById("jArtistPage");
+  if(!page)return;
+
+  const catalog=jArtistCatalog();
+  const normalized=name.toLowerCase();
+
+  const displayName=
+    catalog.find(n=>n.toLowerCase()===normalized) ||
+    name;
+
+  const profile=jProfileForName(displayName);
+  const artistSongs=jSongsForArtistFixed(displayName);
+  const index=catalog.findIndex(
+    n=>n.toLowerCase()===displayName.toLowerCase()
+  );
+
+  let image=profile?.image_url ||
+    (artistSongs[0]?coverUrl(artistSongs[0]):"");
+
+  if(!image){
+    image=document.querySelector(".logo")?.src||"";
+  }
+
+  window.currentArtistName=displayName;
+
+  page.innerHTML=`
+    <div
+      class="j-artist-page-hero"
+      ontouchstart="jArtistTouchStart(event)"
+      ontouchend="jArtistTouchEnd(event)"
+      style="
+        display:flex;
+        align-items:center;
+        gap:22px;
+        background:
+          radial-gradient(circle at 15% 10%,rgba(255,215,106,.14),transparent 40%),
+          linear-gradient(135deg,#211a0b,#121212 60%);
+        border:1px solid #382c15;
+        border-radius:12px;
+        padding:22px;
+      "
+    >
+      <img
+        class="j-artist-page-photo"
+        src="${escapeHtml(image)}"
+        alt="${escapeHtml(displayName)}"
+        onerror="this.style.opacity='.2'"
+      >
+
+      <div style="min-width:0;flex:1">
+        <div class="j-artist-page-name">
+          ${escapeHtml(displayName)}
+        </div>
+
+        <div style="color:#aaa;margin-top:7px">
+          ${artistSongs.length} song${artistSongs.length===1?"":"s"}
+        </div>
+
+        <div class="j-artist-swipe">
+          ${catalog.length
+            ? `Artist ${Math.max(index+1,1)} of ${catalog.length} • Swipe left/right`
+            : "Swipe left/right to change artist"}
+        </div>
+
+        <div class="j-artist-controls">
+          <button class="primary" onclick="jPlayArtist('${escapeJs(displayName)}')">▶ Play All</button>
+          <button onclick="jPreviousArtist()">← Previous</button>
+          <button onclick="jNextArtist()">Next →</button>
+          ${
+            currentUser
+              ? `<button onclick="openEditArtist('${escapeJs(displayName)}')">✏️ Edit Artist</button>`
+              : ""
+          }
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px">
+      <div class="j-section-title">
+        <h2 style="font-size:22px;margin:0">Songs by ${escapeHtml(displayName)}</h2>
+      </div>
+
+      ${
+        artistSongs.length
+          ? `<div class="j-table">
+              <div class="j-table-head">
+                <div>#</div>
+                <div>Title</div>
+                <div>Artist</div>
+                <div>Date added</div>
+                <div style="text-align:right">◷</div>
+              </div>
+
+              ${artistSongs.map((song,i)=>{
+                const idx=songs.findIndex(
+                  s=>Number(s.id)===Number(song.id)
+                );
+
+                return `
+                  <div class="j-table-row" onclick="playSong(${idx})">
+                    <div class="j-num">${i+1}</div>
+                    <div class="j-track">
+                      <img class="j-cover" src="${escapeHtml(coverUrl(song))}" alt="">
+                      <div class="j-track-main">
+                        <div class="j-track-title">${escapeHtml(song.title||"Untitled")}</div>
+                        <div class="j-track-credit">${escapeHtml(song.artist||"")}</div>
+                      </div>
+                    </div>
+                    <div class="j-artist-cell">${escapeHtml(song.artist||"")}</div>
+                    <div class="j-added">${escapeHtml(jDateText(song))}</div>
+                    <div class="j-time">${escapeHtml(jDurationText(song))}</div>
+                  </div>
+                `;
+              }).join("")}
+            </div>`
+          : '<div class="j-empty">No songs are attached to this artist yet.</div>'
+      }
+    </div>
+  `;
+
+  const track=document.getElementById("jPageTrack");
+  if(track){
+    /* pages 0-5, artist detail is page 6 */
+    track.style.transform="translateX(-600%)";
+  }
+
+  if(remember){
+    jPageHistory=jPageHistory.slice(0,jPageHistoryPos+1);
+    jPageHistory.push("artist:"+displayName);
+    jPageHistoryPos=jPageHistory.length-1;
+  }
+}
+
+function jRenderPagesFromCloud(){
+  jRenderHomeArtists();
+  jRenderArtistsPage();
+}
+
+function jPreviousArtist(){
+  const list=jArtistCatalog();
+  if(!list.length)return;
+
+  let i=list.findIndex(
+    n=>n.toLowerCase()===String(window.currentArtistName||"").toLowerCase()
+  );
+
+  if(i<0)i=0;
+
+  jOpenArtistDedicated(
+    list[(i-1+list.length)%list.length]
+  );
+}
+
+function jNextArtist(){
+  const list=jArtistCatalog();
+  if(!list.length)return;
+
+  let i=list.findIndex(
+    n=>n.toLowerCase()===String(window.currentArtistName||"").toLowerCase()
+  );
+
+  if(i<0)i=0;
+
+  jOpenArtistDedicated(
+    list[(i+1)%list.length]
+  );
+}
+
+function jGoToPage(index,remember=true){
+  index=Math.max(0,Math.min(5,Number(index)||0));
+
+  jPageIndex=index;
+
+  const track=document.getElementById("jPageTrack");
+
+  if(track){
+    track.style.transform=`translateX(-${index*100}%)`;
+  }
+
+  jSetActiveNav(index);
+
+  if(remember){
+    jPageHistory=jPageHistory.slice(0,jPageHistoryPos+1);
+
+    if(jPageHistory[jPageHistory.length-1]!==index){
+      jPageHistory.push(index);
+    }
+
+    jPageHistoryPos=jPageHistory.length-1;
+  }
+
+  if(index===0)jRenderHomePage();
+  if(index===1)jRenderSongsPage();
+  if(index===2)jRenderArtistsPage();
+  if(index===3)jRenderFavoritesPage();
+  if(index===4)jRenderPlaylistsPage();
+  if(index===5)jRenderAlbumsPage();
+}
+
+/* Whats New */
+function jWhatsNewItems(){
+  const items=[];
+
+  (songs||[]).forEach(song=>{
+    items.push({
+      type:"song",
+      date:new Date(song.created_at||song.date_added||song.added_at||0),
+      title:song.title||"Untitled",
+      subtitle:song.artist||"Unknown Artist",
+      image:coverUrl(song),
+      songId:song.id
+    });
+  });
+
+  (jArtistProfiles||[]).forEach(profile=>{
+    items.push({
+      type:"artist",
+      date:new Date(profile.created_at||0),
+      title:profile.name||"Artist",
+      subtitle:"New artist",
+      image:profile.image_url||"",
+      artistName:profile.name||""
+    });
+  });
+
+  return items
+    .filter(x=>Number.isFinite(x.date.getTime()))
+    .sort((a,b)=>b.date-a.date)
+    .slice(0,12);
+}
+
+function jRenderWhatsNew(){
+  const panel=document.getElementById("jWhatsNewPanel");
+  if(!panel)return;
+
+  const items=jWhatsNewItems();
+
+  if(!items.length){
+    panel.innerHTML='<div style="padding:15px;color:#aaa">Nothing new yet.</div>';
+    return;
+  }
+
+  panel.innerHTML=`
+    <div style="padding:13px 13px 5px;color:#fff;font-size:15px;font-weight:900">
+      What's New
+    </div>
+    ${items.map(item=>`
+      <button
+        type="button"
+        onclick="${
+          item.type==="song"
+            ? `jChooseNewSong(${Number(item.songId)})`
+            : `jChooseNewArtist('${escapeJs(item.artistName)}')`
+        }"
+        style="
+          width:100%;
+          border:0;
+          background:transparent;
+          color:#fff;
+          display:flex;
+          gap:10px;
+          align-items:center;
+          text-align:left;
+          padding:9px 12px;
+          cursor:pointer;
+        "
+      >
+        <img
+          src="${escapeHtml(item.image)}"
+          alt=""
+          style="
+            width:44px;height:44px;border-radius:6px;object-fit:cover;background:#1c1c1c;flex-shrink:0
+          "
+        >
+        <span style="min-width:0;flex:1">
+          <span style="display:block;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            ${escapeHtml(item.title)}
+          </span>
+          <span style="display:block;color:#aaa;font-size:11px;margin-top:2px">
+            ${escapeHtml(item.subtitle)}
+          </span>
+          <span style="display:block;color:#777;font-size:10px;margin-top:2px">
+            ${escapeHtml(item.date.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"}))}
+          </span>
+        </span>
+      </button>
+    `).join("")}
+  `;
+
+  const dot=document.getElementById("jNewDot");
+  if(dot)dot.style.display=items.length?"block":"none";
+}
+
+function jToggleWhatsNew(){
+  const panel=document.getElementById("jWhatsNewPanel");
+  if(!panel)return;
+
+  const open=panel.style.display==="block";
+
+  const login=document.getElementById("adminLoginPanel");
+  if(login)login.style.display="none";
+
+  if(open){
+    panel.style.display="none";
+  }else{
+    jRenderWhatsNew();
+    panel.style.display="block";
+  }
+}
+
+function jChooseNewSong(id){
+  const panel=document.getElementById("jWhatsNewPanel");
+  if(panel)panel.style.display="none";
+
+  const index=songs.findIndex(
+    song=>Number(song.id)===Number(id)
+  );
+
+  if(index>=0)playSong(index);
+}
+
+function jChooseNewArtist(name){
+  const panel=document.getElementById("jWhatsNewPanel");
+  if(panel)panel.style.display="none";
+
+  jOpenArtistDedicated(name);
+}
+
+/* Search input: never let a browser-saved email become the site search. */
+function jSetupSearchFixed(){
+  const input=document.getElementById("jTopSearch");
+  if(!input)return;
+
+  input.setAttribute("name","jassiah-public-search");
+  input.setAttribute("autocomplete","off");
+  input.setAttribute("autocapitalize","none");
+  input.setAttribute("autocorrect","off");
+  input.setAttribute("spellcheck","false");
+  input.value="";
+
+  input.addEventListener("focus",()=>{
+    input.removeAttribute("readonly");
+  });
+
+  input.addEventListener("input",()=>{
+    const q=input.value.trim();
+
+    if(!q){
+      const box=document.getElementById("jSearchResults");
+      if(box)box.style.display="none";
+      return;
+    }
+
+    jSearchNow(q);
+  });
+}
+
+/* Ensure the modern home/artist views update after songs and profile data are loaded. */
+function jRefreshAllNewUi(){
+  jRenderHomeArtists();
+  jRenderSongsPage();
+  jRenderArtistsPage();
+  jRenderFavoritesPage();
+  jRenderPlaylistsPage();
+  jRenderAlbumsPage();
+  jRenderWhatsNew();
+
+  if(currentIndex>=0 && songs[currentIndex]){
+    setNowPlaying(songs[currentIndex]);
+  }
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  jSetupSearchFixed();
+  jRenderHomeArtists();
+  jRenderSongsPage();
+  jRenderArtistsPage();
+  jRenderFavoritesPage();
+  jRenderPlaylistsPage();
+  jRenderAlbumsPage();
+  jRenderWhatsNew();
+
+  /* Close popovers when clicking elsewhere. */
+  document.addEventListener("click",event=>{
+    if(!event.target.closest("#jTopActions") && !event.target.closest("#jWhatsNewPanel")){
+      const panel=document.getElementById("jWhatsNewPanel");
+      if(panel)panel.style.display="none";
+    }
+    if(!event.target.closest("#adminLoginPanel") && !event.target.closest("#loginButton")){
+      const login=document.getElementById("adminLoginPanel");
+      if(login && !event.target.closest("#loginButton"))login.style.display="none";
+    }
+  });
+});
+
+/* Refresh new data once Supabase profiles arrive. */
+setTimeout(jLoadArtistProfiles,200);
+
+/* Final auth UI sync */
+function updateAdminVisibility(){
+  const loggedIn=!!currentUser;
+
+  document.body.classList.toggle("admin-mode",loggedIn);
+
+  const login=document.getElementById("loginButton");
+  const logout=document.getElementById("logoutButton");
+  const badge=document.getElementById("adminBadge");
+
+  if(login)login.style.display=loggedIn?"none":"inline-block";
+  if(logout)logout.style.display=loggedIn?"inline-block":"none";
+  if(badge)badge.style.display=loggedIn?"inline-block":"none";
+
+  document.querySelectorAll(".admin-only").forEach(el=>{
+    el.style.display=loggedIn ? "" : "none";
+  });
+
+  const add=document.getElementById("newArtistPanel");
+  const edit=document.getElementById("editArtistPanel");
+
+  if(add)add.style.display=loggedIn?"block":"none";
+  if(edit && !loggedIn)edit.style.display="none";
+}
+
+function openAdminLogin(){
+  const panel=document.getElementById("adminLoginPanel");
+  const whats=document.getElementById("jWhatsNewPanel");
+
+  if(whats)whats.style.display="none";
+  if(panel)panel.style.display="block";
+
+  document.getElementById("adminEmail")?.focus();
+}
+
+function closeAdminLogin(){
+  const panel=document.getElementById("adminLoginPanel");
+  if(panel)panel.style.display="none";
+}
+
+async function adminLogin(){
+  const email=document.getElementById("adminEmail")?.value.trim();
+  const password=document.getElementById("adminPassword")?.value;
+  const status=document.getElementById("adminStatus");
+
+  if(!email || !password){
+    if(status)status.textContent="Enter your email and password.";
+    return;
+  }
+
+  if(status)status.textContent="Logging in...";
+
+  const {data,error}=await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    console.error(error);
+    if(status)status.textContent="Login failed: "+error.message;
+    return;
+  }
+
+  currentUser=data.user;
+  updateAdminVisibility();
+  closeAdminLogin();
+
+  const passwordInput=document.getElementById("adminPassword");
+  if(passwordInput)passwordInput.value="";
+
+  const search=document.getElementById("jTopSearch");
+  if(search)search.value="";
+}
+
+async function adminLogout(){
+  await client.auth.signOut();
+
+  currentUser=null;
+  updateAdminVisibility();
+
+  const search=document.getElementById("jTopSearch");
+  if(search)search.value="";
+}
+
+async function initializeAuth(){
+  try{
+    const {data,error}=await client.auth.getSession();
+
+    currentUser=error ? null : (data?.session?.user||null);
+
+    updateAdminVisibility();
+
+    client.auth.onAuthStateChange((_event,session)=>{
+      currentUser=session?.user||null;
+      updateAdminVisibility();
+    });
+  }catch(error){
+    console.error("Auth initialization:",error);
+    currentUser=null;
+    updateAdminVisibility();
+  }
+}
+
+initializeAuth();
 </script>
 
 </body>
