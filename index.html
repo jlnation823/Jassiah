@@ -258,72 +258,8 @@ audio{width:100%;height:40px}
 .home-recent-title{font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .home-recent-artist{font-size:11px;color:#888;margin-top:2px}
 .home-recent-btn{width:31px;height:31px;border-radius:50%;background:#ffd76a;color:#111;border:0;font-weight:bold;cursor:pointer}
-
-.site-nav{
-  position:sticky;
-  top:0;
-  z-index:900;
-  width:min(950px,94%);
-  margin:0 auto 12px;
-  padding:8px;
-  display:flex;
-  justify-content:center;
-  gap:6px;
-  flex-wrap:wrap;
-  background:rgba(8,8,8,.97);
-  border:1px solid #3f3218;
-  border-radius:11px;
-  box-shadow:0 8px 24px rgba(0,0,0,.4);
-}
-.nav-link{
-  text-decoration:none;
-  color:#c9c9c9;
-  padding:9px 13px;
-  border-radius:8px;
-  font-weight:bold;
-  font-size:14px;
-}
-.nav-link:hover,
-.nav-link.active{
-  background:#3a2b0b;
-  color:#ffd76a;
-  box-shadow:inset 0 0 0 1px #8e681c;
-}
-.mobile-menu-button{
-  display:none;
-  margin:0 auto 10px;
-  width:48px;height:42px;padding:7px;
-  background:#080808;border:1px solid #8f691c;
-  border-radius:9px;cursor:pointer;z-index:950;
-}
-.mobile-menu-button span{
-  display:block;height:2px;margin:5px 4px;
-  background:#ffd76a;border-radius:2px;
-}
 @media(max-width:650px){
-  .mobile-menu-button{display:block}
-  .site-nav{
-    max-height:0;
-    overflow:hidden;
-    opacity:0;
-    padding-top:0;
-    padding-bottom:0;
-    margin-bottom:0;
-    pointer-events:none;
-    flex-wrap:nowrap;
-    justify-content:flex-start;
-    overflow-x:auto;
-    position:relative;
-  }
-  .site-nav.mobile-open{
-    max-height:100px;
-    opacity:1;
-    padding-top:8px;
-    padding-bottom:8px;
-    margin-bottom:12px;
-    pointer-events:auto;
-  }
-  #artistHero{flex-direction:column;align-items:flex-start}
+  #artistsGrid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
 
   h1{font-size:48px}
   .logo{width:240px;height:240px}
@@ -382,6 +318,11 @@ audio{width:100%;height:40px}
   color:#e0b541 !important;
 }
 
+
+#artistHero{min-height:140px}
+@media(max-width:650px){
+  #artistHero{flex-direction:column;align-items:flex-start}
+}
 </style>
 </head>
 
@@ -426,35 +367,57 @@ audio{width:100%;height:40px}
   <h1>Jassiah</h1>
   <div class="subtitle">MY MUSIC</div>
 </header>
-<nav class="site-nav" aria-label="Main navigation">
-  <a href="#homeDashboard" class="nav-link active" data-target="homeDashboard">Home</a>
-  <a href="#songsPanel" class="nav-link" data-target="songsPanel">Songs</a>
-  <a href="#playlists" class="nav-link" data-target="playlistPanel">Playlists</a>
-  <a href="#albumPanel" class="nav-link" data-target="albumPanel">Albums</a>
-  <a href="#favoriteSection" class="nav-link" data-target="favoriteSection">Favorites</a>
-</nav>
-<button id="mobileMenuButton" class="mobile-menu-button" onclick="toggleMobileNav()" aria-label="Open menu">
-  <span></span><span></span><span></span>
-</button>
 
 
+<div class="panel" id="newArtistPanel">
+  <h2>🎤 Create Artist Profile</h2>
 
-<section class="panel" id="favoriteSection">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
-    <h2 style="margin:0">❤️ Favorites</h2>
-    <button id="favoritesFilter" onclick="toggleFavoritesOnly()" style="
-      background:#111;color:#ffd76a;border:1px solid #9f741c;
-      border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer
-    ">♡ Show Favorites</button>
-  </div>
-  <div id="favoriteSongs" style="margin-top:12px"></div>
-</section>
+  <input
+    type="text"
+    id="newArtistName"
+    placeholder="Artist name"
+  >
+
+  <label>Artist profile picture:</label>
+
+  <input
+    type="file"
+    id="newArtistImage"
+    accept="image/*"
+  >
+
+  <button
+    onclick="createArtistProfile()"
+    style="
+      background:linear-gradient(135deg,#f0c653,#9d7014);
+      color:#111;
+      border:0;
+      border-radius:8px;
+      padding:11px 16px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    Create Artist Profile
+  </button>
+
+  <div
+    id="artistUploadMessage"
+    style="
+      margin-top:10px;
+      color:#ffd76a;
+      font-weight:bold;
+      min-height:20px;
+    "
+  ></div>
+</div>
 
 <div class="panel">
   <h2>♫ Add New Song</h2>
 
   <input id="songTitle" type="text" placeholder="Song title">
-  <input id="artist" type="text" placeholder="Artist">
+  <input id="artist" type="text" placeholder="Artist" list="artistNames">
+    <datalist id="artistNames"></datalist>
 
   <label>Music file:</label>
   <input id="musicFile" type="file" accept="audio/*">
@@ -506,7 +469,7 @@ audio{width:100%;height:40px}
   </div>
 </section>
 
-<section class="panel" id="playlistPanel">
+<section class="panel">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
     <h2 style="margin:0">♫ Playlists</h2>
     <button
@@ -562,20 +525,58 @@ audio{width:100%;height:40px}
 
 
 <section class="panel" id="artistPage" style="display:none">
-  <button id="artistBackButton" onclick="closeArtistPage()" style="
+  <button id="artistBack" onclick="closeArtistPage()" style="
     background:#111;color:#ffd76a;border:1px solid #9f741c;
-    border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer;margin-bottom:15px
+    border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer
   ">← Back to Music</button>
 
   <div id="artistHero" style="
-    display:flex;align-items:center;gap:18px;padding:20px;
-    background:linear-gradient(135deg,#211a0b,#0e0e0e);
-    border:1px solid #604a18;border-radius:14px
+    margin-top:15px;
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:20px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#211a0b,#101010);
+    border:1px solid #604a18;
   "></div>
 
-  <div id="artistAlbums" style="margin-top:18px"></div>
-  <div id="artistSongList" style="margin-top:18px"></div>
+  <div style="margin-top:18px;color:#ffd76a;font-weight:bold">
+    Songs by this artist
+  </div>
+
+  <div id="artistSongList" style="margin-top:10px"></div>
 </section>
+
+
+
+<section class="panel" id="artistsPanel">
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  ">
+    <div>
+      <h2 style="margin:0">🎤 Artists</h2>
+      <div style="color:#999;font-size:13px;margin-top:4px">
+        Every artist has their own page and profile picture.
+      </div>
+    </div>
+  </div>
+
+  <div
+    id="artistsGrid"
+    style="
+      margin-top:15px;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+      gap:14px;
+    "
+  ></div>
+</section>
+
 
 <input id="search" class="search" type="text"
        placeholder="🔎 Search songs or artists..."
@@ -735,6 +736,10 @@ let playlists=JSON.parse(localStorage.getItem("jassiahPlaylists")||"{}");
 let playlistQueue=null;
 let albums=JSON.parse(localStorage.getItem("jassiahAlbums")||"{}");
 let albumQueue=null;
+
+let artistProfiles=JSON.parse(
+  localStorage.getItem("jassiahArtistProfiles")||"{}"
+);
 let featuredSongId=Number(localStorage.getItem("jassiahFeaturedSong")||0);
 
 const player=document.getElementById("playerAudio");
@@ -801,6 +806,9 @@ async function loadSongs(){
   renderAlbums();
   renderFeaturedSong();
   renderRecentlyAdded();
+  renderArtists();
+  renderFavoriteSongs();
+  renderHomeDashboard();
   renderHomeDashboard();
 }
 
@@ -833,12 +841,7 @@ function renderSongs(list){
           ${escapeHtml(song.title||"Untitled")}
         </div>
 
-        <div
-          class="artist"
-          onclick="openArtistPage('${escapeJs(song.artist||"Unknown Artist")}')"
-          style="cursor:pointer;text-decoration:underline;text-decoration-color:#6f551c;text-underline-offset:3px"
-          title="Open artist page"
-        >
+        <div class="artist">
           ${escapeHtml(song.artist||"Unknown Artist")}
         </div>
 
@@ -850,8 +853,7 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
-
-          <button
+<button
             onclick="addSongToAlbum(${song.id})"
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
@@ -1214,7 +1216,6 @@ function createAlbum(){
 
   saveAlbums();
   renderAlbums();
-  renderHomeDashboard();
 }
 
 function addSongToAlbum(songId){
@@ -1249,7 +1250,6 @@ function addSongToAlbum(songId){
 
   saveAlbums();
   renderAlbums();
-  renderHomeDashboard();
 
   alert("Song added to "+n+"!");
 }
@@ -1483,7 +1483,6 @@ function createPlaylist(){
   playlists[n]=[];
   savePlaylists();
   renderPlaylists();
-  renderHomeDashboard();
 }
 
 function addSongToPlaylist(songId){
@@ -1517,7 +1516,6 @@ function addSongToPlaylist(songId){
   playlists[n].push(id);
   savePlaylists();
   renderPlaylists();
-  renderHomeDashboard();
   alert("Song added to "+n+"!");
 }
 
@@ -2015,335 +2013,234 @@ function renderHomeDashboard(){
 }
 
 
-function openArtistPage(artistName){
-  const name=String(artistName||"").trim();
-  if(!name)return;
-
-  const artistSongs=songs.filter(song =>
-    String(song.artist||"").trim().toLowerCase()===name.toLowerCase()
-  );
-
-  if(!artistSongs.length){
-    alert("No songs found for this artist.");
-    return;
-  }
-
-  window.currentArtistName=name;
-  window.currentArtistSongs=artistSongs;
-
-  const page=document.getElementById("artistPage");
-  const hero=document.getElementById("artistHero");
-  const list=document.getElementById("artistSongList");
-  const albumsBox=document.getElementById("artistAlbums");
-
-  const artistCover=
-    artistSongs.find(song=>song.cover_url)?.cover_url ||
-    document.querySelector(".logo")?.src ||
-    "";
-
-  const uniqueAlbums=[
-    ...new Set(
-      artistSongs
-        .map(song=>song.album)
-        .filter(Boolean)
-    )
-  ];
-
-  hero.innerHTML=`
-    <img
-      src="${escapeHtml(artistCover)}"
-      onerror="this.style.display='none'"
-      alt=""
-      style="
-        width:135px;height:135px;object-fit:cover;
-        border-radius:50%;border:2px solid #d1a33a;flex-shrink:0
-      "
-    >
-    <div style="min-width:0;flex:1">
-      <div style="color:#ae9558;font-size:11px;letter-spacing:3px;font-weight:bold">
-        ARTIST
-      </div>
-      <div style="font:italic 43px Georgia,serif;color:#ffd76a;margin-top:4px;word-break:break-word">
-        ${escapeHtml(name)}
-      </div>
-      <div style="color:#aaa;margin-top:5px">
-        ${artistSongs.length} song${artistSongs.length===1?"":"s"}
-      </div>
-      <button
-        onclick="playArtistAll()"
-        style="
-          margin-top:12px;background:linear-gradient(135deg,#f0c653,#9d7014);
-          color:#111;border:0;border-radius:8px;padding:10px 15px;
-          font-weight:bold;cursor:pointer
-        "
-      >
-        ▶ Play All
-      </button>
-    </div>
-  `;
-
-  if(uniqueAlbums.length){
-    albumsBox.innerHTML=`
-      <div style="color:#ffd76a;font-weight:bold;margin-bottom:10px">Albums</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${uniqueAlbums.map(album=>`
-          <span style="
-            background:#111;border:1px solid #3a301d;border-radius:8px;
-            padding:8px 11px;color:#ddd
-          ">💿 ${escapeHtml(album)}</span>
-        `).join("")}
-      </div>
-    `;
-  }else{
-    albumsBox.innerHTML="";
-  }
-
-  list.innerHTML=artistSongs.map(song=>{
-    const index=songs.findIndex(
-      s=>Number(s.id)===Number(song.id)
-    );
-
-    return `
-      <div style="
-        display:flex;align-items:center;gap:12px;
-        padding:11px 0;border-bottom:1px solid #222
-      ">
-        <img
-          src="${escapeHtml(song.cover_url||artistCover)}"
-          onerror="this.src='${escapeJs(artistCover)}'"
-          alt=""
-          style="width:60px;height:60px;object-fit:cover;border-radius:8px"
-        >
-
-        <div style="flex:1;min-width:0">
-          <div style="
-            font-weight:bold;white-space:nowrap;
-            overflow:hidden;text-overflow:ellipsis
-          ">
-            ${escapeHtml(song.title||"Untitled")}
-          </div>
-          <div style="color:#999;font-size:12px;margin-top:3px">
-            ${escapeHtml(song.artist||"Unknown Artist")}
-          </div>
-        </div>
-
-        <button
-          onclick="playArtistSong(${index})"
-          style="
-            width:38px;height:38px;border-radius:50%;
-            background:#ffd76a;color:#111;border:0;font-weight:bold;cursor:pointer
-          "
-          aria-label="Play ${escapeHtml(song.title||"song")}"
-        >
-          ▶
-        </button>
-      </div>
-    `;
-  }).join("");
-
-  page.style.display="block";
-
-  [
-    "homeDashboard",
-    "featuredPanel",
-    "recentPanel",
-    "albumPanel",
-    "playlistPanel",
-    "favoriteSection",
-    "songsPanel"
-  ].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el && el!==page)el.style.display="none";
-  });
-
-  page.scrollIntoView({behavior:"smooth",block:"start"});
-}
-
 window.currentArtistName="";
 window.currentArtistSongs=[];
 
-function playArtistSong(index){
-  if(index<0 || index>=songs.length)return;
-  playlistQueue=null;
-  albumQueue=null;
-  currentIndex=index;
-  playlistQueue=null;
-  albumQueue=null;
 
-  const song=songs[index];
-  const url=musicUrl(song);
 
-  if(!url){
-    alert("This song does not have a playable music file.");
+
+
+function saveArtistProfiles(){
+  localStorage.setItem(
+    "jassiahArtistProfiles",
+    JSON.stringify(artistProfiles)
+  );
+}
+
+function createArtistProfile(){
+  const nameInput=document.getElementById("newArtistName");
+  const imageInput=document.getElementById("newArtistImage");
+  const message=document.getElementById("artistUploadMessage");
+
+  const name=nameInput.value.trim();
+
+  if(!name){
+    message.textContent="Please enter the artist name.";
     return;
   }
 
-  player.src=url;
-  setNowPlaying(song);
-  player.play().catch(()=>{});
-}
+  if(imageInput.files.length===0){
+    message.textContent="Please choose an artist picture.";
+    return;
+  }
 
-function playArtistAll(){
-  const queue=window.currentArtistSongs||[];
+  const file=imageInput.files[0];
 
-  if(!queue.length)return;
+  const reader=new FileReader();
 
-  playlistQueue={
-    name:"Artist: "+window.currentArtistName,
-    songs:queue
+  reader.onload=function(){
+    artistProfiles[name]={
+      image:reader.result
+    };
+
+    saveArtistProfiles();
+    renderArtists();
+    renderHomeDashboard();
+    renderFavoriteSongs();
+
+    nameInput.value="";
+    imageInput.value="";
+
+    message.textContent=
+      "Artist uploaded successfully! 🎤";
+
+    /*
+      Put the artist into the Song artist field
+      so the next song can use the new artist.
+    */
+    const songArtist=document.getElementById("artist");
+
+    if(songArtist){
+      songArtist.value=name;
+    }
   };
-  albumQueue=null;
-  currentIndex=0;
 
-  const song=queue[0];
-  const url=musicUrl(song);
+  reader.onerror=function(){
+    message.textContent=
+      "Could not read that picture.";
+  };
 
-  if(!url)return;
-
-  player.src=url;
-  setNowPlaying(song);
-  player.play().catch(()=>{});
+  reader.readAsDataURL(file);
 }
 
-function closeArtistPage(){
-  const page=document.getElementById("artistPage");
-  if(page)page.style.display="none";
+function selectArtistForSong(name){
+  const input=document.getElementById("artist");
 
-  [
-    "homeDashboard",
-    "featuredPanel",
-    "recentPanel",
-    "albumPanel",
-    "playlistPanel",
-    "favoriteSection",
-    "songsPanel"
-  ].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el)el.style.display="";
+  if(input){
+    input.value=name;
+
+    input.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+
+    input.focus();
+  }
+}
+
+
+function renderArtists(){
+  const grid=document.getElementById("artistsGrid");
+  if(!grid)return;
+
+  const map=new Map();
+
+  Object.keys(artistProfiles).forEach(name=>{
+    map.set(name,[]);
   });
 
-  window.currentArtistName="";
-  window.currentArtistSongs=[];
+  songs.forEach(song=>{
+    const name=
+      String(song.artist||"Unknown Artist").trim() ||
+      "Unknown Artist";
 
-  window.scrollTo({top:0,behavior:"smooth"});
-}
+    if(!map.has(name)){
+      map.set(name,[]);
+    }
 
+    map.get(name).push(song);
+  });
 
-function renderFavoriteSongs(){
-  const box=document.getElementById("favoriteSongs");
-  if(!box)return;
-
-  const list=songs.filter(song =>
-    favorites.includes(Number(song.id))
+  const artists=[...map.entries()].sort(
+    (a,b)=>a[0].localeCompare(b[0])
   );
 
-  if(!list.length){
-    box.innerHTML='<div style="color:#888">No favorite songs yet. Click ♡ Favorite on a song to add it.</div>';
+  if(!artists.length){
+    grid.innerHTML=
+      '<div style="color:#888">No artists yet. Create your first artist profile above.</div>';
     return;
   }
 
-  box.innerHTML=list.map(song=>{
-    const index=songs.findIndex(
-      s=>Number(s.id)===Number(song.id)
-    );
+  grid.innerHTML=artists.map(([name,artistSongs])=>{
+
+    const profile=artistProfiles[name]||{};
+
+    const image=
+      profile.image ||
+      artistSongs.find(song=>song.cover_url)?.cover_url ||
+      document.querySelector(".logo")?.src ||
+      "";
 
     return `
-      <div style="
-        display:flex;align-items:center;gap:10px;
-        padding:8px 0;border-top:1px solid #222
-      ">
+      <div
+        style="
+          background:#111;
+          border:1px solid #332817;
+          border-radius:13px;
+          overflow:hidden;
+          cursor:pointer;
+          transition:.2s;
+        "
+        onclick="openArtistPage('${escapeJs(name)}')"
+        title="Open ${escapeHtml(name)} artist page"
+      >
+
         <img
-          src="${escapeHtml(getCoverUrl(song))}"
-          onerror="this.src='${escapeJs(getCoverUrl({}))}'"
-          style="width:50px;height:50px;object-fit:cover;border-radius:6px"
-          alt=""
-        >
-        <div style="min-width:0;flex:1">
-          <div style="font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-            ${escapeHtml(song.title||"Untitled")}
-          </div>
-          <div style="color:#999;font-size:12px">
-            ${escapeHtml(song.artist||"Unknown Artist")}
-          </div>
-        </div>
-        <button
-          onclick="playSong(${index})"
+          src="${escapeHtml(image)}"
+          onerror="this.src='${escapeJs(document.querySelector(".logo")?.src||"")}'"
+          alt="${escapeHtml(name)}"
           style="
-            width:35px;height:35px;border-radius:50%;
-            background:#ffd76a;color:#111;border:0;font-weight:bold;cursor:pointer
+            width:100%;
+            aspect-ratio:1/1;
+            object-fit:cover;
+            display:block;
           "
         >
-          ▶
-        </button>
+
+        <div style="padding:13px">
+
+          <div style="
+            color:#ffd76a;
+            font-size:18px;
+            font-weight:bold;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${escapeHtml(name)}
+          </div>
+
+          <div style="
+            color:#999;
+            font-size:12px;
+            margin-top:4px;
+          ">
+            ${artistSongs.length}
+            song${artistSongs.length===1?"":"s"}
+          </div>
+
+          <button
+            onclick="event.stopPropagation();openArtistPage('${escapeJs(name)}')"
+            style="
+              margin-top:10px;
+              width:100%;
+              background:#ffd76a;
+              color:#111;
+              border:0;
+              border-radius:7px;
+              padding:9px;
+              font-weight:bold;
+              cursor:pointer;
+            "
+          >
+            View Artist
+          </button>
+
+        </div>
+
       </div>
     `;
   }).join("");
 }
 
 
-function toggleMobileNav(){
-  const nav=document.querySelector(".site-nav");
-  const button=document.getElementById("mobileMenuButton");
+function playArtistByName(name){
+  const artistSongs=songs.filter(song =>
+    String(song.artist||"").trim().toLowerCase()===
+    String(name||"").trim().toLowerCase()
+  );
 
-  if(!nav)return;
+  if(!artistSongs.length)return;
 
-  nav.classList.toggle("mobile-open");
+  playlistQueue={
+    name:"Artist: "+name,
+    songs:artistSongs
+  };
 
-  if(button){
-    button.classList.toggle("mobile-open");
+  albumQueue=null;
+  currentIndex=0;
+
+  const song=artistSongs[0];
+  const url=musicUrl(song);
+
+  if(!url){
+    alert("This artist has no playable songs.");
+    return;
   }
-}
 
-document.querySelectorAll(".nav-link").forEach(link=>{
-  link.addEventListener("click",function(e){
-    e.preventDefault();
-
-    const target=this.dataset.target;
-
-    if(
-      target==="playlistPanel" ||
-      target==="albumPanel" ||
-      target==="favoriteSection" ||
-      target==="songsPanel"
-    ){
-      closeArtistPage();
-
-      const el=document.getElementById(target);
-      if(el){
-        el.scrollIntoView({
-          behavior:"smooth",
-          block:"start"
-        });
-      }
-
-      setActiveNav(target);
-    }else{
-      const el=document.getElementById(target);
-      if(el){
-        el.scrollIntoView({
-          behavior:"smooth",
-          block:"start"
-        });
-      }
-
-      setActiveNav(target);
-    }
-
-    const nav=document.querySelector(".site-nav");
-    const button=document.getElementById("mobileMenuButton");
-
-    if(nav)nav.classList.remove("mobile-open");
-    if(button)button.classList.remove("mobile-open");
-  });
-});
-
-function setActiveNav(target){
-  document.querySelectorAll(".nav-link").forEach(link=>{
-    link.classList.toggle(
-      "active",
-      link.dataset.target===target
-    );
-  });
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
 }
 
 function filterSongs(){
@@ -2379,7 +2276,6 @@ function toggleFavorite(id){
   );
 
   filterSongs();
-  renderFavoriteSongs();
   updateFavoritesButton();
   updateCurrentFavoriteButton();
 }
@@ -2400,7 +2296,7 @@ function updateFavoritesButton(){
     btn.style.borderColor="#ffd76a";
     btn.style.color="#ffe89c";
   }else{
-    btn.textContent="♡ Show Favorites";
+    btn.textContent="♡ Favorites";
     btn.style.background="#111";
     btn.style.borderColor="#9f741c";
     btn.style.color="#ffd76a";
@@ -2580,6 +2476,321 @@ async function deleteSong(id){
   const {error}=await client
     .from("songs")
     .delete()
+window.currentArtistName="";
+window.currentArtistSongs=[];
+
+function openArtistPage(artistName){
+  const name=String(artistName||"").trim();
+  if(!name)return;
+
+  const artistSongs=songs.filter(song =>
+    String(song.artist||"").trim().toLowerCase()===name.toLowerCase()
+  );
+
+  const profile=artistProfiles[name] || {};
+  const page=document.getElementById("artistPage");
+  const hero=document.getElementById("artistHero");
+  const list=document.getElementById("artistSongList");
+
+  if(!page || !hero || !list){
+    alert("Artist page is not available.");
+    return;
+  }
+
+  window.currentArtistName=name;
+  window.currentArtistSongs=artistSongs;
+
+  const fallback=
+    document.querySelector(".logo")?.src ||
+    document.querySelector("header img")?.src ||
+    "";
+
+  const image=
+    profile.image ||
+    artistSongs.find(song=>song.cover_url)?.cover_url ||
+    fallback;
+
+  hero.innerHTML=`
+    <img
+      src="${escapeHtml(image)}"
+      onerror="this.src='${escapeJs(fallback)}'"
+      alt="${escapeHtml(name)}"
+      style="
+        width:170px;
+        height:170px;
+        object-fit:cover;
+        border-radius:50%;
+        border:3px solid #d6a83c;
+        box-shadow:0 0 25px rgba(214,168,60,.25);
+        flex-shrink:0;
+      "
+    >
+
+    <div style="flex:1;min-width:0">
+
+      <div style="
+        color:#a9925c;
+        font-size:11px;
+        letter-spacing:3px;
+        font-weight:bold;
+      ">
+        ARTIST PROFILE
+      </div>
+
+      <div style="
+        font:italic 48px Georgia,serif;
+        color:#ffd76a;
+        margin-top:5px;
+        word-break:break-word;
+      ">
+        ${escapeHtml(name)}
+      </div>
+
+      <div style="
+        color:#aaa;
+        margin-top:7px;
+      ">
+        ${artistSongs.length}
+        song${artistSongs.length===1?"":"s"}
+      </div>
+
+      <button
+        onclick="playArtistAll()"
+        style="
+          margin-top:14px;
+          background:linear-gradient(135deg,#f0c653,#9d7014);
+          color:#111;
+          border:0;
+          border-radius:8px;
+          padding:11px 17px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        ▶ Play All
+      </button>
+
+      <button
+        onclick="selectArtistForSong('${escapeJs(name)}')"
+        style="
+          margin-top:14px;
+          margin-left:6px;
+          background:#111;
+          color:#ffd76a;
+          border:1px solid #9f741c;
+          border-radius:8px;
+          padding:10px 15px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        Use Artist
+      </button>
+
+    </div>
+  `;
+
+  if(artistSongs.length===0){
+    list.innerHTML=`
+      <div style="
+        padding:22px;
+        color:#999;
+        text-align:center;
+      ">
+        This artist does not have any songs yet.
+      </div>
+    `;
+  }else{
+    list.innerHTML=artistSongs.map(song=>{
+
+      const index=songs.findIndex(
+        s=>Number(s.id)===Number(song.id)
+      );
+
+      return `
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          padding:11px 0;
+          border-bottom:1px solid #222;
+        ">
+
+          <img
+            src="${escapeHtml(song.cover_url||image)}"
+            onerror="this.src='${escapeJs(image)}'"
+            alt=""
+            style="
+              width:64px;
+              height:64px;
+              object-fit:cover;
+              border-radius:8px;
+            "
+          >
+
+          <div style="
+            flex:1;
+            min-width:0;
+          ">
+
+            <div style="
+              font-weight:bold;
+              font-size:16px;
+              white-space:nowrap;
+              overflow:hidden;
+              text-overflow:ellipsis;
+            ">
+              ${escapeHtml(song.title||"Untitled")}
+            </div>
+
+            <div style="
+              color:#999;
+              font-size:12px;
+              margin-top:3px;
+            ">
+              ${escapeHtml(song.artist||name)}
+            </div>
+
+          </div>
+
+          <button
+            onclick="playArtistSong(${index})"
+            style="
+              width:40px;
+              height:40px;
+              border-radius:50%;
+              background:#ffd76a;
+              color:#111;
+              border:0;
+              font-weight:bold;
+              cursor:pointer;
+            "
+            title="Play song"
+          >
+            ▶
+          </button>
+
+        </div>
+      `;
+    }).join("");
+  }
+
+  [
+    "homeDashboard",
+    "featuredPanel",
+    "recentPanel",
+    "playlistPanel",
+    "albumPanel",
+    "favoriteSection",
+    "artistsPanel",
+    "songsPanel",
+    "newArtistPanel"
+  ].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el && id!=="artistPage"){
+      el.dataset.artistHidden="1";
+      el.style.display="none";
+    }
+  });
+
+  page.style.display="block";
+
+  page.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+function playArtistSong(index){
+  if(index<0 || index>=songs.length)return;
+
+  playlistQueue=null;
+  albumQueue=null;
+
+  currentIndex=index;
+
+  const song=songs[index];
+  const url=musicUrl(song);
+
+  if(!url){
+    alert("This song does not have a playable music file.");
+    return;
+  }
+
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
+}
+
+function playArtistAll(){
+  const queue=window.currentArtistSongs||[];
+
+  if(!queue.length){
+    alert("This artist has no songs yet.");
+    return;
+  }
+
+  playlistQueue={
+    name:"Artist: "+window.currentArtistName,
+    songs:queue
+  };
+
+  albumQueue=null;
+  currentIndex=0;
+
+  const song=queue[0];
+  const url=musicUrl(song);
+
+  if(!url)return;
+
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
+}
+
+function closeArtistPage(){
+  const page=document.getElementById("artistPage");
+
+  if(page){
+    page.style.display="none";
+  }
+
+  document.querySelectorAll("[data-artist-hidden='1']").forEach(el=>{
+    el.style.display="";
+    delete el.dataset.artistHidden;
+  });
+
+  window.currentArtistName="";
+  window.currentArtistSongs=[];
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+function selectArtistForSong(name){
+  const input=document.getElementById("artist");
+
+  if(!input)return;
+
+  input.value=name;
+
+  const uploadPanel=document.querySelector(
+    '#newArtistPanel + .panel'
+  );
+
+  if(uploadPanel){
+    uploadPanel.scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
+  }
+
+  input.focus();
+}
+
+
     .eq("id",id);
 
   if(error){
