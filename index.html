@@ -370,318 +370,176 @@ body:not(.admin-mode) .admin-only{
   #authBar{justify-content:center}
 }
 
-/* SAFE SLIDER LAYOUT — old content remains in DOM for existing JS */
-.j-old-content-hidden{display:none!important}
-
-.j-safe-app{
+/* =========================================================
+   JASSIAH FIXED LAYOUT — matches the user's requested screen
+   ========================================================= */
+.jx-app{
   position:fixed;
   inset:0 0 94px 0;
-  z-index:9000;
   background:#050505;
+  z-index:8000;
   overflow:hidden;
   color:#fff;
+  font-family:Arial,sans-serif;
 }
-
-.j-safe-header{
-  position:absolute;
-  left:0;right:0;top:0;
-  height:64px;
-  background:#121212;
-  border-bottom:1px solid #222;
-  z-index:4;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.jx-left{
+  position:absolute;left:0;top:0;bottom:0;width:61px;
+  background:#070707;border-right:1px solid #222;
+  display:flex;flex-direction:column;align-items:center;
+  z-index:3;padding-top:12px;box-sizing:border-box;
 }
-
-.j-safe-arrow{
-  position:absolute;
-  left:14px;
-  width:35px;height:35px;
-  border:0;border-radius:50%;
-  background:#1c1c1c;color:#ddd;
-  font-size:23px;
-  cursor:pointer;
+.jx-logo{
+  width:39px;height:39px;border:2px solid #ffd76a;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:#ffd76a;font-size:18px;font-weight:900;margin-bottom:18px;
 }
-
-.j-safe-arrow.right{left:56px}
-
-.j-safe-nav{
-  position:absolute;
-  right:14px;
-  display:flex;
-  gap:7px;
-  align-items:center;
+.jx-lbtn{
+  width:42px;height:42px;border:0;border-radius:8px;
+  background:transparent;color:#888;cursor:pointer;font-size:18px;
+  margin:2px 0;display:flex;align-items:center;justify-content:center;
 }
-
-.j-safe-nav button{
-  border:0;
-  border-radius:999px;
-  background:#242424;
-  color:#ddd;
-  padding:8px 12px;
-  font-size:11px;
-  font-weight:800;
-  cursor:pointer;
+.jx-lbtn:hover,.jx-lbtn.active{background:#1f1f1f;color:#fff}
+.jx-lbtn.active{box-shadow:inset 3px 0 0 #ffd76a}
+.jx-top{
+  position:absolute;left:61px;right:280px;top:0;height:64px;
+  background:#111;border-bottom:1px solid #222;z-index:2;
+  display:flex;align-items:center;justify-content:center;
 }
-
-.j-safe-nav button.active{
-  background:#ffd76a;
-  color:#111;
+.jx-arrows{position:absolute;left:14px;display:flex;gap:6px}
+.jx-arrows button{
+  width:34px;height:34px;border:0;border-radius:50%;
+  background:#191919;color:#ddd;font-size:22px;cursor:pointer;
 }
-
-.j-safe-window{
-  position:absolute;
-  left:0;right:0;top:64px;bottom:0;
+.jx-search{
+  width:min(580px,58%);height:36px;background:#242424;color:#fff;
+  border:1px solid #2e2e2e;border-radius:999px;outline:none;
+  padding:0 18px;font-size:13px;
+}
+.jx-actions{
+  position:absolute;right:12px;display:flex;gap:7px;align-items:center;
+}
+.jx-actions button{
+  height:36px;border-radius:999px;padding:0 11px;
+  border:1px solid #4e411d;background:#191919;color:#ffd76a;
+  cursor:pointer;font-weight:800;font-size:11px;
+}
+.jx-window{
+  position:absolute;left:61px;right:280px;top:64px;bottom:0;
   overflow:hidden;
 }
-
-.j-safe-track{
-  height:100%;
-  display:flex;
-  transition:transform .38s cubic-bezier(.22,.61,.36,1);
+.jx-track{
+  height:100%;display:flex;transition:transform .38s cubic-bezier(.22,.61,.36,1);
 }
-
-.j-safe-slide{
-  flex:0 0 100%;
-  width:100%;
-  height:100%;
-  overflow-y:auto;
-  box-sizing:border-box;
-  padding:24px 28px 35px;
+.jx-slide{
+  flex:0 0 100%;width:100%;height:100%;overflow-y:auto;
+  box-sizing:border-box;padding:22px 26px 32px;
 }
-
-.j-safe-inner{
-  max-width:1180px;
-  margin:0 auto;
+.jx-inner{max-width:1040px;margin:0 auto}
+.jx-kicker{color:#ab945a;font-size:10px;letter-spacing:3px;font-weight:900}
+.jx-brand{color:#ffd76a;font:italic 43px Georgia,serif;margin-top:4px}
+.jx-sub{color:#aaa;margin-top:4px}
+.jx-section-title{font-size:22px;font-weight:900;margin:22px 0 13px}
+.jx-artist-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:15px;
 }
-
-.j-safe-heading{
-  margin:0 0 18px;
-  font-size:30px;
-  font-weight:900;
+.jx-artist-card{
+  background:#181818;border:1px solid #292929;border-radius:10px;
+  padding:11px;cursor:pointer;
 }
-
-.j-safe-welcome{
-  color:#a89056;
-  font-size:10px;
-  letter-spacing:3px;
-  font-weight:900;
+.jx-artist-card:hover{background:#232323}
+.jx-artist-card img{
+  width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;background:#222;display:block;
 }
-
-.j-safe-brand{
-  color:#ffd76a;
-  font:italic 48px Georgia,serif;
-  margin-top:5px;
+.jx-artist-name{margin-top:9px;color:#ffd76a;font-size:17px;font-weight:900}
+.jx-count{color:#888;font-size:11px;margin-top:4px}
+.jx-table{
+  background:#121212;border:1px solid #232323;border-radius:10px;overflow:hidden;
 }
-
-.j-safe-sub{
-  color:#aaa;
-  margin-top:4px;
+.jx-head,.jx-row{
+  display:grid;grid-template-columns:38px minmax(250px,2fr) minmax(210px,1.5fr) 140px 66px;
+  gap:10px;align-items:center;
 }
-
-.j-safe-artist-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(185px,1fr));
-  gap:16px;
-  margin-top:23px;
+.jx-head{padding:10px 12px;color:#888;font-size:10px;border-bottom:1px solid #292929}
+.jx-row{min-height:64px;padding:8px 12px;border-bottom:1px solid #202020;cursor:pointer}
+.jx-row:last-child{border-bottom:0}
+.jx-row:hover{background:#1d1d1d}
+.jx-cover{
+  width:46px;height:46px;border-radius:5px;object-fit:cover;background:#222;flex-shrink:0;
 }
-
-.j-safe-artist-card{
-  background:#181818;
-  border:1px solid #292929;
-  border-radius:11px;
-  padding:11px;
-  cursor:pointer;
+.jx-song-cell{
+  display:flex;align-items:center;gap:10px;min-width:0;position:relative;padding-right:45px;
 }
-
-.j-safe-artist-card:hover{background:#232323}
-
-.j-safe-artist-card img{
-  width:100%;
-  aspect-ratio:1;
-  object-fit:cover;
-  border-radius:7px;
-  background:#222;
-  display:block;
+.jx-song-main{min-width:0}
+.jx-song-title{font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jx-song-credit{font-size:11px;color:#999;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jx-row-play{
+  position:absolute;right:3px;top:50%;transform:translateY(-50%);
+  width:34px;height:34px;border:0;border-radius:50%;
+  background:#ffd76a;color:#111;font-weight:900;cursor:pointer;
 }
-
-.j-safe-artist-name{
-  margin-top:9px;
-  color:#ffd76a;
-  font-size:18px;
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+.jx-artist-credit{
+  color:#ddd;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
-
-.j-safe-table{
-  background:#121212;
-  border:1px solid #242424;
-  border-radius:10px;
-  overflow:hidden;
-}
-
-.j-safe-table-head,
-.j-safe-table-row{
-  display:grid;
-  grid-template-columns:42px minmax(250px,2fr) minmax(220px,1.5fr) 145px 70px;
-  gap:10px;
-  align-items:center;
-}
-
-.j-safe-table-head{
-  padding:10px 12px;
-  color:#888;
-  font-size:11px;
-  border-bottom:1px solid #292929;
-}
-
-.j-safe-table-row{
-  min-height:66px;
-  padding:8px 12px;
-  border-bottom:1px solid #202020;
-  cursor:pointer;
-}
-
-.j-safe-table-row:last-child{border-bottom:0}
-.j-safe-table-row:hover{background:#1d1d1d}
-
-.j-safe-cover{
-  width:48px;height:48px;
-  object-fit:cover;
-  border-radius:5px;
-  background:#222;
-}
-
-.j-safe-track{
-  display:flex;
-  gap:11px;
-  align-items:center;
-  min-width:0;
-  position:relative;
-}
-
-.j-safe-track-main{
-  min-width:0;
-  padding-right:42px;
-}
-
-.j-safe-title{
-  font-weight:900;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.j-safe-credit{
-  color:#999;
-  font-size:12px;
-  margin-top:3px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.j-safe-play{
-  position:absolute;
-  right:4px;top:50%;
-  transform:translateY(-50%);
-  width:34px;height:34px;
-  border:0;border-radius:50%;
-  background:#ffd76a;color:#111;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.j-safe-artist-cell{
-  color:#ddd;
-  font-weight:800;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  cursor:pointer;
-}
-
-.j-safe-artist-cell:hover{color:#ffd76a}
-.j-safe-date,.j-safe-time{color:#aaa;font-size:12px}
-.j-safe-time{text-align:right}
-
-.j-safe-empty{color:#888;padding:20px 4px}
-
-.j-safe-detail{
-  display:flex;
-  gap:22px;
-  align-items:center;
-  padding:22px;
-  border:1px solid #5a4518;
-  border-radius:13px;
+.jx-date,.jx-time{color:#aaa;font-size:11px}.jx-time{text-align:right}
+.jx-detail{
   background:linear-gradient(135deg,#211b0c,#121212 65%);
+  border:1px solid #514019;border-radius:12px;padding:22px;
+  display:flex;gap:20px;align-items:center;
 }
-
-.j-safe-detail img{
-  width:170px;height:170px;
-  border-radius:50%;
-  object-fit:cover;
-  background:#222;
-  border:3px solid #d5a943;
-  flex-shrink:0;
+.jx-detail img{
+  width:155px;height:155px;border-radius:50%;object-fit:cover;
+  border:3px solid #d4a73d;background:#222;flex-shrink:0;
 }
-
-.j-safe-detail-name{
-  color:#ffd76a;
-  font:italic 48px Georgia,serif;
-  word-break:break-word;
+.jx-detail-name{color:#ffd76a;font:italic 42px Georgia,serif}
+.jx-right{
+  position:absolute;right:0;top:0;bottom:0;width:280px;
+  background:#080808;border-left:1px solid #212121;z-index:3;
+  padding:14px;box-sizing:border-box;overflow-y:auto;
 }
-
-.j-safe-actions{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:14px;
+.jx-right h3{margin:0 0 12px;font-size:15px}
+.jx-now-art{
+  width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;background:#1c1c1c;
 }
-
-.j-safe-actions button{
-  border:1px solid #70561c;
-  border-radius:999px;
-  background:#111;
-  color:#ffd76a;
-  padding:9px 14px;
-  font-weight:800;
-  cursor:pointer;
+.jx-now-title{font-size:19px;font-weight:900;margin-top:11px}
+.jx-now-artist{color:#ffd76a;font-size:12px;font-weight:800;margin-top:4px;cursor:pointer}
+.jx-related-title{
+  font-size:12px;font-weight:900;color:#ddd;
+  border-top:1px solid #292929;padding-top:13px;margin-top:15px;margin-bottom:8px;
 }
-
-.j-safe-actions .primary{
-  background:#ffd76a;
-  color:#111;
-  border:0;
+.jx-related{
+  width:100%;display:flex;align-items:center;gap:8px;
+  border:0;background:#151515;color:#fff;border-radius:6px;padding:6px;
+  text-align:left;margin-bottom:6px;cursor:pointer;
 }
+.jx-related img{width:40px;height:40px;border-radius:5px;object-fit:cover;background:#222;flex-shrink:0}
+.jx-related-main{min-width:0}
+.jx-related-song{display:block;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jx-related-artist{display:block;color:#999;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
+@media(max-width:900px){
+  .jx-right{width:240px}.jx-top{right:240px}.jx-window{right:240px}
+  .jx-head,.jx-row{grid-template-columns:34px minmax(210px,2fr) minmax(170px,1.4fr) 120px 62px}
+}
 @media(max-width:700px){
-  .j-safe-app{inset:0 0 145px 0}
-  .j-safe-header{height:58px}
-  .j-safe-arrow{left:8px}
-  .j-safe-arrow.right{left:50px}
-  .j-safe-nav{
-    right:7px;
-    gap:4px;
+  .jx-app{inset:0 0 145px 0}
+  .jx-left{
+    left:0;right:0;top:auto;bottom:0;width:100%;height:52px;
+    flex-direction:row;padding:2px 3px;border-right:0;border-top:1px solid #222;
   }
-  .j-safe-nav button{
-    padding:7px 8px;
-    font-size:10px;
-  }
-  .j-safe-window{top:58px}
-  .j-safe-slide{padding:16px 10px 22px}
-  .j-safe-brand{font-size:38px}
-  .j-safe-table{overflow-x:auto}
-  .j-safe-table-head,.j-safe-table-row{min-width:720px}
-  .j-safe-detail{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-  .j-safe-detail img{width:140px;height:140px}
-  .j-safe-detail-name{font-size:36px}
+  .jx-logo{width:36px;height:36px;margin:0 3px 0 0}
+  .jx-lbtn{width:41px;height:41px}
+  .jx-top{left:0;right:0;height:58px}
+  .jx-search{width:48%;height:34px}
+  .jx-actions{right:5px;gap:4px}
+  .jx-actions button{height:33px;padding:0 8px;font-size:10px}
+  .jx-window{left:0;right:0;top:58px}
+  .jx-slide{padding:16px 10px 24px}
+  .jx-brand{font-size:36px}
+  .jx-right{display:none}
+  .jx-head,.jx-row{min-width:700px}
+  .jx-table{overflow-x:auto}
+  .jx-detail{flex-direction:column;align-items:flex-start}
+  .jx-detail img{width:135px;height:135px}
 }
 </style>
 </head>
@@ -776,78 +634,97 @@ body:not(.admin-mode) .admin-only{
 
 
 
-<div class="j-safe-app" id="jSafeApp">
-  <header class="j-safe-header">
-    <button class="j-safe-arrow" type="button" onclick="jSafeBack()">‹</button>
-    <button class="j-safe-arrow right" type="button" onclick="jSafeForward()">›</button>
+<div class="jx-app" id="jxApp">
+  <aside class="jx-left">
+    <div class="jx-logo">J</div>
+    <button class="jx-lbtn active" data-p="0" onclick="jxGo(0)">⌂</button>
+    <button class="jx-lbtn" data-p="1" onclick="jxGo(1)">♫</button>
+    <button class="jx-lbtn" data-p="2" onclick="jxGo(2)">🎤</button>
+    <button class="jx-lbtn" data-p="3" onclick="jxGo(3)">♥</button>
+    <button class="jx-lbtn" data-p="4" onclick="jxGo(4)">☷</button>
+    <button class="jx-lbtn" data-p="5" onclick="jxGo(5)">💿</button>
+  </aside>
 
-    <nav class="j-safe-nav" aria-label="Jassiah navigation">
-      <button data-page="0" onclick="jSafeGo(0)">Home</button>
-      <button data-page="1" onclick="jSafeGo(1)">Songs</button>
-      <button data-page="2" onclick="jSafeGo(2)">Artists</button>
-      <button data-page="3" onclick="jSafeGo(3)">Favorites</button>
-      <button data-page="4" onclick="jSafeGo(4)">Playlists</button>
-      <button data-page="5" onclick="jSafeGo(5)">Albums</button>
-    </nav>
+  <header class="jx-top">
+    <div class="jx-arrows">
+      <button type="button" onclick="jxBack()">‹</button>
+      <button type="button" onclick="jxForward()">›</button>
+    </div>
+    <input id="jxSearch" class="jx-search" type="search" placeholder="What do you want to play?"
+      autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+    <div class="jx-actions">
+      <button type="button" onclick="jxNew()">🔔</button>
+      <button type="button" onclick="openAdminLogin()">🔐 Admin Login</button>
+    </div>
   </header>
 
-  <main class="j-safe-window" id="jSafeWindow">
-    <div class="j-safe-track" id="jSafeTrack">
+  <main class="jx-window" id="jxWindow">
+    <div class="jx-track" id="jxTrack">
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <div class="j-safe-welcome">WELCOME TO</div>
-          <div class="j-safe-brand">Jassiah Music</div>
-          <div class="j-safe-sub">Artists</div>
-          <div id="jSafeHomeArtists" class="j-safe-artist-grid"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <div class="jx-kicker">WELCOME TO</div>
+          <div class="jx-brand">Jassiah Music</div>
+          <div class="jx-sub">Your music. Your favorites. Your world.</div>
+          <div class="jx-section-title">Artists</div>
+          <div id="jxHomeArtists" class="jx-artist-grid"></div>
         </div>
       </section>
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <h1 class="j-safe-heading">Songs</h1>
-          <div id="jSafeSongs"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <h1 class="jx-heading jx-slide-title">Songs</h1>
+          <div id="jxSongs"></div>
         </div>
       </section>
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <h1 class="j-safe-heading">Artists</h1>
-          <div id="jSafeArtists" class="j-safe-artist-grid"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <h1 class="jx-slide-title">Artists</h1>
+          <div id="jxArtists" class="jx-artist-grid"></div>
         </div>
       </section>
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <h1 class="j-safe-heading">Favorites</h1>
-          <div id="jSafeFavorites"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <h1 class="jx-slide-title">Favorites</h1>
+          <div id="jxFavorites"></div>
         </div>
       </section>
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <h1 class="j-safe-heading">Playlists</h1>
-          <div id="jSafePlaylists" class="j-safe-artist-grid"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <h1 class="jx-slide-title">Playlists</h1>
+          <div id="jxPlaylists" class="jx-artist-grid"></div>
         </div>
       </section>
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <h1 class="j-safe-heading">Albums</h1>
-          <div id="jSafeAlbums" class="j-safe-artist-grid"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <h1 class="jx-slide-title">Albums</h1>
+          <div id="jxAlbums" class="jx-artist-grid"></div>
         </div>
       </section>
 
-      <section class="j-safe-slide">
-        <div class="j-safe-inner">
-          <div id="jSafeArtistDetail"></div>
+      <section class="jx-slide">
+        <div class="jx-inner">
+          <div id="jxArtistDetail"></div>
         </div>
       </section>
 
     </div>
   </main>
+
+  <aside class="jx-right">
+    <h3>Now Playing</h3>
+    <img id="jxNowArt" class="jx-now-art" alt="Now playing">
+    <div id="jxNowTitle" class="jx-now-title">Nothing playing</div>
+    <div id="jxNowArtist" class="jx-now-artist" onclick="jxOpenCurrentArtist()">Jassiah</div>
+    <div class="jx-related-title">Related Songs</div>
+    <div id="jxRelatedSongs"></div>
+  </aside>
 </div>
-<div class="wrap j-old-content-hidden">
+<div class="wrap">
 
 <section id="homeDashboard" class="home-dashboard">
   <div class="home-shell">
@@ -3831,468 +3708,255 @@ initializeAuth();
 </script>
 
 
-<script id="jassiah-safe-slider-only">
-let jSafePage=0;
-let jSafeArtist="";
-let jSafeTouchX=0;
-let jSafeTouchY=0;
+<script>
+let jxPage=0;
+let jxArtist="";
 
-function jSafeProfiles(){
-  return (typeof artistProfiles!=="undefined" && artistProfiles)
-    ? artistProfiles
-    : {};
+function jxProfiles(){
+  return (typeof artistProfiles!=="undefined" && artistProfiles) ? artistProfiles : {};
 }
-
-function jSafeNames(){
-  return Object.keys(jSafeProfiles())
-    .filter(n=>String(n).trim())
-    .sort((a,b)=>a.localeCompare(b));
+function jxArtistNames(){
+  return Object.keys(jxProfiles()).filter(n=>String(n).trim()).sort((a,b)=>a.localeCompare(b));
 }
-
-function jSafeArtistSongs(name){
+function jxArtistSongs(name){
   const n=String(name||"").trim().toLowerCase();
-
-  return (typeof songs!=="undefined"?songs:[]).filter(song=>{
-    const c=String(song.artist||"").trim().toLowerCase();
-
-    return c===n ||
-      c.startsWith(n+" ft") ||
-      c.startsWith(n+" feat") ||
-      c.startsWith(n+" featuring");
+  return (typeof songs!=="undefined"?songs:[]).filter(s=>{
+    const c=String(s.artist||"").trim().toLowerCase();
+    return c===n || c.startsWith(n+" ft") || c.startsWith(n+" feat") || c.startsWith(n+" featuring");
   });
 }
-
-function jSafePrimaryArtist(credit){
-  const c=String(credit||"").trim().toLowerCase();
-
-  const found=jSafeNames().find(name=>{
-    const n=name.toLowerCase();
-    return c===n ||
-      c.startsWith(n+" ft") ||
-      c.startsWith(n+" feat") ||
-      c.startsWith(n+" featuring");
-  });
-
-  return found ||
-    String(credit||"")
-      .split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0]
-      .trim();
+function jxImage(song){
+  try{return coverUrl(song)||""}catch(_){return""}
 }
-
-function jSafeCover(song){
-  try{
-    return coverUrl(song)||"";
-  }catch(_){
-    return "";
-  }
-}
-
-function jSafeDate(song){
+function jxDate(song){
   const raw=song.created_at||song.date_added||song.added_at;
-
-  if(!raw)return "Recently added";
-
+  if(!raw)return"Recently added";
   const d=new Date(raw);
-
-  if(Number.isNaN(d.getTime()))return "Recently added";
-
-  return d.toLocaleDateString(undefined,{
-    month:"short",
-    day:"numeric",
-    year:"numeric"
+  if(Number.isNaN(d.getTime()))return"Recently added";
+  return d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+}
+function jxTime(song){
+  const v=song.duration_seconds??song.duration??song.length;
+  return Number.isFinite(Number(v))&&Number(v)>0 ? formatTime(Number(v)) : "—";
+}
+function jxPrimary(credit){
+  const c=String(credit||"").toLowerCase();
+  const found=jxArtistNames().sort((a,b)=>b.length-a.length).find(name=>{
+    const n=name.toLowerCase();
+    return c===n||c.startsWith(n+" ft")||c.startsWith(n+" feat")||c.startsWith(n+" featuring");
   });
+  return found||String(credit||"").split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
 }
 
-function jSafeTime(song){
-  const value=song.duration_seconds ?? song.duration ?? song.length;
-
-  return Number.isFinite(Number(value)) && Number(value)>0
-    ? formatTime(Number(value))
-    : "—";
-}
-
-function jSafeRenderHome(){
-  const box=document.getElementById("jSafeHomeArtists");
-  if(!box)return;
-
-  const names=jSafeNames();
-
-  box.innerHTML=names.length
-    ? names.map(name=>{
-        const profile=jSafeProfiles()[name]||{};
-        const list=jSafeArtistSongs(name);
-        const image=profile.image || (list[0]?jSafeCover(list[0]):"");
-
-        return `
-          <div class="j-safe-artist-card"
-            onclick="jSafeOpenArtist('${escapeJs(name)}')">
-            <img src="${escapeHtml(image)}" alt="${escapeHtml(name)}">
-            <div class="j-safe-artist-name">${escapeHtml(name)}</div>
+function jxRows(list){
+  if(!list.length)return'<div class="jx-safe-empty">No songs yet.</div>';
+  return `<div class="jx-table">
+    <div class="jx-head"><div>#</div><div>Title</div><div>Artist</div><div>Date added</div><div>◷</div></div>
+    ${list.map((song,i)=>{
+      const real=songs.findIndex(s=>Number(s.id)===Number(song.id));
+      const primary=jxPrimary(song.artist);
+      return `<div class="jx-row" onclick="playSong(${real})">
+        <div style="text-align:center;color:#888">${i+1}</div>
+        <div class="jx-song-cell">
+          <img class="jx-cover" src="${escapeHtml(jxImage(song))}" alt="">
+          <div class="jx-song-main">
+            <div class="jx-song-title">${escapeHtml(song.title||"Untitled")}</div>
+            <div class="jx-song-credit">${escapeHtml(song.artist||"Unknown Artist")}</div>
           </div>
-        `;
-      }).join("")
-    : '<div class="j-safe-empty">No artist profiles yet.</div>';
+          <button class="jx-row-play" onclick="event.stopPropagation();playSong(${real})">▶</button>
+        </div>
+        <div class="jx-artist-credit" onclick="event.stopPropagation();jxOpenArtist('${escapeJs(primary)}')">${escapeHtml(song.artist||"Unknown Artist")}</div>
+        <div class="jx-date">${escapeHtml(jxDate(song))}</div>
+        <div class="jx-time">${escapeHtml(jxTime(song))}</div>
+      </div>`;
+    }).join("")}
+  </div>`;
 }
 
-function jSafeSongMarkup(list){
-  if(!list.length){
-    return '<div class="j-safe-empty">No songs yet.</div>';
-  }
-
-  return `
-    <div class="j-safe-table">
-      <div class="j-safe-table-head">
-        <div>#</div>
-        <div>Title</div>
-        <div>Artist</div>
-        <div>Date added</div>
-        <div>◷</div>
-      </div>
-
-      ${list.map((song,index)=>{
-        const real= songs.findIndex(
-          s=>Number(s.id)===Number(song.id)
-        );
-        const primary=jSafePrimaryArtist(song.artist);
-
-        return `
-          <div class="j-safe-table-row"
-            onclick="playSong(${real})">
-
-            <div style="text-align:center;color:#888">${index+1}</div>
-
-            <div class="j-safe-track">
-              <img class="j-safe-cover"
-                src="${escapeHtml(jSafeCover(song))}" alt="">
-
-              <div class="j-safe-track-main">
-                <div class="j-safe-title">
-                  ${escapeHtml(song.title||"Untitled")}
-                </div>
-                <div class="j-safe-credit">
-                  ${escapeHtml(song.artist||"Unknown Artist")}
-                </div>
-              </div>
-
-              <button class="j-safe-play"
-                type="button"
-                onclick="event.stopPropagation();playSong(${real})"
-              >▶</button>
-            </div>
-
-            <div class="j-safe-artist-cell"
-              onclick="
-                event.stopPropagation();
-                jSafeOpenArtist('${escapeJs(primary)}');
-              "
-            >${escapeHtml(song.artist||"Unknown Artist")}</div>
-
-            <div class="j-safe-date">${escapeHtml(jSafeDate(song))}</div>
-            <div class="j-safe-time">${escapeHtml(jSafeTime(song))}</div>
-          </div>
-        `;
-      }).join("")}
-    </div>
-  `;
+function jxRenderHome(){
+  const box=document.getElementById("jxHomeArtists"); if(!box)return;
+  const names=jxArtistNames();
+  box.innerHTML=names.length?names.map(name=>{
+    const p=jxProfiles()[name]||{};
+    const list=jxArtistSongs(name);
+    const image=p.image||(list[0]?jxImage(list[0]):"");
+    return `<div class="jx-artist-card" onclick="jxOpenArtist('${escapeJs(name)}')">
+      <img src="${escapeHtml(image)}" alt="${escapeHtml(name)}">
+      <div class="jx-artist-name">${escapeHtml(name)}</div>
+      <div class="jx-count">${list.length} song${list.length===1?"":"s"}</div>
+    </div>`;
+  }).join(""):'<div class="jx-safe-empty">No artist profiles yet.</div>';
 }
 
-function jSafeRenderSongs(){
-  const box=document.getElementById("jSafeSongs");
-  if(box){
-    box.innerHTML=jSafeSongMarkup(
-      typeof songs!=="undefined" ? songs : []
-    );
-  }
+function jxRenderArtists(){
+  const box=document.getElementById("jxArtists"); if(!box)return;
+  const names=jxArtistNames();
+  box.innerHTML=names.length?names.map(name=>{
+    const p=jxProfiles()[name]||{};
+    const list=jxArtistSongs(name);
+    const image=p.image||(list[0]?jxImage(list[0]):"");
+    return `<div class="jx-artist-card" onclick="jxOpenArtist('${escapeJs(name)}')">
+      <img src="${escapeHtml(image)}" alt="${escapeHtml(name)}">
+      <div class="jx-artist-name">${escapeHtml(name)}</div>
+      <div class="jx-count">${list.length} song${list.length===1?"":"s"}</div>
+    </div>`;
+  }).join(""):'<div class="jx-safe-empty">No artist profiles yet.</div>';
+}
 
-  const favBox=document.getElementById("jSafeFavorites");
-  if(favBox){
-    const favs=(typeof favorites!=="undefined"&&Array.isArray(favorites))
-      ? favorites
-      : [];
-
-    const list=(typeof songs!=="undefined"?songs:[]).filter(
-      s=>favs.includes(Number(s.id))
-    );
-
-    favBox.innerHTML=jSafeSongMarkup(list);
+function jxRenderSongs(){
+  const b=document.getElementById("jxSongs"); if(b)b.innerHTML=jxRows(typeof songs!=="undefined"?songs:[]);
+  const f=document.getElementById("jxFavorites");
+  if(f){
+    const ids=(typeof favorites!=="undefined"&&Array.isArray(favorites))?favorites:[];
+    f.innerHTML=jxRows((typeof songs!=="undefined"?songs:[]).filter(s=>ids.includes(Number(s.id))));
   }
 }
-
-function jSafeRenderArtists(){
-  const box=document.getElementById("jSafeArtists");
-  if(!box)return;
-
-  const names=jSafeNames();
-
-  box.innerHTML=names.length
-    ? names.map(name=>{
-        const profile=jSafeProfiles()[name]||{};
-        const list=jSafeArtistSongs(name);
-        const image=profile.image || (list[0]?jSafeCover(list[0]):"");
-
-        return `
-          <div class="j-safe-artist-card"
-            onclick="jSafeOpenArtist('${escapeJs(name)}')">
-            <img src="${escapeHtml(image)}" alt="${escapeHtml(name)}">
-            <div class="j-safe-artist-name">${escapeHtml(name)}</div>
-            <div style="color:#888;font-size:12px;margin-top:4px">
-              ${list.length} song${list.length===1?"":"s"}
-            </div>
-          </div>
-        `;
-      }).join("")
-    : '<div class="j-safe-empty">No artist profiles yet.</div>';
-}
-
-function jSafeRenderPlaylists(){
-  const box=document.getElementById("jSafePlaylists");
-  if(!box)return;
-
-  const data=(typeof playlists!=="undefined"&&playlists)
-    ? playlists : {};
-
+function jxRenderPlaylists(){
+  const b=document.getElementById("jxPlaylists"); if(!b)return;
+  const data=(typeof playlists!=="undefined"&&playlists)?playlists:{};
   const names=Object.keys(data);
-
-  box.innerHTML=names.length
-    ? names.map(name=>{
-        const raw=data[name];
-        const ids=Array.isArray(raw)?raw:(raw?.songs||[]);
-        const list=ids.map(id=>songs.find(
-          s=>Number(s.id)===Number(id)
-        )).filter(Boolean);
-
-        return `
-          <div class="j-safe-artist-card">
-            <img src="${escapeHtml(
-              list[0]?jSafeCover(list[0]):""
-            )}" alt="">
-            <div class="j-safe-artist-name">${escapeHtml(name)}</div>
-            <div style="color:#888;font-size:12px;margin-top:4px">
-              ${list.length} songs
-            </div>
-          </div>
-        `;
-      }).join("")
-    : '<div class="j-safe-empty">No playlists yet.</div>';
+  b.innerHTML=names.length?names.map(name=>{
+    const raw=data[name],ids=Array.isArray(raw)?raw:(raw?.songs||[]);
+    const list=ids.map(id=>songs.find(s=>Number(s.id)===Number(id))).filter(Boolean);
+    return `<div class="jx-artist-card"><img src="${escapeHtml(list[0]?jxImage(list[0]):"")}" alt="">
+      <div class="jx-artist-name">${escapeHtml(name)}</div><div class="jx-count">${list.length} songs</div></div>`;
+  }).join(""):'<div class="jx-safe-empty">No playlists yet.</div>';
 }
-
-function jSafeRenderAlbums(){
-  const box=document.getElementById("jSafeAlbums");
-  if(!box)return;
-
-  const data=(typeof albums!=="undefined"&&albums)
-    ? albums : {};
-
+function jxRenderAlbums(){
+  const b=document.getElementById("jxAlbums"); if(!b)return;
+  const data=(typeof albums!=="undefined"&&albums)?albums:{};
   const names=Object.keys(data);
-
-  box.innerHTML=names.length
-    ? names.map(name=>{
-        const album=data[name]||{};
-        const ids=album.songs||[];
-        const list=ids.map(id=>songs.find(
-          s=>Number(s.id)===Number(id)
-        )).filter(Boolean);
-
-        return `
-          <div class="j-safe-artist-card">
-            <img src="${escapeHtml(
-              album.cover || (list[0]?jSafeCover(list[0]):"")
-            )}" alt="">
-            <div class="j-safe-artist-name">${escapeHtml(name)}</div>
-            <div style="color:#888;font-size:12px;margin-top:4px">
-              ${list.length} songs
-            </div>
-          </div>
-        `;
-      }).join("")
-    : '<div class="j-safe-empty">No albums yet.</div>';
+  b.innerHTML=names.length?names.map(name=>{
+    const a=data[name]||{},ids=a.songs||[];
+    const list=ids.map(id=>songs.find(s=>Number(s.id)===Number(id))).filter(Boolean);
+    return `<div class="jx-artist-card"><img src="${escapeHtml(a.cover||(list[0]?jxImage(list[0]):""))}" alt="">
+      <div class="jx-artist-name">${escapeHtml(name)}</div><div class="jx-count">${list.length} songs</div></div>`;
+  }).join(""):'<div class="jx-safe-empty">No albums yet.</div>';
 }
 
-function jSafeOpenArtist(name){
-  const finalName=String(name||"").trim();
-  if(!finalName)return;
-
-  jSafeArtist=finalName;
-
-  const profile=jSafeProfiles()[finalName]||{};
-  const list=jSafeArtistSongs(finalName);
-  const image=profile.image || (list[0]?jSafeCover(list[0]):"");
-
-  const box=document.getElementById("jSafeArtistDetail");
-  if(!box)return;
-
-  box.innerHTML=`
-    <div class="j-safe-detail"
-      ontouchstart="jSafeArtistTouchStart(event)"
-      ontouchend="jSafeArtistTouchEnd(event)">
-
-      <img src="${escapeHtml(image)}" alt="${escapeHtml(finalName)}">
-
-      <div style="min-width:0">
-        <div style="color:#a89056;font-size:10px;letter-spacing:3px;font-weight:900">
-          ARTIST PROFILE
-        </div>
-
-        <div class="j-safe-detail-name">
-          ${escapeHtml(finalName)}
-        </div>
-
-        <div style="color:#aaa;margin-top:7px">
-          ${list.length} song${list.length===1?"":"s"}
-        </div>
-
-        <div class="j-safe-actions">
-          <button class="primary" onclick="jSafePlayArtist()">▶ Play All</button>
-          <button onclick="jSafePreviousArtist()">← Previous</button>
-          <button onclick="jSafeNextArtist()">Next →</button>
-          <button onclick="jSafeGo(2)">🎤 Artists</button>
-        </div>
+function jxOpenArtist(name){
+  jxArtist=String(name||"").trim();
+  const list=jxArtistSongs(jxArtist),p=jxProfiles()[jxArtist]||{},image=p.image||(list[0]?jxImage(list[0]):"");
+  const box=document.getElementById("jxArtistDetail"); if(!box)return;
+  box.innerHTML=`<div class="jx-detail">
+    <img src="${escapeHtml(image)}" alt="${escapeHtml(jxArtist)}">
+    <div style="min-width:0">
+      <div class="jx-kicker">ARTIST PROFILE</div>
+      <div class="jx-detail-name">${escapeHtml(jxArtist)}</div>
+      <div style="color:#aaa;margin-top:7px">${list.length} song${list.length===1?"":"s"}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
+        <button class="jx-artist-credit" style="background:#ffd76a;color:#111;border:0;border-radius:999px;padding:9px 13px;cursor:pointer" onclick="jxPlayArtist()">▶ Play All</button>
+        <button class="jx-artist-credit" style="background:#111;color:#ffd76a;border:1px solid #6f5519;border-radius:999px;padding:9px 13px;cursor:pointer" onclick="jxPrevArtist()">← Previous</button>
+        <button class="jx-artist-credit" style="background:#111;color:#ffd76a;border:1px solid #6f5519;border-radius:999px;padding:9px 13px;cursor:pointer" onclick="jxNextArtist()">Next →</button>
       </div>
     </div>
-
-    <div style="margin-top:20px">
-      <div style="font-size:22px;font-weight:900;margin-bottom:12px">
-        Songs by ${escapeHtml(finalName)}
-      </div>
-      ${jSafeSongMarkup(list)}
-    </div>
-  `;
-
-  const track=document.getElementById("jSafeTrack");
-  if(track)track.style.transform="translateX(-600%)";
+  </div>
+  <div class="jx-section-title">Songs by ${escapeHtml(jxArtist)}</div>
+  ${jxRows(list)}`;
+  document.getElementById("jxTrack").style.transform="translateX(-600%)";
 }
 
-function jSafePlayArtist(){
-  const list=jSafeArtistSongs(jSafeArtist);
-  if(!list.length)return;
-
-  playlistQueue={name:"Artist: "+jSafeArtist,songs:list};
-  albumQueue=null;
-
-  const idx=songs.findIndex(
-    s=>Number(s.id)===Number(list[0].id)
-  );
-
+function jxPlayArtist(){
+  const list=jxArtistSongs(jxArtist); if(!list.length)return;
+  playlistQueue={name:"Artist: "+jxArtist,songs:list}; albumQueue=null;
+  const idx=songs.findIndex(s=>Number(s.id)===Number(list[0].id));
   if(idx>=0)playSong(idx);
 }
-
-function jSafePreviousArtist(){
-  const list=jSafeNames();
-  if(!list.length)return;
-
-  let i=list.findIndex(
-    n=>n.toLowerCase()===jSafeArtist.toLowerCase()
-  );
-
-  if(i<0)i=0;
-
-  jSafeOpenArtist(
-    list[(i-1+list.length)%list.length]
-  );
+function jxPrevArtist(){
+  const list=jxArtistNames(); if(!list.length)return;
+  let i=list.findIndex(n=>n.toLowerCase()===jxArtist.toLowerCase()); if(i<0)i=0;
+  jxOpenArtist(list[(i-1+list.length)%list.length]);
+}
+function jxNextArtist(){
+  const list=jxArtistNames(); if(!list.length)return;
+  let i=list.findIndex(n=>n.toLowerCase()===jxArtist.toLowerCase()); if(i<0)i=0;
+  jxOpenArtist(list[(i+1)%list.length]);
 }
 
-function jSafeNextArtist(){
-  const list=jSafeNames();
-  if(!list.length)return;
-
-  let i=list.findIndex(
-    n=>n.toLowerCase()===jSafeArtist.toLowerCase()
-  );
-
-  if(i<0)i=0;
-
-  jSafeOpenArtist(
-    list[(i+1)%list.length]
-  );
+function jxGo(page){
+  jxPage=Math.max(0,Math.min(5,Number(page)||0));
+  document.getElementById("jxTrack").style.transform=`translateX(-${jxPage*100}%)`;
+  document.querySelectorAll(".jx-lbtn").forEach(b=>b.classList.toggle("active",Number(b.dataset.p)===jxPage));
 }
+function jxBack(){jxGo(jxPage<=0?5:jxPage-1)}
+function jxForward(){jxGo(jxPage>=5?0:jxPage+1)}
 
-function jSafeGo(page){
-  jSafePage=Math.max(0,Math.min(5,Number(page)||0));
-
-  const track=document.getElementById("jSafeTrack");
-  if(track){
-    track.style.transform=`translateX(-${jSafePage*100}%)`;
+function jxUpdateNow(){
+  const song=(typeof currentIndex!=="undefined"&&currentIndex>=0&&songs[currentIndex])?songs[currentIndex]:null;
+  const art=document.getElementById("jxNowArt"),title=document.getElementById("jxNowTitle"),artist=document.getElementById("jxNowArtist"),rel=document.getElementById("jxRelatedSongs");
+  if(!song){
+    if(title)title.textContent="Nothing playing";
+    if(artist)artist.textContent="Jassiah";
+    return;
   }
-
-  document.querySelectorAll(".j-safe-nav button").forEach(btn=>{
-    btn.classList.toggle(
-      "active",
-      Number(btn.dataset.page)===jSafePage
-    );
-  });
-
-  if(jSafePage===0)jSafeRenderHome();
-  if(jSafePage===1)jSafeRenderSongs();
-  if(jSafePage===2)jSafeRenderArtists();
-  if(jSafePage===3)jSafeRenderFavorites();
-  if(jSafePage===4)jSafeRenderPlaylists();
-  if(jSafePage===5)jSafeRenderAlbums();
+  if(art)art.src=jxImage(song);
+  if(title)title.textContent=song.title||"Untitled";
+  if(artist){
+    artist.textContent=song.artist||"Unknown Artist";
+    artist.onclick=()=>jxOpenArtist(jxPrimary(song.artist));
+  }
+  const related=jxArtistSongs(jxPrimary(song.artist)).filter(s=>Number(s.id)!==Number(song.id));
+  if(rel)rel.innerHTML=related.length?related.map(s=>{
+    const i=songs.findIndex(x=>Number(x.id)===Number(s.id));
+    return `<button class="jx-related" onclick="playSong(${i})">
+      <img src="${escapeHtml(jxImage(s))}" alt="">
+      <span class="jx-related-main"><span class="jx-related-song">${escapeHtml(s.title||"Untitled")}</span><span class="jx-related-artist">${escapeHtml(s.artist||"")}</span></span>
+    </button>`;
+  }).join(""):'<div style="color:#777;font-size:11px">No related songs.</div>';
 }
 
-function jSafeRenderFavorites(){
-  const box=document.getElementById("jSafeFavorites");
-  if(!box)return;
+/* Wrap the existing working player updater so the right panel follows playback. */
+const jxOriginalSetNowPlaying=setNowPlaying;
+setNowPlaying=function(song){
+  jxOriginalSetNowPlaying(song);
+  jxUpdateNow();
+};
 
-  const ids=(typeof favorites!=="undefined"&&Array.isArray(favorites))
-    ? favorites : [];
+/* Wrap the existing song loader so the safe layout paints after Supabase data arrives. */
+const jxOriginalLoadSongs=loadSongs;
+loadSongs=async function(){
+  const result=await jxOriginalLoadSongs.apply(this,arguments);
+  jxRenderHome();jxRenderSongs();jxRenderArtists();jxRenderPlaylists();jxRenderAlbums();jxUpdateNow();
+  return result;
+};
 
-  const list=(typeof songs!=="undefined"?songs:[]).filter(
-    s=>ids.includes(Number(s.id))
-  );
-
-  box.innerHTML=jSafeSongMarkup(list);
-}
-
-function jSafeBack(){
-  jSafeGo(jSafePage<=0?5:jSafePage-1);
-}
-
-function jSafeForward(){
-  jSafeGo(jSafePage>=5?0:jSafePage+1);
+function jxNew(){
+  alert("What's New will use the recent songs and artist profiles on your site.");
 }
 
 document.addEventListener("DOMContentLoaded",()=>{
-  jSafeRenderHome();
-  jSafeRenderSongs();
-  jSafeRenderArtists();
-  jSafeRenderFavorites();
-  jSafeRenderPlaylists();
-  jSafeRenderAlbums();
-  jSafeGo(0);
+  jxRenderHome();
+  jxRenderSongs();
+  jxRenderArtists();
+  jxRenderPlaylists();
+  jxRenderAlbums();
+  jxUpdateNow();
 
-  const win=document.getElementById("jSafeWindow");
+  /* Wait for the existing Supabase loader, then repaint once. */
+  setTimeout(()=>{
+    jxRenderHome();
+    jxRenderSongs();
+    jxRenderArtists();
+    jxRenderPlaylists();
+    jxRenderAlbums();
+    jxUpdateNow();
+  },1800);
 
+  /* Swipe pages on phone. */
+  const win=document.getElementById("jxWindow");
+  let sx=0,sy=0;
   if(win){
-    win.addEventListener("touchstart",event=>{
-      const t=event.changedTouches?.[0];
-      if(!t)return;
-      jSafeTouchX=t.clientX;
-      jSafeTouchY=t.clientY;
+    win.addEventListener("touchstart",e=>{
+      const t=e.changedTouches?.[0]; if(!t)return;
+      sx=t.clientX;sy=t.clientY;
     },{passive:true});
-
-    win.addEventListener("touchend",event=>{
-      const t=event.changedTouches?.[0];
-      if(!t)return;
-
-      const dx=t.clientX-jSafeTouchX;
-      const dy=t.clientY-jSafeTouchY;
-
-      if(Math.abs(dx)<60 || Math.abs(dx)<Math.abs(dy))return;
-
-      if(dx<0)jSafeForward();
-      else jSafeBack();
+    win.addEventListener("touchend",e=>{
+      const t=e.changedTouches?.[0]; if(!t)return;
+      const dx=t.clientX-sx,dy=t.clientY-sy;
+      if(Math.abs(dx)<60||Math.abs(dx)<Math.abs(dy))return;
+      dx<0?jxForward():jxBack();
     },{passive:true});
   }
-
-  /* Give the working loadSongs() time to fetch Supabase data, then paint. */
-  setTimeout(()=>{
-    jSafeRenderHome();
-    jSafeRenderSongs();
-    jSafeRenderArtists();
-    jSafeRenderFavorites();
-    jSafeRenderPlaylists();
-    jSafeRenderAlbums();
-  },1200);
 });
 </script>
 </body>
