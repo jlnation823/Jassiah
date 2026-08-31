@@ -13,6 +13,10 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -22,34 +26,35 @@
     }
 
     header {
+      background: #000;
       padding: 25px;
-      background: #181818;
       text-align: center;
+      border-bottom: 1px solid #333;
     }
 
     header h1 {
-      margin: 0 0 8px;
+      margin: 0;
+      font-size: 32px;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: auto;
-      padding: 30px 20px 60px;
+      padding: 25px;
     }
 
     .upload-box {
-      background: #1d1d1d;
+      background: #1b1b1b;
       padding: 20px;
-      border-radius: 15px;
-      margin-bottom: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
     }
 
-    input[type="text"],
-    input[type="file"],
-    .search {
+    input {
       width: 100%;
+      box-sizing: border-box;
       padding: 13px;
-      margin-bottom: 12px;
+      margin: 8px 0;
       border-radius: 8px;
       border: 1px solid #444;
       background: #222;
@@ -57,45 +62,72 @@
       font-size: 15px;
     }
 
-    input[type="file"] {
-      padding: 10px;
+    input::placeholder {
+      color: #888;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      font-weight: bold;
     }
 
     button {
-      border: 0;
-      padding: 10px 16px;
+      border: none;
       border-radius: 8px;
+      padding: 10px 16px;
+      margin-top: 8px;
       cursor: pointer;
       font-weight: bold;
     }
 
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    button:hover {
+      opacity: 0.85;
     }
 
-    .upload-button {
-      background: #16c45b;
+    .upload-btn {
+      background: #1db954;
       color: white;
-      margin-top: 5px;
     }
+
+    .edit-btn {
+      background: #3498db;
+      color: white;
+      margin-right: 8px;
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+    }
+
+    .cancel-btn {
+      background: #555;
+      color: white;
+    }
+
+    /* SEARCH */
+
+    #searchBox {
+      margin-bottom: 25px;
+      font-size: 16px;
+    }
+
+    /* SONG CARD */
 
     .song {
-      background: #1d1d1d;
-      border-radius: 15px;
-      padding: 15px;
+      background: #1b1b1b;
+      padding: 18px;
+      border-radius: 12px;
       margin-bottom: 15px;
-    }
-
-    .song-top {
       display: flex;
-      gap: 15px;
       align-items: center;
+      gap: 15px;
     }
 
     .cover {
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       object-fit: cover;
       border-radius: 8px;
       background: #333;
@@ -108,10 +140,9 @@
     }
 
     .song-title {
-      font-size: 18px;
+      font-size: 19px;
       font-weight: bold;
-      margin-bottom: 6px;
-      word-break: break-word;
+      margin-bottom: 5px;
     }
 
     .artist {
@@ -119,217 +150,245 @@
       margin-bottom: 10px;
     }
 
-    .song audio {
+    audio {
       width: 100%;
+      margin-top: 5px;
     }
 
-    .buttons {
-      margin-top: 10px;
-    }
-
-    .edit-button {
-      background: #2196f3;
-      color: white;
-      margin-right: 6px;
-    }
-
-    .delete-button {
-      background: #f44336;
-      color: white;
-    }
-
-    .edit-box {
-      margin-top: 15px;
+    .edit-form {
+      display: none;
+      background: #222;
       padding: 15px;
-      background: #252525;
       border-radius: 10px;
-    }
-
-    .save-button {
-      background: #16c45b;
-      color: white;
-      margin-right: 6px;
-    }
-
-    .cancel-button {
-      background: #666;
-      color: white;
+      margin-top: 12px;
     }
 
     .message {
-      color: #aaa;
-      padding: 20px 0;
-      text-align: center;
+      margin-top: 10px;
+      color: #1db954;
     }
 
-    .status {
-      margin-top: 12px;
-      color: #aaa;
-    }
+    /* =========================
+       BIG BOTTOM MUSIC PLAYER
+       ========================= */
 
-    /* =====================================
-       PROFESSIONAL MUSIC PLAYER
-       ===================================== */
-
-    .player {
+    #musicPlayer {
       position: fixed;
       left: 0;
-      right: 0;
       bottom: 0;
-      z-index: 9999;
+      width: 100%;
+      height: 115px;
       background: #181818;
       border-top: 1px solid #333;
-      padding: 10px 20px;
-      box-shadow: 0 -5px 20px rgba(0,0,0,0.4);
-    }
+      z-index: 9999;
+      box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.65);
 
-    .player-progress {
-      width: 100%;
-      margin-bottom: 8px;
-    }
-
-    #progress {
-      width: 100%;
-      height: 5px;
-      cursor: pointer;
-      accent-color: #1ed760;
-    }
-
-    .player-main {
-      max-width: 1200px;
-      margin: auto;
       display: flex;
       align-items: center;
-      gap: 15px;
+      padding: 12px 25px;
+      gap: 20px;
     }
 
-    .player-cover {
-      width: 55px;
-      height: 55px;
+    #playerCover {
+      width: 82px;
+      height: 82px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #333;
       flex-shrink: 0;
     }
 
-    .player-info {
-      width: 180px;
-      min-width: 130px;
+    #playerInfo {
+      width: 220px;
+      min-width: 160px;
+      overflow: hidden;
     }
 
-    .player-title {
+    #playerTitle {
+      font-size: 18px;
       font-weight: bold;
+      color: white;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .player-artist {
+    #playerArtist {
+      font-size: 14px;
       color: #aaa;
-      font-size: 13px;
-      margin-top: 4px;
+      margin-top: 6px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .player-controls {
+    #playerCenter {
+      flex: 1;
+      min-width: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #playerControls {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      flex: 1;
+      gap: 16px;
     }
 
-    .player-controls button {
+    #playerControls button {
       background: transparent;
       color: white;
-      font-size: 18px;
-      padding: 8px;
+      border: none;
+      padding: 5px;
+      margin: 0;
+      font-size: 20px;
+      cursor: pointer;
     }
 
-    .player-controls button:hover {
-      transform: scale(1.12);
+    #playerControls button:hover {
+      transform: scale(1.15);
     }
 
-    .play-button {
+    #playPauseBtn {
+      width: 52px;
+      height: 52px;
+      border-radius: 50% !important;
       background: white !important;
       color: black !important;
-      width: 42px;
-      height: 42px;
-      border-radius: 50% !important;
-      font-size: 20px !important;
-    }
-
-    .player-extra {
+      font-size: 24px !important;
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 130px;
-      justify-content: flex-end;
+      justify-content: center;
     }
 
-    .volume {
-      width: 90px;
-      accent-color: #1ed760;
+    #playerProgressArea {
+      width: 100%;
+      max-width: 650px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
     }
 
-    .time {
+    #currentTime,
+    #duration {
       color: #aaa;
       font-size: 12px;
-      min-width: 80px;
+      min-width: 38px;
       text-align: center;
     }
 
+    #progressBar {
+      flex: 1;
+      height: 5px;
+      cursor: pointer;
+      accent-color: #1db954;
+    }
+
+    #volumeArea {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 145px;
+    }
+
+    #volumeArea span {
+      font-size: 20px;
+    }
+
+    #volumeBar {
+      width: 100px;
+      cursor: pointer;
+      accent-color: #1db954;
+    }
+
+    /* MOBILE */
+
     @media (max-width: 700px) {
 
-      .player {
-        padding: 8px 10px;
+      body {
+        padding-bottom: 105px;
       }
 
-      .player-info {
-        width: 120px;
+      header h1 {
+        font-size: 26px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+
+      .song {
+        align-items: flex-start;
+      }
+
+      .cover {
+        width: 70px;
+        height: 70px;
+      }
+
+      .song-title {
+        font-size: 17px;
+      }
+
+      #musicPlayer {
+        height: 100px;
+        padding: 8px 10px;
+        gap: 10px;
+      }
+
+      #playerCover {
+        width: 65px;
+        height: 65px;
+      }
+
+      #playerInfo {
+        width: 115px;
         min-width: 90px;
       }
 
-      .player-extra {
-        min-width: auto;
+      #playerTitle {
+        font-size: 14px;
       }
 
-      .volume {
-        width: 60px;
+      #playerArtist {
+        font-size: 11px;
       }
 
-      .player-controls {
-        gap: 2px;
+      #playerCenter {
+        min-width: 0;
       }
 
-      .player-controls button {
-        padding: 5px;
+      #playerControls {
+        gap: 5px;
       }
 
-    }
-
-    @media (max-width: 520px) {
-
-      .player-cover {
-        width: 45px;
-        height: 45px;
+      #playerControls button {
+        font-size: 16px;
       }
 
-      .player-info {
-        width: 100px;
+      #playPauseBtn {
+        width: 42px;
+        height: 42px;
+        font-size: 20px !important;
       }
 
-      .player-extra {
+      #volumeArea {
         display: none;
       }
 
-      .player-controls button:nth-child(2),
-      .player-controls button:nth-child(4) {
-        display: none;
+      #playerProgressArea {
+        gap: 4px;
       }
 
+      #currentTime,
+      #duration {
+        font-size: 10px;
+        min-width: 30px;
+      }
     }
   </style>
 </head>
@@ -338,7 +397,6 @@
 
 <header>
   <h1>🎵 My Music</h1>
-  <p>Your personal music streaming library</p>
 </header>
 
 <div class="container">
@@ -361,7 +419,7 @@
       placeholder="Artist"
     >
 
-    <label><strong>Music file:</strong></label>
+    <label>Music file:</label>
 
     <input
       type="file"
@@ -369,7 +427,7 @@
       accept="audio/*"
     >
 
-    <label><strong>Cover image:</strong></label>
+    <label>Cover image:</label>
 
     <input
       type="file"
@@ -378,15 +436,15 @@
     >
 
     <button
-      class="upload-button"
-      id="uploadButton"
+      class="upload-btn"
+      onclick="uploadSong()"
     >
       Upload Song
     </button>
 
     <div
-      class="status"
-      id="uploadStatus"
+      id="uploadMessage"
+      class="message"
     ></div>
 
   </div>
@@ -395,98 +453,80 @@
 
   <input
     type="text"
-    id="search"
-    class="search"
+    id="searchBox"
     placeholder="🔎 Search songs or artists..."
+    oninput="searchSongs()"
   >
 
   <h2>Your Songs</h2>
 
-  <div id="songs">
-    <div class="message">
-      Loading your music...
-    </div>
-  </div>
+  <div id="songs"></div>
 
 </div>
 
 
-<!-- =====================================
-     PROFESSIONAL PLAYER
-     ===================================== -->
+<!-- =========================
+     BIG MUSIC PLAYER
+     ========================= -->
 
-<div class="player">
+<div id="musicPlayer">
 
-  <div class="player-progress">
-    <input
-      type="range"
-      id="progress"
-      min="0"
-      max="100"
-      value="0"
-    >
-  </div>
+  <img
+    id="playerCover"
+    src="https://via.placeholder.com/90?text=Music"
+    alt="Album Cover"
+  >
 
-  <div class="player-main">
+  <div id="playerInfo">
 
-    <img
-      id="playerCover"
-      class="player-cover"
-      src=""
-      alt="Cover"
-    >
-
-    <div class="player-info">
-
-      <div
-        id="playerTitle"
-        class="player-title"
-      >
-        Nothing playing
-      </div>
-
-      <div
-        id="playerArtist"
-        class="player-artist"
-      >
-        —
-      </div>
-
+    <div id="playerTitle">
+      Select a song
     </div>
 
-    <div class="player-controls">
+    <div id="playerArtist">
+      No song playing
+    </div>
+
+  </div>
+
+
+  <div id="playerCenter">
+
+    <div id="playerControls">
 
       <button
-        id="shuffleButton"
+        id="shuffleBtn"
+        onclick="toggleShuffle()"
         title="Shuffle"
       >
         🔀
       </button>
 
       <button
-        id="previousButton"
+        onclick="previousSong()"
         title="Previous"
       >
-        ⏮️
+        ⏮
       </button>
 
       <button
-        id="playButton"
-        class="play-button"
-        title="Play"
+        id="playPauseBtn"
+        onclick="togglePlay()"
+        title="Play/Pause"
       >
         ▶
       </button>
 
       <button
-        id="nextButton"
+        onclick="nextSong()"
         title="Next"
       >
-        ⏭️
+        ⏭
       </button>
 
       <button
-        id="repeatButton"
+        id="repeatBtn"
+        onclick="toggleRepeat()"
         title="Repeat"
       >
         🔁
@@ -494,44 +534,56 @@
 
     </div>
 
-    <div class="player-extra">
 
-      <div
-        id="timeDisplay"
-        class="time"
-      >
-        0:00 / 0:00
-      </div>
+    <div id="playerProgressArea">
 
-      <span>🔊</span>
+      <span id="currentTime">
+        0:00
+      </span>
 
       <input
+        id="progressBar"
         type="range"
-        id="volume"
-        class="volume"
         min="0"
-        max="1"
-        step="0.01"
-        value="1"
+        max="100"
+        value="0"
+        step="0.1"
+        oninput="seekSong()"
       >
 
+      <span id="duration">
+        0:00
+      </span>
+
     </div>
+
+  </div>
+
+
+  <div id="volumeArea">
+
+    <span>🔊</span>
+
+    <input
+      id="volumeBar"
+      type="range"
+      min="0"
+      max="1"
+      value="1"
+      step="0.01"
+      oninput="changeVolume()"
+    >
 
   </div>
 
 </div>
 
 
-<!-- Hidden audio element -->
-
-<audio id="audio"></audio>
-
-
 <script>
 
-  // =========================================
-  // SUPABASE
-  // =========================================
+  /* =========================
+     SUPABASE
+     ========================= */
 
   const SUPABASE_URL =
     "https://axkdbcyvuezawgbqjtyq.supabase.co";
@@ -540,42 +592,26 @@
     "sb_publishable_O0oXTHsPLxZGD2Wo5ayouw_-a9zJKgn";
 
   const supabaseClient =
-    window.supabase.createClient(
+    supabase.createClient(
       SUPABASE_URL,
       SUPABASE_KEY
     );
 
 
-  // =========================================
-  // ELEMENTS
-  // =========================================
+  /* =========================
+     MUSIC PLAYER VARIABLES
+     ========================= */
 
-  const songTitle =
-    document.getElementById("songTitle");
+  let allSongs = [];
 
-  const artist =
-    document.getElementById("artist");
+  let currentSongIndex = -1;
 
-  const musicFile =
-    document.getElementById("musicFile");
+  let currentAudio = null;
 
-  const coverFile =
-    document.getElementById("coverFile");
+  let shuffle = false;
 
-  const uploadButton =
-    document.getElementById("uploadButton");
+  let repeat = false;
 
-  const uploadStatus =
-    document.getElementById("uploadStatus");
-
-  const songsContainer =
-    document.getElementById("songs");
-
-  const search =
-    document.getElementById("search");
-
-  const audio =
-    document.getElementById("audio");
 
   const playerCover =
     document.getElementById("playerCover");
@@ -586,1295 +622,635 @@
   const playerArtist =
     document.getElementById("playerArtist");
 
-  const playButton =
-    document.getElementById("playButton");
+  const playPauseBtn =
+    document.getElementById("playPauseBtn");
 
-  const previousButton =
-    document.getElementById("previousButton");
+  const progressBar =
+    document.getElementById("progressBar");
 
-  const nextButton =
-    document.getElementById("nextButton");
+  const currentTime =
+    document.getElementById("currentTime");
 
-  const shuffleButton =
-    document.getElementById("shuffleButton");
+  const duration =
+    document.getElementById("duration");
 
-  const repeatButton =
-    document.getElementById("repeatButton");
-
-  const progress =
-    document.getElementById("progress");
-
-  const volume =
-    document.getElementById("volume");
-
-  const timeDisplay =
-    document.getElementById("timeDisplay");
+  const volumeBar =
+    document.getElementById("volumeBar");
 
 
-  let songs = [];
-
-  let currentIndex = -1;
-
-  let shuffle = false;
-
-  let repeat = false;
-
-
-  // =========================================
-  // LOAD SONGS
-  // =========================================
+  /* =========================
+     LOAD SONGS
+     ========================= */
 
   async function loadSongs() {
-
-    songsContainer.innerHTML =
-      `<div class="message">Loading your music...</div>`;
 
     const { data, error } =
       await supabaseClient
         .from("songs")
         .select("*")
-        .order("id", { ascending: false });
+        .order("id", {
+          ascending: false
+        });
 
     if (error) {
 
-      songsContainer.innerHTML =
-        `<div class="message">
-          Error loading songs:
-          ${escapeHtml(error.message)}
-        </div>`;
+      console.error(error);
+
+      document.getElementById("songs").innerHTML =
+        "<p>Could not load songs.</p>";
 
       return;
     }
 
-    songs = data || [];
+    allSongs = data || [];
 
-    displaySongs();
-
+    displaySongs(allSongs);
   }
 
 
-  // =========================================
-  // GET MUSIC URL
-  // =========================================
+  /* =========================
+     DISPLAY SONGS
+     ========================= */
 
-  function getMusicURL(song) {
+  function displaySongs(songs) {
 
-    if (!song.file_path) {
-      return "";
-    }
-
-    const { data } =
-      supabaseClient
-        .storage
-        .from("music")
-        .getPublicUrl(
-          song.file_path
-        );
-
-    return data.publicUrl;
-
-  }
-
-
-  // =========================================
-  // DISPLAY SONGS
-  // =========================================
-
-  function displaySongs(filter = "") {
+    const songsContainer =
+      document.getElementById("songs");
 
     songsContainer.innerHTML = "";
 
-    const searchText =
-      filter.toLowerCase().trim();
-
-    const filteredSongs =
-      songs.filter(song => {
-
-        const title =
-          (song.title || "").toLowerCase();
-
-        const artistName =
-          (song.artist || "").toLowerCase();
-
-        return (
-          title.includes(searchText) ||
-          artistName.includes(searchText)
-        );
-
-      });
-
-
-    if (filteredSongs.length === 0) {
+    if (!songs || songs.length === 0) {
 
       songsContainer.innerHTML =
-        `<div class="message">
-          No music found.
-        </div>`;
+        "<p>No songs uploaded yet.</p>";
 
       return;
     }
 
 
-    filteredSongs.forEach(song => {
+    songs.forEach((song, index) => {
 
-      const originalIndex =
-        songs.findIndex(
-          item => item.id === song.id
-        );
-
-
-      const row =
+      const div =
         document.createElement("div");
 
-      row.className = "song";
+      div.className = "song";
+
+      div.dataset.songId = song.id;
 
 
-      let coverHTML =
-        `<div
+      const cover =
+        song.cover_url ||
+        "https://via.placeholder.com/90?text=Music";
+
+
+      div.innerHTML = `
+
+        <img
           class="cover"
-          style="
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:35px;
-          "
+          src="${cover}"
+          alt="Cover"
         >
-          🎵
-        </div>`;
+
+        <div class="song-info">
+
+          <div class="song-title">
+            ${escapeHtml(
+              song.title || "Untitled"
+            )}
+          </div>
+
+          <div class="artist">
+            ${escapeHtml(
+              song.artist || "Unknown Artist"
+            )}
+          </div>
+
+          <audio
+            controls
+            src="${song.music_url}"
+            data-index="${index}"
+          ></audio>
+
+          <div>
+
+            <button
+              class="edit-btn"
+              onclick="showEditForm(${song.id})"
+            >
+              ✏️ Edit
+            </button>
+
+            <button
+              class="delete-btn"
+              onclick="deleteSong(${song.id})"
+            >
+              🗑️ Delete
+            </button>
+
+          </div>
 
 
-      if (song.cover_url) {
+          <div
+            id="edit-${song.id}"
+            class="edit-form"
+          >
 
-        coverHTML =
-          `<img
-            class="cover"
-            src="${escapeAttribute(song.cover_url)}"
-            alt="Cover"
-          >`;
-
-      }
-
-
-      row.innerHTML = `
-
-        <div class="song-top">
-
-          ${coverHTML}
-
-          <div class="song-info">
-
-            <div class="song-title">
-              ${escapeHtml(
-                song.title || "Untitled"
-              )}
-            </div>
-
-            <div class="artist">
-              ${escapeHtml(
-                song.artist || "Unknown Artist"
-              )}
-            </div>
-
-            <audio
-              controls
-              src="${escapeAttribute(
-                getMusicURL(song)
+            <input
+              id="title-${song.id}"
+              type="text"
+              value="${escapeAttribute(
+                song.title || ""
               )}"
-            ></audio>
+              placeholder="Song title"
+            >
+
+            <input
+              id="artist-${song.id}"
+              type="text"
+              value="${escapeAttribute(
+                song.artist || ""
+              )}"
+              placeholder="Artist"
+            >
+
+            <label>
+              New cover image:
+            </label>
+
+            <input
+              id="cover-${song.id}"
+              type="file"
+              accept="image/*"
+            >
+
+            <button
+              class="upload-btn"
+              onclick="saveEdit(${song.id})"
+            >
+              💾 Save Changes
+            </button>
+
+            <button
+              class="cancel-btn"
+              onclick="hideEditForm(${song.id})"
+            >
+              Cancel
+            </button>
 
           </div>
 
         </div>
-
-        <div class="buttons">
-
-          <button class="edit-button">
-            ✏️ Edit
-          </button>
-
-          <button class="delete-button">
-            🗑️ Delete
-          </button>
-
-        </div>
-
       `;
 
 
-      // CLICK SONG AUDIO
+      songsContainer.appendChild(div);
 
-      const songAudio =
-        row.querySelector("audio");
 
-      songAudio.addEventListener(
+      const audio =
+        div.querySelector("audio");
+
+
+      audio.addEventListener(
         "play",
-        () => {
+        function() {
 
-          currentIndex =
-            originalIndex;
-
-          loadPlayerSong(
-            originalIndex,
-            false
+          startPlayer(
+            song,
+            index,
+            audio
           );
 
         }
       );
-
-
-      // EDIT
-
-      row
-        .querySelector(".edit-button")
-        .addEventListener(
-          "click",
-          () => {
-
-            showEditBox(
-              row,
-              song
-            );
-
-          }
-        );
-
-
-      // DELETE
-
-      row
-        .querySelector(".delete-button")
-        .addEventListener(
-          "click",
-          async () => {
-
-            await deleteSong(song);
-
-          }
-        );
-
-
-      songsContainer.appendChild(row);
 
     });
 
   }
 
 
-  // =========================================
-  // LOAD SONG INTO PLAYER
-  // =========================================
+  /* =========================
+     START BOTTOM PLAYER
+     ========================= */
 
-  function loadPlayerSong(
+  function startPlayer(
+    song,
     index,
-    autoPlay = true
+    audio
   ) {
 
     if (
-      index < 0 ||
-      index >= songs.length
+      currentAudio &&
+      currentAudio !== audio
     ) {
-      return;
+
+      currentAudio.pause();
+
     }
 
 
-    currentIndex = index;
+    currentAudio = audio;
 
-    const song =
-      songs[index];
-
-
-    audio.src =
-      getMusicURL(song);
+    currentSongIndex = index;
 
 
     playerTitle.textContent =
       song.title || "Untitled";
 
-
     playerArtist.textContent =
       song.artist || "Unknown Artist";
 
+    playerCover.src =
+      song.cover_url ||
+      "https://via.placeholder.com/90?text=Music";
 
-    if (song.cover_url) {
 
-      playerCover.src =
-        song.cover_url;
+    currentAudio.addEventListener(
+      "timeupdate",
+      updateProgress
+    );
 
-    } else {
+    currentAudio.addEventListener(
+      "loadedmetadata",
+      updateDuration
+    );
 
-      playerCover.removeAttribute(
-        "src"
-      );
+    currentAudio.addEventListener(
+      "ended",
+      songEnded
+    );
 
+
+    playPauseBtn.textContent = "⏸";
+
+  }
+
+
+  /* =========================
+     PLAY / PAUSE
+     ========================= */
+
+  function togglePlay() {
+
+    if (!currentAudio) {
+
+      if (allSongs.length > 0) {
+
+        playSong(0);
+
+      }
+
+      return;
     }
 
 
-    progress.value = 0;
+    if (currentAudio.paused) {
 
+      currentAudio.play();
 
-    if (autoPlay) {
+      playPauseBtn.textContent = "⏸";
 
-      audio.play()
-        .catch(() => {});
+    } else {
+
+      currentAudio.pause();
+
+      playPauseBtn.textContent = "▶";
 
     }
 
   }
 
 
-  // =========================================
-  // PLAY / PAUSE
-  // =========================================
-
-  playButton.addEventListener(
-    "click",
-    () => {
-
-      if (!audio.src) {
-
-        if (songs.length > 0) {
-
-          loadPlayerSong(
-            0,
-            true
-          );
-
-        }
-
-        return;
-      }
-
-
-      if (audio.paused) {
-
-        audio.play();
-
-      } else {
-
-        audio.pause();
-
-      }
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "play",
-    () => {
-
-      playButton.textContent =
-        "⏸";
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "pause",
-    () => {
-
-      playButton.textContent =
-        "▶";
-
-    }
-  );
-
-
-  // =========================================
-  // NEXT SONG
-  // =========================================
-
-  nextButton.addEventListener(
-    "click",
-    () => {
-
-      if (songs.length === 0) {
-        return;
-      }
-
-
-      let nextIndex;
-
-
-      if (shuffle) {
-
-        nextIndex =
-          Math.floor(
-            Math.random() *
-            songs.length
-          );
-
-      } else {
-
-        nextIndex =
-          currentIndex + 1;
-
-        if (
-          nextIndex >=
-          songs.length
-        ) {
-
-          nextIndex = 0;
-
-        }
-
-      }
-
-
-      loadPlayerSong(
-        nextIndex,
-        true
-      );
-
-    }
-  );
-
-
-  // =========================================
-  // PREVIOUS SONG
-  // =========================================
-
-  previousButton.addEventListener(
-    "click",
-    () => {
-
-      if (songs.length === 0) {
-        return;
-      }
-
-
-      // Restart current song if
-      // already several seconds in
-
-      if (audio.currentTime > 5) {
-
-        audio.currentTime = 0;
-
-        return;
-
-      }
-
-
-      let previousIndex =
-        currentIndex - 1;
-
-
-      if (
-        previousIndex < 0
-      ) {
-
-        previousIndex =
-          songs.length - 1;
-
-      }
-
-
-      loadPlayerSong(
-        previousIndex,
-        true
-      );
-
-    }
-  );
-
-
-  // =========================================
-  // SONG FINISHED
-  // =========================================
-
-  audio.addEventListener(
-    "ended",
-    () => {
-
-      if (repeat) {
-
-        audio.currentTime = 0;
-
-        audio.play();
-
-        return;
-
-      }
-
-
-      nextButton.click();
-
-    }
-  );
-
-
-  // =========================================
-  // SHUFFLE
-  // =========================================
-
-  shuffleButton.addEventListener(
-    "click",
-    () => {
-
-      shuffle =
-        !shuffle;
-
-
-      shuffleButton.style.opacity =
-        shuffle ? "1" : "0.5";
-
-    }
-  );
-
-
-  // =========================================
-  // REPEAT
-  // =========================================
-
-  repeatButton.addEventListener(
-    "click",
-    () => {
-
-      repeat =
-        !repeat;
-
-
-      repeatButton.style.opacity =
-        repeat ? "1" : "0.5";
-
-    }
-  );
-
-
-  // =========================================
-  // PROGRESS BAR
-  // =========================================
-
-  audio.addEventListener(
-    "timeupdate",
-    () => {
-
-      if (!audio.duration) {
-        return;
-      }
-
-
-      const percent =
-        (
-          audio.currentTime /
-          audio.duration
-        ) * 100;
-
-
-      progress.value =
-        percent;
-
-
-      timeDisplay.textContent =
-        formatTime(
-          audio.currentTime
-        ) +
-        " / " +
-        formatTime(
-          audio.duration
-        );
-
-    }
-  );
-
-
-  progress.addEventListener(
-    "input",
-    () => {
-
-      if (!audio.duration) {
-        return;
-      }
-
-
-      audio.currentTime =
-        (
-          progress.value / 100
-        ) *
-        audio.duration;
-
-    }
-  );
-
-
-  // =========================================
-  // VOLUME
-  // =========================================
-
-  volume.addEventListener(
-    "input",
-    () => {
-
-      audio.volume =
-        volume.value;
-
-    }
-  );
-
-
-  audio.volume = 1;
-
-
-  // =========================================
-  // UPLOAD NEW SONG
-  // =========================================
-
-  uploadButton.addEventListener(
-    "click",
-    async () => {
-
-      const title =
-        songTitle.value.trim();
-
-      const artistName =
-        artist.value.trim();
-
-      const music =
-        musicFile.files[0];
-
-      const cover =
-        coverFile.files[0];
-
-
-      if (!title) {
-
-        alert(
-          "Please enter a song title."
-        );
-
-        return;
-
-      }
-
-
-      if (!artistName) {
-
-        alert(
-          "Please enter the artist name."
-        );
-
-        return;
-
-      }
-
-
-      if (!music) {
-
-        alert(
-          "Please choose a music file."
-        );
-
-        return;
-
-      }
-
-
-      if (!cover) {
-
-        alert(
-          "Please choose a cover image."
-        );
-
-        return;
-
-      }
-
-
-      if (!music.type.startsWith("audio/")) {
-
-        alert(
-          "Please choose a valid audio file."
-        );
-
-        return;
-
-      }
-
-
-      if (!cover.type.startsWith("image/")) {
-
-        alert(
-          "Please choose a valid image file."
-        );
-
-        return;
-
-      }
-
-
-      uploadButton.disabled = true;
-
-      uploadStatus.textContent =
-        "Uploading song...";
-
-
-      try {
-
-        const timestamp =
-          Date.now();
-
-
-        const safeMusicName =
-          music.name.replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-          );
-
-
-        const safeCoverName =
-          cover.name.replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-          );
-
-
-        const musicPath =
-          timestamp +
-          "-" +
-          safeMusicName;
-
-
-        const coverPath =
-          "covers/" +
-          timestamp +
-          "-" +
-          safeCoverName;
-
-
-        // UPLOAD MUSIC
-
-        const {
-          error: musicError
-        } =
-          await supabaseClient
-            .storage
-            .from("music")
-            .upload(
-              musicPath,
-              music
-            );
-
-
-        if (musicError) {
-
-          throw new Error(
-            "Music upload failed: " +
-            musicError.message
-          );
-
-        }
-
-
-        // UPLOAD COVER
-
-        uploadStatus.textContent =
-          "Uploading cover...";
-
-
-        const {
-          error: coverError
-        } =
-          await supabaseClient
-            .storage
-            .from("music")
-            .upload(
-              coverPath,
-              cover
-            );
-
-
-        if (coverError) {
-
-          throw new Error(
-            "Cover upload failed: " +
-            coverError.message
-          );
-
-        }
-
-
-        // GET COVER URL
-
-        const {
-          data: coverData
-        } =
-          supabaseClient
-            .storage
-            .from("music")
-            .getPublicUrl(
-              coverPath
-            );
-
-
-        const coverURL =
-          coverData.publicUrl;
-
-
-        // SAVE DATABASE
-
-        uploadStatus.textContent =
-          "Saving song...";
-
-
-        const {
-          error: databaseError
-        } =
-          await supabaseClient
-            .from("songs")
-            .insert({
-
-              title: title,
-
-              artist: artistName,
-
-              file_path: musicPath,
-
-              cover_url: coverURL
-
-            });
-
-
-        if (databaseError) {
-
-          throw new Error(
-            databaseError.message
-          );
-
-        }
-
-
-        alert(
-          "🎵 Song uploaded successfully!"
-        );
-
-
-        songTitle.value = "";
-        artist.value = "";
-        musicFile.value = "";
-        coverFile.value = "";
-
-        uploadStatus.textContent = "";
-
-
-        await loadSongs();
-
-
-      } catch (error) {
-
-        console.error(error);
-
-        alert(
-          "Something went wrong:\n\n" +
-          error.message
-        );
-
-        uploadStatus.textContent = "";
-
-      }
-
-
-      uploadButton.disabled = false;
-
-    }
-  );
-
-
-  // =========================================
-  // EDIT SONG
-  // =========================================
-
-  function showEditBox(
-    row,
-    song
-  ) {
+  /* =========================
+     PLAY SONG
+     ========================= */
+
+  function playSong(index) {
 
     if (
-      row.querySelector(".edit-box")
+      index < 0 ||
+      index >= allSongs.length
     ) {
       return;
     }
 
 
-    const editBox =
-      document.createElement("div");
-
-    editBox.className =
-      "edit-box";
+    const song =
+      allSongs[index];
 
 
-    editBox.innerHTML = `
-
-      <input
-        type="text"
-        class="edit-title"
-        value="${escapeAttribute(
-          song.title || ""
-        )}"
-        placeholder="Song title"
-      >
-
-      <input
-        type="text"
-        class="edit-artist"
-        value="${escapeAttribute(
-          song.artist || ""
-        )}"
-        placeholder="Artist"
-      >
-
-      <label>
-        <strong>New cover image:</strong>
-      </label>
-
-      <input
-        type="file"
-        class="edit-cover"
-        accept="image/*"
-      >
-
-      <button class="save-button">
-        💾 Save Changes
-      </button>
-
-      <button class="cancel-button">
-        Cancel
-      </button>
-
-    `;
-
-
-    row.appendChild(
-      editBox
-    );
-
-
-    editBox
-      .querySelector(
-        ".cancel-button"
-      )
-      .addEventListener(
-        "click",
-        () => {
-
-          editBox.remove();
-
-        }
+    const songCards =
+      document.querySelectorAll(
+        ".song"
       );
 
 
-    editBox
-      .querySelector(
-        ".save-button"
-      )
-      .addEventListener(
-        "click",
-        async () => {
+    const card =
+      Array.from(songCards)
+        .find(
+          element =>
+            Number(
+              element.dataset.songId
+            ) === Number(song.id)
+        );
 
-          await saveSongEdit(
-            song,
-            editBox
-          );
 
-        }
+    if (!card) {
+
+      displaySongs(allSongs);
+
+      setTimeout(
+        () => playSong(index),
+        100
       );
+
+      return;
+    }
+
+
+    const audio =
+      card.querySelector("audio");
+
+
+    if (!audio) {
+      return;
+    }
+
+
+    if (
+      currentAudio &&
+      currentAudio !== audio
+    ) {
+
+      currentAudio.pause();
+
+      currentAudio.currentTime = 0;
+
+    }
+
+
+    currentAudio = audio;
+
+    currentSongIndex = index;
+
+
+    playerTitle.textContent =
+      song.title || "Untitled";
+
+    playerArtist.textContent =
+      song.artist || "Unknown Artist";
+
+    playerCover.src =
+      song.cover_url ||
+      "https://via.placeholder.com/90?text=Music";
+
+
+    audio.play();
+
+    playPauseBtn.textContent = "⏸";
 
   }
 
 
-  // =========================================
-  // SAVE EDIT
-  // =========================================
+  /* =========================
+     PREVIOUS SONG
+     ========================= */
 
-  async function saveSongEdit(
-    song,
-    editBox
-  ) {
+  function previousSong() {
 
-    const newTitle =
-      editBox
-        .querySelector(".edit-title")
-        .value
-        .trim();
+    if (allSongs.length === 0) {
+      return;
+    }
 
 
-    const newArtist =
-      editBox
-        .querySelector(".edit-artist")
-        .value
-        .trim();
+    let index =
+      currentSongIndex - 1;
 
 
-    const newCover =
-      editBox
-        .querySelector(".edit-cover")
-        .files[0];
+    if (index < 0) {
+
+      index =
+        allSongs.length - 1;
+
+    }
 
 
-    if (!newTitle) {
+    playSong(index);
 
-      alert(
-        "Please enter a song title."
-      );
+  }
+
+
+  /* =========================
+     NEXT SONG
+     ========================= */
+
+  function nextSong() {
+
+    if (allSongs.length === 0) {
+      return;
+    }
+
+
+    let index;
+
+
+    if (shuffle) {
+
+      index =
+        Math.floor(
+          Math.random() *
+          allSongs.length
+        );
+
+    } else {
+
+      index =
+        currentSongIndex + 1;
+
+
+      if (
+        index >= allSongs.length
+      ) {
+
+        index = 0;
+
+      }
+
+    }
+
+
+    playSong(index);
+
+  }
+
+
+  /* =========================
+     SONG ENDED
+     ========================= */
+
+  function songEnded() {
+
+    if (repeat) {
+
+      currentAudio.currentTime = 0;
+
+      currentAudio.play();
 
       return;
 
     }
 
 
-    if (!newArtist) {
-
-      alert(
-        "Please enter an artist."
-      );
-
-      return;
-
-    }
-
-
-    const saveButton =
-      editBox
-        .querySelector(
-          ".save-button"
-        );
-
-
-    saveButton.disabled = true;
-
-    saveButton.textContent =
-      "Saving...";
-
-
-    try {
-
-      let coverURL =
-        song.cover_url || null;
-
-
-      if (newCover) {
-
-        const timestamp =
-          Date.now();
-
-
-        const safeName =
-          newCover.name.replace(
-            /[^a-zA-Z0-9._-]/g,
-            "_"
-          );
-
-
-        const newCoverPath =
-          "covers/" +
-          timestamp +
-          "-" +
-          safeName;
-
-
-        const {
-          error: coverError
-        } =
-          await supabaseClient
-            .storage
-            .from("music")
-            .upload(
-              newCoverPath,
-              newCover
-            );
-
-
-        if (coverError) {
-
-          throw new Error(
-            "Cover upload failed: " +
-            coverError.message
-          );
-
-        }
-
-
-        const {
-          data: publicCover
-        } =
-          supabaseClient
-            .storage
-            .from("music")
-            .getPublicUrl(
-              newCoverPath
-            );
-
-
-        coverURL =
-          publicCover.publicUrl;
-
-      }
-
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("songs")
-          .update({
-
-            title: newTitle,
-
-            artist: newArtist,
-
-            cover_url: coverURL
-
-          })
-          .eq(
-            "id",
-            song.id
-          );
-
-
-      if (error) {
-
-        throw new Error(
-          error.message
-        );
-
-      }
-
-
-      alert(
-        "✅ Song updated successfully!"
-      );
-
-
-      await loadSongs();
-
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert(
-        "Could not save changes:\n\n" +
-        error.message
-      );
-
-
-      saveButton.disabled = false;
-
-      saveButton.textContent =
-        "💾 Save Changes";
-
-    }
+    nextSong();
 
   }
 
 
-  // =========================================
-  // DELETE
-  // =========================================
+  /* =========================
+     SHUFFLE
+     ========================= */
 
-  async function deleteSong(
-    song
-  ) {
+  function toggleShuffle() {
 
-    const confirmed =
-      confirm(
-        'Are you sure you want to delete "' +
-        (song.title || "this song") +
-        '"?'
+    shuffle = !shuffle;
+
+
+    const button =
+      document.getElementById(
+        "shuffleBtn"
       );
 
 
-    if (!confirmed) {
-      return;
-    }
-
-
-    try {
-
-      if (song.file_path) {
-
-        await supabaseClient
-          .storage
-          .from("music")
-          .remove([
-            song.file_path
-          ]);
-
-      }
-
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .from("songs")
-          .delete()
-          .eq(
-            "id",
-            song.id
-          );
-
-
-      if (error) {
-
-        throw new Error(
-          error.message
-        );
-
-      }
-
-
-      alert(
-        "🗑️ Song deleted."
-      );
-
-
-      await loadSongs();
-
-
-    } catch (error) {
-
-      alert(
-        "Delete failed:\n\n" +
-        error.message
-      );
-
-    }
+    button.style.opacity =
+      shuffle ? "1" : "0.5";
 
   }
 
 
-  // =========================================
-  // SEARCH
-  // =========================================
+  /* =========================
+     REPEAT
+     ========================= */
 
-  search.addEventListener(
-    "input",
-    () => {
+  function toggleRepeat() {
 
-      displaySongs(
-        search.value
+    repeat = !repeat;
+
+
+    const button =
+      document.getElementById(
+        "repeatBtn"
       );
 
+
+    button.style.opacity =
+      repeat ? "1" : "0.5";
+
+  }
+
+
+  /* =========================
+     PROGRESS
+     ========================= */
+
+  function updateProgress() {
+
+    if (!currentAudio) {
+      return;
     }
-  );
 
 
-  // =========================================
-  // FORMAT TIME
-  // =========================================
+    if (
+      currentAudio.duration &&
+      !isNaN(currentAudio.duration)
+    ) {
 
-  function formatTime(
-    seconds
-  ) {
+      progressBar.value =
+        (
+          currentAudio.currentTime /
+          currentAudio.duration
+        ) * 100;
+
+    }
+
+
+    currentTime.textContent =
+      formatTime(
+        currentAudio.currentTime
+      );
+
+  }
+
+
+  function updateDuration() {
+
+    if (!currentAudio) {
+      return;
+    }
+
+
+    duration.textContent =
+      formatTime(
+        currentAudio.duration
+      );
+
+  }
+
+
+  /* =========================
+     SEEK
+     ========================= */
+
+  function seekSong() {
+
+    if (!currentAudio) {
+      return;
+    }
+
+
+    if (
+      !currentAudio.duration ||
+      isNaN(currentAudio.duration)
+    ) {
+      return;
+    }
+
+
+    currentAudio.currentTime =
+      (
+        progressBar.value / 100
+      ) *
+      currentAudio.duration;
+
+  }
+
+
+  /* =========================
+     VOLUME
+     ========================= */
+
+  function changeVolume() {
+
+    if (!currentAudio) {
+      return;
+    }
+
+
+    currentAudio.volume =
+      volumeBar.value;
+
+  }
+
+
+  /* =========================
+     TIME FORMAT
+     ========================= */
+
+  function formatTime(seconds) {
 
     if (
       !seconds ||
       isNaN(seconds)
     ) {
-
       return "0:00";
-
     }
 
 
@@ -1884,7 +1260,7 @@
       );
 
 
-    const remainingSeconds =
+    const secs =
       Math.floor(
         seconds % 60
       );
@@ -1893,52 +1269,502 @@
     return (
       minutes +
       ":" +
-      String(
-        remainingSeconds
-      ).padStart(
-        2,
-        "0"
-      )
+      String(secs).padStart(2, "0")
     );
 
   }
 
 
-  // =========================================
-  // SECURITY
-  // =========================================
+  /* =========================
+     SEARCH
+     ========================= */
 
-  function escapeHtml(
-    text
-  ) {
+  function searchSongs() {
 
-    const div =
-      document.createElement(
-        "div"
-      );
+    const search =
+      document
+        .getElementById("searchBox")
+        .value
+        .toLowerCase()
+        .trim();
 
-    div.textContent =
-      text ?? "";
 
-    return div.innerHTML;
+    if (!search) {
+
+      displaySongs(allSongs);
+
+      return;
+
+    }
+
+
+    const filtered =
+      allSongs.filter(song => {
+
+        const title =
+          (
+            song.title || ""
+          ).toLowerCase();
+
+        const artist =
+          (
+            song.artist || ""
+          ).toLowerCase();
+
+
+        return (
+          title.includes(search) ||
+          artist.includes(search)
+        );
+
+      });
+
+
+    displaySongs(filtered);
 
   }
 
 
-  function escapeAttribute(
-    text
-  ) {
+  /* =========================
+     SHOW EDIT
+     ========================= */
 
-    return String(
-      text ?? ""
-    )
+  function showEditForm(id) {
+
+    const form =
+      document.getElementById(
+        `edit-${id}`
+      );
+
+
+    if (form) {
+
+      form.style.display =
+        "block";
+
+    }
+
+  }
+
+
+  /* =========================
+     HIDE EDIT
+     ========================= */
+
+  function hideEditForm(id) {
+
+    const form =
+      document.getElementById(
+        `edit-${id}`
+      );
+
+
+    if (form) {
+
+      form.style.display =
+        "none";
+
+    }
+
+  }
+
+
+  /* =========================
+     SAVE EDIT
+     ========================= */
+
+  async function saveEdit(id) {
+
+    const title =
+      document.getElementById(
+        `title-${id}`
+      ).value;
+
+    const artist =
+      document.getElementById(
+        `artist-${id}`
+      ).value;
+
+    const coverInput =
+      document.getElementById(
+        `cover-${id}`
+      );
+
+
+    let updateData = {
+
+      title: title,
+
+      artist: artist
+
+    };
+
+
+    if (
+      coverInput.files.length > 0
+    ) {
+
+      const file =
+        coverInput.files[0];
+
+
+      const fileName =
+        "covers/" +
+        Date.now() +
+        "_" +
+        file.name.replace(
+          /\s+/g,
+          "_"
+        );
+
+
+      const {
+        error: uploadError
+      } =
+        await supabaseClient
+          .storage
+          .from("music")
+          .upload(
+            fileName,
+            file,
+            {
+              upsert: true
+            }
+          );
+
+
+      if (uploadError) {
+
+        alert(
+          "Cover upload failed: " +
+          uploadError.message
+        );
+
+        return;
+
+      }
+
+
+      const {
+        data: publicData
+      } =
+        supabaseClient
+          .storage
+          .from("music")
+          .getPublicUrl(
+            fileName
+          );
+
+
+      updateData.cover_url =
+        publicData.publicUrl;
+
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("songs")
+        .update(updateData)
+        .eq("id", id);
+
+
+    if (error) {
+
+      alert(
+        "Could not save changes: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    alert(
+      "Song updated successfully! 🎉"
+    );
+
+
+    loadSongs();
+
+  }
+
+
+  /* =========================
+     UPLOAD NEW SONG
+     ========================= */
+
+  async function uploadSong() {
+
+    const title =
+      document.getElementById(
+        "songTitle"
+      ).value.trim();
+
+
+    const artist =
+      document.getElementById(
+        "artist"
+      ).value.trim();
+
+
+    const musicInput =
+      document.getElementById(
+        "musicFile"
+      );
+
+
+    const coverInput =
+      document.getElementById(
+        "coverFile"
+      );
+
+
+    const message =
+      document.getElementById(
+        "uploadMessage"
+      );
+
+
+    if (
+      !title ||
+      !artist ||
+      musicInput.files.length === 0
+    ) {
+
+      message.innerText =
+        "Please enter the title, artist, and music file.";
+
+      return;
+
+    }
+
+
+    message.innerText =
+      "Uploading...";
+
+
+    const musicFile =
+      musicInput.files[0];
+
+
+    /* MUSIC */
+
+    const musicName =
+      "songs/" +
+      Date.now() +
+      "_" +
+      musicFile.name.replace(
+        /\s+/g,
+        "_"
+      );
+
+
+    const {
+      error: musicError
+    } =
+      await supabaseClient
+        .storage
+        .from("music")
+        .upload(
+          musicName,
+          musicFile
+        );
+
+
+    if (musicError) {
+
+      message.innerText =
+        "Music upload failed: " +
+        musicError.message;
+
+      return;
+
+    }
+
+
+    const {
+      data: musicPublic
+    } =
+      supabaseClient
+        .storage
+        .from("music")
+        .getPublicUrl(
+          musicName
+        );
+
+
+    let coverUrl = "";
+
+
+    /* COVER */
+
+    if (
+      coverInput.files.length > 0
+    ) {
+
+      const coverFile =
+        coverInput.files[0];
+
+
+      const coverName =
+        "covers/" +
+        Date.now() +
+        "_" +
+        coverFile.name.replace(
+          /\s+/g,
+          "_"
+        );
+
+
+      const {
+        error: coverError
+      } =
+        await supabaseClient
+          .storage
+          .from("music")
+          .upload(
+            coverName,
+            coverFile
+          );
+
+
+      if (coverError) {
+
+        message.innerText =
+          "Cover upload failed: " +
+          coverError.message;
+
+        return;
+
+      }
+
+
+      const {
+        data: coverPublic
+      } =
+        supabaseClient
+          .storage
+          .from("music")
+          .getPublicUrl(
+            coverName
+          );
+
+
+      coverUrl =
+        coverPublic.publicUrl;
+
+    }
+
+
+    /* DATABASE */
+
+    const {
+      error: databaseError
+    } =
+      await supabaseClient
+        .from("songs")
+        .insert([
+          {
+            title: title,
+            artist: artist,
+            music_url:
+              musicPublic.publicUrl,
+            cover_url:
+              coverUrl
+          }
+        ]);
+
+
+    if (databaseError) {
+
+      message.innerText =
+        "Database error: " +
+        databaseError.message;
+
+      return;
+
+    }
+
+
+    message.innerText =
+      "Song uploaded successfully! 🎉";
+
+
+    document.getElementById(
+      "songTitle"
+    ).value = "";
+
+    document.getElementById(
+      "artist"
+    ).value = "";
+
+    document.getElementById(
+      "musicFile"
+    ).value = "";
+
+    document.getElementById(
+      "coverFile"
+    ).value = "";
+
+
+    loadSongs();
+
+  }
+
+
+  /* =========================
+     DELETE SONG
+     ========================= */
+
+  async function deleteSong(id) {
+
+    if (
+      !confirm(
+        "Are you sure you want to delete this song?"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const { error } =
+      await supabaseClient
+        .from("songs")
+        .delete()
+        .eq("id", id);
+
+
+    if (error) {
+
+      alert(
+        "Could not delete song: " +
+        error.message
+      );
+
+      return;
+
+    }
+
+
+    loadSongs();
+
+  }
+
+
+  /* =========================
+     PROTECT HTML
+     ========================= */
+
+  function escapeHtml(text) {
+
+    return String(text)
       .replace(
         /&/g,
         "&amp;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
       )
       .replace(
         /</g,
@@ -1947,14 +1773,29 @@
       .replace(
         />/g,
         "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
       );
 
   }
 
 
-  // =========================================
-  // START
-  // =========================================
+  function escapeAttribute(text) {
+
+    return escapeHtml(text);
+
+  }
+
+
+  /* =========================
+     START WEBSITE
+     ========================= */
 
   loadSongs();
 
