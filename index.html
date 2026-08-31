@@ -1,3 +1,5 @@
+Delete everything currently in the file and paste this:
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,6 +113,7 @@
 
     .song-info {
       flex: 1;
+      min-width: 0;
     }
 
     .title {
@@ -162,7 +165,9 @@
 
 <div class="container">
 
-  <!-- ADD SONG -->
+  <!-- =====================================
+       ADD NEW SONG
+  ====================================== -->
 
   <div class="upload-box">
 
@@ -199,19 +204,22 @@
     <button
       id="uploadButton"
       class="green"
-      type="button">
+      type="button"
+    >
       Upload Song
     </button>
 
     <div
       id="uploadMessage"
-      class="message">
-    </div>
+      class="message"
+    ></div>
 
   </div>
 
 
-  <!-- SEARCH -->
+  <!-- =====================================
+       SEARCH
+  ====================================== -->
 
   <input
     id="search"
@@ -233,7 +241,7 @@
 <script>
 
   // =====================================
-  // SUPABASE
+  // SUPABASE CONNECTION
   // =====================================
 
   const SUPABASE_URL =
@@ -270,9 +278,9 @@
     if (error) {
 
       document.getElementById("songs").innerHTML =
-        `<div class="error">
-          Database error: ${escapeHtml(error.message)}
-        </div>`;
+        `<p class="error">
+          ${escapeHtml(error.message)}
+        </p>`;
 
       return;
     }
@@ -311,17 +319,21 @@
       const row =
         document.createElement("div");
 
-      row.className = "song";
+      row.className =
+        "song";
 
 
+      // =====================================
       // COVER
+      // =====================================
 
       if (song.cover_url) {
 
         const img =
           document.createElement("img");
 
-        img.className = "cover";
+        img.className =
+          "cover";
 
         img.src =
           song.cover_url;
@@ -349,7 +361,9 @@
       }
 
 
+      // =====================================
       // INFORMATION
+      // =====================================
 
       const info =
         document.createElement("div");
@@ -383,7 +397,9 @@
       info.appendChild(artist);
 
 
-      // MUSIC
+      // =====================================
+      // MUSIC PLAYER
+      // =====================================
 
       if (song.file_path) {
 
@@ -400,13 +416,14 @@
         const audio =
           document.createElement("audio");
 
-        audio.controls = true;
-
-        audio.src =
-          musicUrl;
+        audio.controls =
+          true;
 
         audio.preload =
           "metadata";
+
+        audio.src =
+          musicUrl;
 
 
         info.appendChild(audio);
@@ -414,7 +431,13 @@
       }
 
 
+      // =====================================
       // BUTTONS
+      // =====================================
+
+      const buttonArea =
+        document.createElement("div");
+
 
       const editButton =
         document.createElement("button");
@@ -442,19 +465,18 @@
         "🗑️ Delete";
 
 
-      const buttons =
-        document.createElement("div");
-
-      buttons.appendChild(
+      buttonArea.appendChild(
         editButton
       );
 
-      buttons.appendChild(
+      buttonArea.appendChild(
         deleteButton
       );
 
 
-      info.appendChild(buttons);
+      info.appendChild(
+        buttonArea
+      );
 
 
       // =====================================
@@ -471,6 +493,9 @@
       const editTitle =
         document.createElement("input");
 
+      editTitle.type =
+        "text";
+
       editTitle.value =
         song.title || "";
 
@@ -481,6 +506,9 @@
       const editArtist =
         document.createElement("input");
 
+      editArtist.type =
+        "text";
+
       editArtist.value =
         song.artist || "";
 
@@ -488,20 +516,20 @@
         "Artist";
 
 
-      const label =
+      const coverLabel =
         document.createElement("label");
 
-      label.textContent =
+      coverLabel.textContent =
         "New cover image:";
 
 
-      const coverInput =
+      const editCover =
         document.createElement("input");
 
-      coverInput.type =
+      editCover.type =
         "file";
 
-      coverInput.accept =
+      editCover.accept =
         "image/*";
 
 
@@ -540,11 +568,11 @@
       );
 
       editForm.appendChild(
-        label
+        coverLabel
       );
 
       editForm.appendChild(
-        coverInput
+        editCover
       );
 
       editForm.appendChild(
@@ -561,7 +589,9 @@
       );
 
 
-      // EDIT CLICK
+      // =====================================
+      // EDIT BUTTON
+      // =====================================
 
       editButton.addEventListener(
         "click",
@@ -575,7 +605,9 @@
       );
 
 
+      // =====================================
       // CANCEL
+      // =====================================
 
       cancelButton.addEventListener(
         "click",
@@ -589,7 +621,9 @@
       );
 
 
-      // SAVE
+      // =====================================
+      // SAVE EDIT
+      // =====================================
 
       saveButton.addEventListener(
         "click",
@@ -599,7 +633,7 @@
             song,
             editTitle,
             editArtist,
-            coverInput,
+            editCover,
             saveButton
           );
 
@@ -607,7 +641,9 @@
       );
 
 
+      // =====================================
       // DELETE
+      // =====================================
 
       deleteButton.addEventListener(
         "click",
@@ -693,7 +729,7 @@
 
 
       // =====================================
-      // UPLOAD COVER
+      // UPLOAD COVER TO COVERS BUCKET
       // =====================================
 
       if (
@@ -710,7 +746,7 @@
         ) {
 
           throw new Error(
-            "The selected file is not an image."
+            "Please select an image file."
           );
 
         }
@@ -730,16 +766,10 @@
           safeName;
 
 
-        console.log(
-          "Uploading cover:",
-          coverPath
-        );
-
-
-        const uploadResult =
+        const result =
           await supabaseClient
             .storage
-            .from("music")
+            .from("covers")
             .upload(
               coverPath,
               file,
@@ -750,36 +780,33 @@
             );
 
 
-        if (uploadResult.error) {
+        if (result.error) {
 
           throw new Error(
             "COVER UPLOAD ERROR: " +
-            uploadResult.error.message
+            result.error.message
           );
 
         }
 
 
-        const urlResult =
+        coverUrl =
           supabaseClient
             .storage
-            .from("music")
+            .from("covers")
             .getPublicUrl(
               coverPath
-            );
-
-
-        coverUrl =
-          urlResult.data.publicUrl;
+            )
+            .data.publicUrl;
 
       }
 
 
       // =====================================
-      // UPDATE SONG
+      // UPDATE DATABASE
       // =====================================
 
-      const updateResult =
+      const result =
         await supabaseClient
           .from("songs")
           .update({
@@ -797,11 +824,11 @@
           );
 
 
-      if (updateResult.error) {
+      if (result.error) {
 
         throw new Error(
           "DATABASE UPDATE ERROR: " +
-          updateResult.error.message
+          result.error.message
         );
 
       }
@@ -821,7 +848,6 @@
       console.error(error);
 
       alert(
-        "ERROR:\n\n" +
         error.message
       );
 
@@ -888,7 +914,7 @@
     ) {
 
       message.textContent =
-        "Please enter title, artist, and music file.";
+        "Please enter the title, artist, and music file.";
 
       return;
     }
@@ -900,7 +926,9 @@
         "Uploading music...";
 
 
-      // MUSIC
+      // =====================================
+      // MUSIC → music BUCKET
+      // =====================================
 
       const musicPath =
         "songs/" +
@@ -932,16 +960,28 @@
       }
 
 
-      // COVER
+      // =====================================
+      // COVER → covers BUCKET
+      // =====================================
 
-      let coverUrl =
-        "";
+      let coverUrl = "";
 
 
       if (coverFile) {
 
         message.textContent =
           "Uploading cover...";
+
+
+        if (
+          !coverFile.type.startsWith("image/")
+        ) {
+
+          throw new Error(
+            "Please select a valid image file."
+          );
+
+        }
 
 
         const coverPath =
@@ -957,7 +997,7 @@
         const coverResult =
           await supabaseClient
             .storage
-            .from("music")
+            .from("covers")
             .upload(
               coverPath,
               coverFile
@@ -977,7 +1017,7 @@
         coverUrl =
           supabaseClient
             .storage
-            .from("music")
+            .from("covers")
             .getPublicUrl(
               coverPath
             )
@@ -986,7 +1026,9 @@
       }
 
 
-      // DATABASE
+      // =====================================
+      // SAVE SONG RECORD
+      // =====================================
 
       const databaseResult =
         await supabaseClient
@@ -1019,6 +1061,8 @@
       message.textContent =
         "Song uploaded successfully! 🎉";
 
+
+      // CLEAR FORM
 
       document.getElementById(
         "songTitle"
@@ -1114,7 +1158,7 @@
 
     if (
       !confirm(
-        "Delete this song?"
+        "Are you sure you want to delete this song?"
       )
     ) {
 
