@@ -258,7 +258,42 @@ audio{width:100%;height:40px}
 .home-recent-title{font-weight:bold;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .home-recent-artist{font-size:11px;color:#888;margin-top:2px}
 .home-recent-btn{width:31px;height:31px;border-radius:50%;background:#ffd76a;color:#111;border:0;font-weight:bold;cursor:pointer}
+
+.site-nav{
+  position:sticky;
+  top:0;
+  z-index:900;
+  width:min(950px,94%);
+  margin:0 auto 14px;
+  padding:8px;
+  display:flex;
+  justify-content:center;
+  gap:6px;
+  flex-wrap:wrap;
+  background:rgba(8,8,8,.96);
+  border:1px solid #3f3218;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.nav-link{
+  text-decoration:none;
+  color:#c9c9c9;
+  padding:10px 14px;
+  border-radius:8px;
+  font-weight:bold;
+  font-size:14px;
+  transition:.2s;
+}
+.nav-link:hover,
+.nav-link.active{
+  background:#3a2b0b;
+  color:#ffd76a;
+  box-shadow:inset 0 0 0 1px #8e681c;
+}
 @media(max-width:650px){
+  .site-nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap}
+  .nav-link{white-space:nowrap;font-size:13px;padding:9px 12px}
+
   h1{font-size:48px}
   .logo{width:240px;height:240px}
   .song{align-items:flex-start}
@@ -360,6 +395,14 @@ audio{width:100%;height:40px}
   <h1>Jassiah</h1>
   <div class="subtitle">MY MUSIC</div>
 </header>
+<nav class="site-nav">
+  <a href="#homeDashboard" class="nav-link active" data-target="homeDashboard">Home</a>
+  <a href="#songs" class="nav-link" data-target="songs">Songs</a>
+  <a href="#favoritesFilter" class="nav-link" data-action="favorites">Favorites</a>
+  <a href="#playlists" class="nav-link" data-target="playlists">Playlists</a>
+  <a href="#albumPanel" class="nav-link" data-target="albumPanel">Albums</a>
+</nav>
+
 
 <div class="panel">
   <h2>♫ Add New Song</h2>
@@ -1898,6 +1941,83 @@ function renderHomeDashboard(){
     }
   }
 }
+
+
+function scrollToTarget(id){
+  const el=document.getElementById(id);
+  if(el){
+    el.scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+  }
+}
+
+function setActiveNav(target){
+  document.querySelectorAll(".nav-link").forEach(link=>{
+    link.classList.toggle(
+      "active",
+      link.dataset.target===target
+    );
+  });
+}
+
+document.querySelectorAll(".nav-link").forEach(link=>{
+  link.addEventListener("click",function(event){
+    event.preventDefault();
+
+    const action=this.dataset.action;
+    const target=this.dataset.target;
+
+    if(action==="favorites"){
+      const btn=document.getElementById("favoritesFilter");
+
+      if(btn){
+        if(typeof favoritesOnly!=="undefined" && !favoritesOnly){
+          toggleFavoritesOnly();
+        }
+      }
+
+      const section=document.getElementById("songsPanel");
+      if(section){
+        section.scrollIntoView({
+          behavior:"smooth",
+          block:"start"
+        });
+      }
+
+      setActiveNav("songs");
+      return;
+    }
+
+    if(target){
+      scrollToTarget(
+        target==="songs" ? "songsPanel" : target
+      );
+      setActiveNav(target==="homeDashboard" ? "homeDashboard" : target);
+    }
+  });
+});
+
+window.addEventListener("scroll",()=>{
+  const positions=[
+    ["homeDashboard","homeDashboard"],
+    ["songsPanel","songs"],
+    ["playlists","playlists"],
+    ["albumPanel","albumPanel"]
+  ];
+
+  let current="homeDashboard";
+
+  positions.forEach(([elementId,navId])=>{
+    const el=document.getElementById(elementId);
+    if(el && el.getBoundingClientRect().top <= 180){
+      current=navId;
+    }
+  });
+
+  setActiveNav(current);
+});
 
 function filterSongs(){
   const q=document.getElementById("search").value.toLowerCase().trim();
