@@ -2898,7 +2898,41 @@ function renderCurrentArtistPage(){
 
   const name=artistPageNames[artistPageIndex];
 
-  const artistSongs=songsForArtist(name);
+  let artistSongs=songsForArtist(name);
+
+  /* Re-read the persistent artist order every time the artist page renders.
+     This is the part that must run after a full browser refresh. */
+  try{
+    const saved=JSON.parse(
+      localStorage.getItem("jassiahArtistSongOrderV1")||"{}"
+    );
+
+    const key=Object.keys(saved).find(
+      k=>String(k).toLowerCase()===String(name).toLowerCase()
+    );
+
+    const ids=key&&Array.isArray(saved[key])
+      ?saved[key].map(Number)
+      :[];
+
+    if(ids.length){
+      const rank=new Map(ids.map((id,index)=>[id,index]));
+
+      artistSongs=artistSongs.slice().sort((a,b)=>{
+        const ai=rank.has(Number(a.id))
+          ?rank.get(Number(a.id))
+          :100000000+(Number(a.id)||0);
+
+        const bi=rank.has(Number(b.id))
+          ?rank.get(Number(b.id))
+          :100000000+(Number(b.id)||0);
+
+        return ai-bi;
+      });
+    }
+  }catch(error){
+    console.warn("Could not restore artist song order:",error);
+  }
 
   const page=document.getElementById("artistPage");
   const hero=document.getElementById("artistHero");
@@ -3136,7 +3170,38 @@ function playArtistSong(index){
 
 
 function playArtistAll(){
-  const queue=songsForArtist(window.currentArtistName);
+  let queue=songsForArtist(window.currentArtistName);
+
+  try{
+    const saved=JSON.parse(
+      localStorage.getItem("jassiahArtistSongOrderV1")||"{}"
+    );
+
+    const key=Object.keys(saved).find(
+      k=>String(k).toLowerCase()===String(window.currentArtistName).toLowerCase()
+    );
+
+    const ids=key&&Array.isArray(saved[key])
+      ?saved[key].map(Number)
+      :[];
+
+    if(ids.length){
+      const rank=new Map(ids.map((id,index)=>[id,index]));
+      queue=queue.slice().sort((a,b)=>{
+        const ai=rank.has(Number(a.id))
+          ?rank.get(Number(a.id))
+          :100000000+(Number(a.id)||0);
+
+        const bi=rank.has(Number(b.id))
+          ?rank.get(Number(b.id))
+          :100000000+(Number(b.id)||0);
+
+        return ai-bi;
+      });
+    }
+  }catch(error){
+    console.warn("Could not restore artist play order:",error);
+  }
 
   if(!queue.length){
     alert("This artist has no songs yet.");
@@ -3188,59 +3253,27 @@ function closeArtistPage(){
 
 
 function songsForArtist(artistName){
-  const rawName=String(artistName||"").trim();
+  const name=String(artistName||"").trim().toLowerCase();
 
-  if(!rawName)return [];
-
-  const name=rawName.toLowerCase();
+  if(!name)return [];
 
   /*
     One artist profile represents the artist's whole catalog.
 
-    The saved artist-song order is stored in localStorage so a page refresh
-    returns to the SAME order instead of rebuilding the list from upload order.
+    Example:
+      Jamil Landin
+      Jamil Landin ft Moneyman Keyz
+      Jamil Landin ft Charlie Woods
+      Jamil Landin ft Jessica Lane
+
+    All four belong to the single Jamil Landin profile.
+    The original artist credit on each song is NOT changed.
   */
-  const artistSongs=songs.filter(song=>{
+  return songs.filter(song=>{
     const credited=String(song.artist||"").trim().toLowerCase();
+
     return credited.includes(name);
   });
-
-  try{
-    const saved=JSON.parse(
-      localStorage.getItem("jassiahArtistSongOrderV1")||"{}"
-    );
-
-    /* Match the artist name without changing the original song credits. */
-    const key=Object.keys(saved).find(
-      k=>String(k).toLowerCase()===rawName.toLowerCase()
-    );
-
-    const ids=key&&Array.isArray(saved[key])
-      ?saved[key].map(Number)
-      :[];
-
-    if(!ids.length){
-      return artistSongs;
-    }
-
-    const rank=new Map(ids.map((id,index)=>[id,index]));
-
-    return artistSongs.slice().sort((a,b)=>{
-      const ai=rank.has(Number(a.id))
-        ?rank.get(Number(a.id))
-        :100000000+(Number(a.id)||0);
-
-      const bi=rank.has(Number(b.id))
-        ?rank.get(Number(b.id))
-        :100000000+(Number(b.id)||0);
-
-      return ai-bi;
-    });
-
-  }catch(error){
-    console.warn("Artist order restore:",error);
-    return artistSongs;
-  }
 }
 
 function saveArtistProfiles(){
@@ -5762,11 +5795,7 @@ initializeAuth();
       if(error)return false;
 
       (data||[]).forEach(row=>{
-        if(
-          row?.artist_name &&
-          Array.isArray(row.song_ids) &&
-          !orderMap[row.artist_name]
-        ){
+        if(row?.artist_name && Array.isArray(row.song_ids)){
           orderMap[row.artist_name]=row.song_ids.map(Number);
         }
       });
@@ -5940,25 +5969,6 @@ initializeAuth();
     jcRenderOrderList();
   });
 
-})();
-</script>
-
-<script id="jassiah-order-refresh-final">
-(function(){
-  document.addEventListener("DOMContentLoaded",()=>{
-    /* Keep the current artist page in the saved order after refresh. */
-    setTimeout(()=>{
-      try{
-        if(
-          typeof window.currentArtistName==="string" &&
-          window.currentArtistName &&
-          typeof renderCurrentArtistPage==="function"
-        ){
-          renderCurrentArtistPage();
-        }
-      }catch(_){}
-    },1400);
-  });
 })();
 </script>
 </body>
