@@ -4859,6 +4859,10 @@ initializeAuth();
     const ids=list.map(s=>Number(s.id));
     orderMap[exact]=ids;
 
+    /* Persist the new order locally BEFORE trying Supabase.
+       The artist page reads this same saved order after a refresh. */
+    saveLocalOrder(orderMap);
+
     const status=document.getElementById("jcOrderStatus");
     if(status)status.textContent="Saving order...";
 
@@ -5795,7 +5799,11 @@ initializeAuth();
       if(error)return false;
 
       (data||[]).forEach(row=>{
-        if(row?.artist_name && Array.isArray(row.song_ids)){
+        if(
+          row?.artist_name &&
+          Array.isArray(row.song_ids) &&
+          !orderMap[row.artist_name]
+        ){
           orderMap[row.artist_name]=row.song_ids.map(Number);
         }
       });
@@ -5967,120 +5975,6 @@ initializeAuth();
     await loadRemoteOrder();
     refreshOrderArtistList();
     jcRenderOrderList();
-  });
-
-})();
-</script>
-
-<script id="jassiah-reorder-final-override">
-(function(){
-
-  const ORDER_KEY="jassiahArtistSongOrderV1";
-
-  function getSongs(){
-    return (typeof songs!=="undefined" && Array.isArray(songs)) ? songs : [];
-  }
-
-  function readOrders(){
-    try{
-      const data=JSON.parse(localStorage.getItem(ORDER_KEY)||"{}");
-      return data && typeof data==="object" ? data : {};
-    }catch(_){
-      return {};
-    }
-  }
-
-  function findOrderKey(orders,name){
-    const target=String(name||"").trim().toLowerCase();
-    return Object.keys(orders).find(
-      key=>String(key).trim().toLowerCase()===target
-    );
-  }
-
-  /* FINAL definition used by every artist page after a refresh. */
-  window.songsForArtist=function(artistName){
-    const name=String(artistName||"").trim();
-    if(!name)return [];
-
-    const needle=name.toLowerCase();
-
-    const list=getSongs().filter(song=>{
-      return String(song.artist||"").trim().toLowerCase().includes(needle);
-    });
-
-    const orders=readOrders();
-    const key=findOrderKey(orders,name);
-    const ids=key && Array.isArray(orders[key])
-      ? orders[key].map(Number)
-      : [];
-
-    if(!ids.length)return list;
-
-    const rank=new Map(ids.map((id,index)=>[Number(id),index]));
-
-    return list.slice().sort((a,b)=>{
-      const aRank=rank.has(Number(a.id))
-        ?rank.get(Number(a.id))
-        :100000000+(Number(a.id)||0);
-
-      const bRank=rank.has(Number(b.id))
-        ?rank.get(Number(b.id))
-        :100000000+(Number(b.id)||0);
-
-      return aRank-bRank;
-    });
-  };
-
-  /* Also make Play All use the same persistent order. */
-  window.jassiahGetOrderedArtistSongs=function(name){
-    return window.songsForArtist(name);
-  };
-
-  if(typeof window.playArtistAll==="function"){
-    const oldPlayArtistAll=window.playArtistAll;
-    window.playArtistAll=function(){
-      const name=window.currentArtistName||"";
-      const ordered=window.jassiahGetOrderedArtistSongs(name);
-
-      if(!ordered.length){
-        oldPlayArtistAll.apply(this,arguments);
-        return;
-      }
-
-      if(typeof playlistQueue!=="undefined"){
-        playlistQueue={
-          name:"Artist: "+name,
-          songs:ordered
-        };
-      }
-
-      if(typeof albumQueue!=="undefined")albumQueue=null;
-
-      const first=ordered[0];
-      const index=getSongs().findIndex(
-        song=>Number(song.id)===Number(first.id)
-      );
-
-      if(index>=0 && typeof playSong==="function"){
-        playSong(index);
-      }
-    };
-  }
-
-  /* Repaint the currently open artist once on load so the refreshed view
-     reflects the stored order immediately. */
-  document.addEventListener("DOMContentLoaded",()=>{
-    setTimeout(()=>{
-      try{
-        if(
-          typeof window.currentArtistName==="string" &&
-          window.currentArtistName &&
-          typeof window.renderCurrentArtistPage==="function"
-        ){
-          window.renderCurrentArtistPage();
-        }
-      }catch(_){}
-    },1200);
   });
 
 })();
