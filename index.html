@@ -2129,9 +2129,10 @@ window.currentArtistSongs=[];
 
 
 
+
 function openArtistPage(artistName){
   const profile=artistProfiles.find(
-    p=>String(p.name).toLowerCase()===String(artistName).toLowerCase()
+    p=>p.name.toLowerCase()===String(artistName||"").trim().toLowerCase()
   );
 
   if(!profile){
@@ -2154,21 +2155,26 @@ function openArtistPage(artistName){
   window.currentArtistName=name;
   window.currentArtistSongs=artistSongs;
 
+  const image=String(profile.image_url||"").trim();
   const fallback=document.querySelector(".logo")?.src||"";
-  const image=profile.image_url||fallback;
 
   hero.innerHTML=`
-    <img
-      src="${escapeHtml(image)}"
-      onerror="this.src='${escapeJs(fallback)}'"
-      alt="${escapeHtml(name)}"
-      style="
-        width:170px;height:170px;object-fit:cover;
-        border-radius:50%;border:3px solid #d6a83c;
-        box-shadow:0 0 25px rgba(214,168,60,.25);
-        flex-shrink:0;
-      "
-    >
+    <div style="
+      width:170px;
+      height:170px;
+      border-radius:50%;
+      overflow:hidden;
+      border:3px solid #d6a83c;
+      background:#1b1b1b;
+      flex-shrink:0;
+    ">
+      <img
+        src="${escapeHtml(image)}"
+        alt="${escapeHtml(name)}"
+        style="width:100%;height:100%;object-fit:cover;display:block"
+        onerror="this.src='${escapeJs(fallback)}'"
+      >
+    </div>
 
     <div style="flex:1;min-width:0">
       <div style="color:#ae9558;font-size:11px;letter-spacing:3px;font-weight:bold">
@@ -2177,7 +2183,7 @@ function openArtistPage(artistName){
 
       <div style="
         color:#ffd76a;
-        font:italic 48px Georgia,serif;
+        font:italic 46px Georgia,serif;
         margin-top:5px;
         word-break:break-word;
       ">
@@ -2185,12 +2191,11 @@ function openArtistPage(artistName){
       </div>
 
       <div style="color:#aaa;margin-top:7px">
-        ${artistSongs.length}
-        song${artistSongs.length===1?"":"s"}
+        ${artistSongs.length} song${artistSongs.length===1?"":"s"}
       </div>
 
       <div style="color:#777;font-size:11px;margin-top:7px">
-        Featured artists stay in the original song credit.
+        Featured artists remain in the original song credit.
       </div>
 
       <button
@@ -2199,57 +2204,50 @@ function openArtistPage(artistName){
           margin-top:13px;
           background:linear-gradient(135deg,#f0c653,#9d7014);
           color:#111;border:0;border-radius:8px;
-          padding:10px 16px;font-weight:bold;cursor:pointer;
+          padding:10px 16px;font-weight:bold;cursor:pointer
         "
-      >
-        ▶ Play All
-      </button>
+      >▶ Play All</button>
 
       <button
         class="admin-only"
         onclick="openEditArtist('${escapeJs(name)}')"
         style="
-          margin-top:13px;
-          margin-left:6px;
+          margin-top:13px;margin-left:6px;
           background:#111;color:#ffd76a;
           border:1px solid #9f741c;border-radius:8px;
-          padding:10px 15px;font-weight:bold;cursor:pointer;
+          padding:10px 15px;font-weight:bold;cursor:pointer
         "
-      >
-        ✏️ Edit Artist
-      </button>
+      >✏️ Edit Artist</button>
     </div>
   `;
 
   list.innerHTML=artistSongs.length
     ? artistSongs.map(song=>{
-        const i=songs.findIndex(
-          s=>Number(s.id)===Number(song.id)
-        );
-
+        const i=songs.findIndex(s=>Number(s.id)===Number(song.id));
         return `
           <div style="
             display:flex;align-items:center;gap:12px;
             padding:11px 0;border-bottom:1px solid #222;
           ">
             <img
-              src="${escapeHtml(song.cover_url||image)}"
-              onerror="this.src='${escapeJs(image)}'"
+              src="${escapeHtml(song.cover_url||image||fallback)}"
               alt=""
               style="width:64px;height:64px;object-fit:cover;border-radius:8px"
+              onerror="this.src='${escapeJs(fallback)}'"
             >
 
             <div style="flex:1;min-width:0">
               <div style="
-                font-weight:bold;
-                white-space:nowrap;
-                overflow:hidden;
-                text-overflow:ellipsis;
+                font-weight:bold;white-space:nowrap;
+                overflow:hidden;text-overflow:ellipsis;
               ">
                 ${escapeHtml(song.title||"Untitled")}
               </div>
 
-              <div style="color:#ffd76a;font-size:12px;margin-top:3px;word-break:break-word">
+              <div style="
+                color:#ffd76a;font-size:12px;
+                margin-top:3px;word-break:break-word;
+              ">
                 ${escapeHtml(song.artist||name)}
               </div>
             </div>
@@ -2258,15 +2256,14 @@ function openArtistPage(artistName){
               onclick="playSong(${i})"
               style="
                 width:40px;height:40px;border-radius:50%;
-                background:#ffd76a;color:#111;border:0;font-weight:bold;cursor:pointer
+                background:#ffd76a;color:#111;border:0;
+                font-weight:bold;cursor:pointer
               "
             >▶</button>
           </div>
         `;
       }).join("")
-    : '<div style="color:#888;padding:20px">No songs are attached to this artist yet.</div>';
-
-  updateAdminVisibility();
+    : '<div style="color:#888;padding:20px;text-align:center">No songs are attached to this artist yet.</div>';
 
   [
     "homeDashboard","featuredPanel","recentPanel",
@@ -2281,9 +2278,13 @@ function openArtistPage(artistName){
   });
 
   page.style.display="block";
-  page.scrollIntoView({behavior:"smooth",block:"start"});
-}
+  updateAdminVisibility();
 
+  page.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
 function playArtistSong(index){
   if(index<0 || index>=songs.length)return;
 
@@ -2670,6 +2671,7 @@ async function createArtistProfile(){
 
 
 
+async 
 async function loadArtistProfiles(){
   const {data,error}=await client
     .from("artist_profiles")
@@ -2680,21 +2682,28 @@ async function loadArtistProfiles(){
     console.error("Artist profiles:",error);
     artistProfiles=[];
     renderArtists();
+    renderHomeDashboard();
     return;
   }
 
-  artistProfiles=data||[];
+  artistProfiles=(data||[]).map(profile=>({
+    ...profile,
+    name:String(profile.name||"").trim(),
+    image_url:String(profile.image_url||"").trim()
+  })).filter(profile=>profile.name);
+
   renderArtists();
   renderHomeDashboard();
 }
+
 
 function renderArtists(){
   const grid=document.getElementById("artistsGrid");
   if(!grid)return;
 
   const profileNames=artistProfiles
-    .filter(p=>String(p.name||"").trim())
     .map(p=>p.name)
+    .filter(Boolean)
     .sort((a,b)=>a.localeCompare(b));
 
   const datalist=document.getElementById("artistNames");
@@ -2706,116 +2715,121 @@ function renderArtists(){
 
   if(!profileNames.length){
     grid.innerHTML=
-      '<div style="color:#888">No artist profiles yet. Create one while logged in as admin.</div>';
+      '<div style="color:#888">No artist profiles yet.</div>';
     return;
   }
 
   grid.innerHTML=profileNames.map(name=>{
     const profile=artistProfiles.find(
-      p=>String(p.name).toLowerCase()===String(name).toLowerCase()
+      p=>p.name.toLowerCase()===name.toLowerCase()
     );
 
-    const image=
-      profile?.image_url ||
-      document.querySelector(".logo")?.src ||
-      "";
-
     const count=songsForArtist(name).length;
+    const image=profile?.image_url||"";
 
     return `
-      <div style="
+      <article style="
         background:#111;
         border:1px solid #332817;
         border-radius:13px;
         overflow:hidden;
+        box-shadow:0 8px 22px rgba(0,0,0,.25);
       ">
 
-        <img
-          src="${escapeHtml(image)}"
-          onerror="this.style.opacity='.2'"
-          alt="${escapeHtml(name)}"
+        <button
+          type="button"
+          onclick="openArtistPage('${escapeJs(name)}')"
           style="
+            display:block;
+            width:100%;
+            padding:0;
+            margin:0;
+            border:0;
+            background:transparent;
+            cursor:pointer;
+            text-align:left;
+          "
+          aria-label="Open ${escapeHtml(name)} artist page"
+        >
+          <img
+            src="${escapeHtml(image)}"
+            alt="${escapeHtml(name)}"
+            style="
+              width:100%;
+              aspect-ratio:1/1;
+              object-fit:cover;
+              display:block;
+              background:#222;
+            "
+            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+          >
+          <div style="
+            display:none;
             width:100%;
             aspect-ratio:1/1;
-            object-fit:cover;
-            display:block;
-          "
-        >
-
-        <div style="padding:13px">
-
-          <div style="
+            background:#1c1c1c;
             color:#ffd76a;
-            font-size:18px;
-            font-weight:bold;
-            white-space:nowrap;
-            overflow:hidden;
-            text-overflow:ellipsis;
-          ">
-            ${escapeHtml(name)}
-          </div>
+            align-items:center;
+            justify-content:center;
+            font-size:50px;
+          ">🎤</div>
 
-          <div style="color:#999;font-size:12px;margin-top:4px">
-            ${count} song${count===1?"":"s"}
-          </div>
+          <div style="padding:13px 13px 5px">
+            <div style="
+              color:#ffd76a;
+              font-size:18px;
+              font-weight:bold;
+              white-space:nowrap;
+              overflow:hidden;
+              text-overflow:ellipsis;
+            ">
+              ${escapeHtml(name)}
+            </div>
 
+            <div style="
+              color:#999;
+              font-size:12px;
+              margin-top:4px;
+            ">
+              ${count} song${count===1?"":"s"}
+            </div>
+          </div>
+        </button>
+
+        <div class="admin-only" style="padding:0 13px 13px">
           <button
-            onclick="openArtistPage('${escapeJs(name)}')"
+            type="button"
+            onclick="openEditArtist('${escapeJs(name)}')"
             style="
-              margin-top:10px;
+              margin-top:7px;
               width:100%;
-              background:#ffd76a;
-              color:#111;
-              border:0;
+              background:#111;
+              color:#ffd76a;
+              border:1px solid #9f741c;
               border-radius:7px;
-              padding:9px;
+              padding:8px;
               font-weight:bold;
               cursor:pointer;
             "
-          >
-            View Artist
-          </button>
+          >✏️ Edit Artist</button>
 
-          <div class="admin-only">
-
-            <button
-              onclick="openEditArtist('${escapeJs(name)}')"
-              style="
-                margin-top:7px;
-                width:100%;
-                background:#111;
-                color:#ffd76a;
-                border:1px solid #9f741c;
-                border-radius:7px;
-                padding:8px;
-                font-weight:bold;
-                cursor:pointer;
-              "
-            >
-              ✏️ Edit Artist
-            </button>
-
-            <button
-              onclick="deleteArtistProfile('${escapeJs(name)}')"
-              style="
-                margin-top:7px;
-                width:100%;
-                background:#111;
-                color:#ff7568;
-                border:1px solid #8d382f;
-                border-radius:7px;
-                padding:8px;
-                font-weight:bold;
-                cursor:pointer;
-              "
-            >
-              🗑 Delete Artist
-            </button>
-
-          </div>
-
+          <button
+            type="button"
+            onclick="deleteArtistProfile('${escapeJs(name)}')"
+            style="
+              margin-top:7px;
+              width:100%;
+              background:#111;
+              color:#ff7568;
+              border:1px solid #8d382f;
+              border-radius:7px;
+              padding:8px;
+              font-weight:bold;
+              cursor:pointer;
+            "
+          >🗑 Delete Artist</button>
         </div>
-      </div>
+      </article>
     `;
   }).join("");
 
@@ -3187,8 +3201,11 @@ async function initializeAuth(){
   });
 }
 
+
 function updateAdminVisibility(){
   const loggedIn=!!currentUser;
+
+  document.body.classList.toggle("admin-mode",loggedIn);
 
   document.querySelectorAll(".admin-only").forEach(el=>{
     el.style.display=loggedIn ? "" : "none";
@@ -3208,6 +3225,7 @@ function updateAdminVisibility(){
   if(newArtist)newArtist.style.display=loggedIn?"block":"none";
   if(editArtist && !loggedIn)editArtist.style.display="none";
 }
+
 
 </script>
 
