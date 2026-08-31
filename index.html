@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Jassiah</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">initializeAuth();
+</script>
 
 <style>
 *{box-sizing:border-box}
@@ -357,135 +358,15 @@ audio{width:100%;height:40px}
   .site-nav{overflow-x:auto;flex-wrap:nowrap}
 }
 
-/* AUTH / ADMIN */
-#authBar{
-  width:min(950px,94%);
-  margin:0 auto 12px;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:8px;
-}
-.auth-btn{
-  background:#111;
-  color:#ffd76a;
-  border:1px solid #9f741c;
-  border-radius:8px;
-  padding:9px 13px;
-  font-weight:bold;
-  cursor:pointer;
-}
-.admin-badge{
-  color:#111;
-  background:#ffd76a;
-  border-radius:999px;
-  padding:7px 10px;
-  font-size:12px;
-  font-weight:bold;
-}
-#adminLoginPanel{
-  width:min(520px,94%);
-  margin:14px auto;
-  padding:18px;
-  background:rgba(16,16,16,.98);
-  border:1px solid #604a18;
-  border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,.45);
-  display:none;
-}
-#adminLoginPanel h2{
-  margin:0 0 10px;
-  color:#ffd76a;
-}
-#adminLoginPanel input{
-  width:100%;
-  box-sizing:border-box;
-  margin:7px 0;
-  padding:11px;
-  border-radius:8px;
-}
-#adminStatus{
-  min-height:20px;
-  color:#ffd76a;
-  margin-top:8px;
-  font-size:13px;
-}
-.admin-only{
-  display:none !important;
-}
-body.admin-mode .admin-only{
-  display:block !important;
-}
-body.admin-mode .song .admin-only,
-body.admin-mode .actions .admin-only{
-  display:inline-block !important;
-}
-body.admin-mode #adminLoginPanel{
-  display:none !important;
-}
-@media(max-width:650px){
-  #authBar{justify-content:center;flex-wrap:wrap}
-}
-
+body:not(.admin-mode) .admin-only,
 body:not(.admin-mode) #newArtistPanel,
-body:not(.admin-mode) #editArtistPanel,
-body:not(.admin-mode) .admin-only{
+body:not(.admin-mode) #editArtistPanel{
   display:none !important;
 }
 </style>
 </head>
 
 <body>
-
-<div id="authBar">
-  <span id="adminBadge" class="admin-badge" style="display:none">ADMIN MODE</span>
-  <button id="loginButton" class="auth-btn" onclick="openAdminLogin()">🔐 Admin Login</button>
-  <button id="logoutButton" class="auth-btn" onclick="adminLogout()" style="display:none">Log Out</button>
-</div>
-
-<div id="adminLoginPanel">
-  <h2>🔐 Jassiah Admin</h2>
-  <div style="color:#aaa;font-size:13px;margin-bottom:10px">
-    Sign in to manage songs and artist profiles.
-  </div>
-
-  <input id="adminEmail" type="email" placeholder="Email">
-  <input id="adminPassword" type="password" placeholder="Password">
-
-  <button
-    onclick="adminLogin()"
-    style="
-      background:linear-gradient(135deg,#f0c653,#9d7014);
-      color:#111;
-      border:0;
-      border-radius:8px;
-      padding:10px 15px;
-      font-weight:bold;
-      cursor:pointer;
-    "
-  >
-    Log In
-  </button>
-
-  <button
-    onclick="closeAdminLogin()"
-    style="
-      background:#333;
-      color:#fff;
-      border:0;
-      border-radius:8px;
-      padding:10px 15px;
-      font-weight:bold;
-      cursor:pointer;
-      margin-left:6px;
-    "
-  >
-    Cancel
-  </button>
-
-  <div id="adminStatus"></div>
-</div>
-
 
 <div class="wrap">
 
@@ -538,7 +419,7 @@ body:not(.admin-mode) .admin-only{
 
 
 
-<div class="admin-only panel" id="newArtistPanel">
+<div class="panel" id="newArtistPanel">
   <h2>🎤 Create Artist Profile</h2>
 
   <input
@@ -587,7 +468,7 @@ body:not(.admin-mode) .admin-only{
 </div>
 
 
-<div class="admin-only panel" id="editArtistPanel" style="display:none">
+<div class="panel" id="editArtistPanel" style="display:none">
   <h2>✏️ Edit Artist Profile</h2>
 
   <input
@@ -646,7 +527,7 @@ body:not(.admin-mode) .admin-only{
   ></div>
 </div>
 
-<div class="panel admin-only">
+<div class="panel">
   <h2>♫ Add New Song</h2>
 
   <input id="songTitle" type="text" placeholder="Song title">
@@ -956,6 +837,7 @@ const SUPABASE_KEY="sb_publishable_O0oXTHsPLxZGD2Wo5ayouw_-a9zJKgn";
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const BUCKET="music";
 
+let currentUser=null;
 let songs=[];
 let currentIndex=-1;
 let shuffle=false;
@@ -963,13 +845,11 @@ let repeat=false;
 let favorites=JSON.parse(localStorage.getItem("jassiahFavorites")||"[]").map(Number);
 let favoritesOnly=false;
 let playlists=JSON.parse(localStorage.getItem("jassiahPlaylists")||"{}");
-let artistProfiles={};
+let artistProfiles=[];
 let playlistQueue=null;
 let albums=JSON.parse(localStorage.getItem("jassiahAlbums")||"{}");
 let albumQueue=null;
 let featuredSongId=Number(localStorage.getItem("jassiahFeaturedSong")||0);
-let currentUser=null;
-let authLoading=true;
 
 const player=document.getElementById("playerAudio");
 const playButton=document.getElementById("playButton");
@@ -1083,7 +963,7 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
-<button class="admin-only"
+<button
             onclick="addSongToAlbum(${song.id})"
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
@@ -1097,7 +977,7 @@ function renderSongs(list){
             ⭐ Set Featured
           </button>
 
-          <button class="admin-only"
+          <button
             onclick="addSongToPlaylist(${song.id})"
             style="
               background:#111;
@@ -1120,12 +1000,12 @@ function renderSongs(list){
             ${favorites.includes(Number(song.id)) ? "♥ Favorited" : "♡ Favorite"}
           </button>
 
-          <button class="edit admin-only"
+          <button class="edit"
                   onclick="showEdit(${song.id})">
             ✏️ Edit
           </button>
 
-          <button class="delete admin-only"
+          <button class="delete"
                   onclick="deleteSong(${song.id})">
             🗑 Delete
           </button>
@@ -2248,21 +2128,25 @@ window.currentArtistSongs=[];
 
 
 
-function openArtistPage(artistName){
-  const name=String(artistName||"").trim();
 
-  if(!artistProfiles[name]){
-    alert("This artist does not have an artist profile yet.");
+function openArtistPage(artistName){
+  const profile=artistProfiles.find(
+    p=>String(p.name).toLowerCase()===String(artistName).toLowerCase()
+  );
+
+  if(!profile){
+    alert("Artist profile not found.");
     return;
   }
 
+  const name=profile.name;
   const artistSongs=songsForArtist(name);
 
   const page=document.getElementById("artistPage");
   const hero=document.getElementById("artistHero");
   const list=document.getElementById("artistSongList");
 
-  if(!page || !hero || !list){
+  if(!page||!hero||!list){
     alert("Artist page is not available.");
     return;
   }
@@ -2270,16 +2154,8 @@ function openArtistPage(artistName){
   window.currentArtistName=name;
   window.currentArtistSongs=artistSongs;
 
-  const profile=artistProfiles.find(
-    p=>String(p.name).toLowerCase()===name.toLowerCase()
-  ) || {};
-
-  const fallback=
-    document.querySelector(".logo")?.src ||
-    document.querySelector("header img")?.src ||
-    "";
-
-  const image=profile.image_url || fallback;
+  const fallback=document.querySelector(".logo")?.src||"";
+  const image=profile.image_url||fallback;
 
   hero.innerHTML=`
     <img
@@ -2287,47 +2163,34 @@ function openArtistPage(artistName){
       onerror="this.src='${escapeJs(fallback)}'"
       alt="${escapeHtml(name)}"
       style="
-        width:160px;
-        height:160px;
-        object-fit:cover;
-        border-radius:50%;
-        border:3px solid #d6a83c;
+        width:170px;height:170px;object-fit:cover;
+        border-radius:50%;border:3px solid #d6a83c;
         box-shadow:0 0 25px rgba(214,168,60,.25);
         flex-shrink:0;
       "
     >
 
     <div style="flex:1;min-width:0">
-
-      <div style="
-        color:#ad9457;
-        font-size:11px;
-        letter-spacing:3px;
-        font-weight:bold;
-      ">
+      <div style="color:#ae9558;font-size:11px;letter-spacing:3px;font-weight:bold">
         ARTIST PROFILE
       </div>
 
       <div style="
         color:#ffd76a;
-        font:italic 46px Georgia,serif;
+        font:italic 48px Georgia,serif;
         margin-top:5px;
         word-break:break-word;
       ">
         ${escapeHtml(name)}
       </div>
 
-      <div style="color:#aaa;margin-top:6px">
+      <div style="color:#aaa;margin-top:7px">
         ${artistSongs.length}
         song${artistSongs.length===1?"":"s"}
       </div>
 
-      <div style="
-        color:#777;
-        font-size:11px;
-        margin-top:7px;
-      ">
-        Collaborations stay listed in their original song credits.
+      <div style="color:#777;font-size:11px;margin-top:7px">
+        Featured artists stay in the original song credit.
       </div>
 
       <button
@@ -2335,69 +2198,48 @@ function openArtistPage(artistName){
         style="
           margin-top:13px;
           background:linear-gradient(135deg,#f0c653,#9d7014);
-          color:#111;
-          border:0;
-          border-radius:8px;
-          padding:10px 16px;
-          font-weight:bold;
-          cursor:pointer;
+          color:#111;border:0;border-radius:8px;
+          padding:10px 16px;font-weight:bold;cursor:pointer;
         "
       >
         ▶ Play All
       </button>
 
-      <button class="admin-only"
+      <button
+        class="admin-only"
         onclick="openEditArtist('${escapeJs(name)}')"
         style="
           margin-top:13px;
           margin-left:6px;
-          background:#111;
-          color:#ffd76a;
-          border:1px solid #9f741c;
-          border-radius:8px;
-          padding:10px 15px;
-          font-weight:bold;
-          cursor:pointer;
+          background:#111;color:#ffd76a;
+          border:1px solid #9f741c;border-radius:8px;
+          padding:10px 15px;font-weight:bold;cursor:pointer;
         "
       >
         ✏️ Edit Artist
       </button>
-
     </div>
   `;
 
   list.innerHTML=artistSongs.length
     ? artistSongs.map(song=>{
-        const index=songs.findIndex(
+        const i=songs.findIndex(
           s=>Number(s.id)===Number(song.id)
         );
 
         return `
           <div style="
-            display:flex;
-            align-items:center;
-            gap:12px;
-            padding:11px 0;
-            border-bottom:1px solid #222;
+            display:flex;align-items:center;gap:12px;
+            padding:11px 0;border-bottom:1px solid #222;
           ">
-
             <img
               src="${escapeHtml(song.cover_url||image)}"
               onerror="this.src='${escapeJs(image)}'"
               alt=""
-              style="
-                width:64px;
-                height:64px;
-                object-fit:cover;
-                border-radius:8px;
-              "
+              style="width:64px;height:64px;object-fit:cover;border-radius:8px"
             >
 
-            <div style="
-              flex:1;
-              min-width:0;
-            ">
-
+            <div style="flex:1;min-width:0">
               <div style="
                 font-weight:bold;
                 white-space:nowrap;
@@ -2407,73 +2249,39 @@ function openArtistPage(artistName){
                 ${escapeHtml(song.title||"Untitled")}
               </div>
 
-              <div style="
-                color:#ffd76a;
-                font-size:12px;
-                margin-top:3px;
-                word-break:break-word;
-              ">
-                ${escapeHtml(song.artist||"Unknown Artist")}
+              <div style="color:#ffd76a;font-size:12px;margin-top:3px;word-break:break-word">
+                ${escapeHtml(song.artist||name)}
               </div>
-
             </div>
 
             <button
-              onclick="playSong(${index})"
+              onclick="playSong(${i})"
               style="
-                width:40px;
-                height:40px;
-                border-radius:50%;
-                background:#ffd76a;
-                color:#111;
-                border:0;
-                font-weight:bold;
-                cursor:pointer;
+                width:40px;height:40px;border-radius:50%;
+                background:#ffd76a;color:#111;border:0;font-weight:bold;cursor:pointer
               "
-              title="Play"
-            >
-              ▶
-            </button>
-
+            >▶</button>
           </div>
         `;
       }).join("")
-    : `
-      <div style="
-        text-align:center;
-        color:#999;
-        padding:25px;
-      ">
-        No songs have been added for this artist yet.
-      </div>
-    `;
+    : '<div style="color:#888;padding:20px">No songs are attached to this artist yet.</div>';
+
+  updateAdminVisibility();
 
   [
-    "homeDashboard",
-    "featuredPanel",
-    "recentPanel",
-    "playlistPanel",
-    "albumPanel",
-    "favoriteSection",
-    "artistsPanel",
-    "songsPanel",
-    "newArtistPanel",
-    "editArtistPanel"
+    "homeDashboard","featuredPanel","recentPanel",
+    "playlistPanel","albumPanel","favoriteSection",
+    "artistsPanel","songsPanel","newArtistPanel","editArtistPanel"
   ].forEach(id=>{
     const el=document.getElementById(id);
-
-    if(el){
+    if(el && id!=="artistPage"){
       el.dataset.artistHidden="1";
       el.style.display="none";
     }
   });
 
   page.style.display="block";
-
-  page.scrollIntoView({
-    behavior:"smooth",
-    block:"start"
-  });
+  page.scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 function playArtistSong(index){
@@ -2484,6 +2292,7 @@ function playArtistSong(index){
 
   playSong(index);
 }
+
 
 
 function playArtistAll(){
@@ -2539,24 +2348,33 @@ function closeArtistPage(){
 
 
 
+
 function songsForArtist(artistName){
   const name=String(artistName||"").trim().toLowerCase();
 
   if(!name)return [];
 
   return songs.filter(song=>{
-    const credited=String(song.artist||"").trim().toLowerCase();
+    const credit=String(song.artist||"").trim().toLowerCase();
 
-    return credited===name || credited.startsWith(name+" ft") ||
-      credited.startsWith(name+" feat") ||
-      credited.startsWith(name+" featuring") ||
-      credited.startsWith(name+" &") ||
-      credited.startsWith(name+" x") ||
-      credited.startsWith(name+" with");
+    return (
+      credit===name ||
+      credit.startsWith(name+" ft") ||
+      credit.startsWith(name+" feat") ||
+      credit.startsWith(name+" featuring") ||
+      credit.startsWith(name+" &") ||
+      credit.startsWith(name+" x") ||
+      credit.startsWith(name+" with")
+    );
   });
 }
 
 function openEditArtist(name){
+  if(typeof currentUser==="undefined" || !currentUser){
+    alert("Please log in as admin first.");
+    return;
+  }
+
   const profile=artistProfiles.find(
     p=>String(p.name).toLowerCase()===String(name).toLowerCase()
   );
@@ -2566,7 +2384,7 @@ function openEditArtist(name){
     return;
   }
 
-  artistBeingEdited=profile.name;
+  artistBeingEdited=profile.id;
 
   const panel=document.getElementById("editArtistPanel");
   const nameInput=document.getElementById("editArtistName");
@@ -2577,69 +2395,63 @@ function openEditArtist(name){
 
   nameInput.value=profile.name;
   imageInput.value="";
-
-  if(message){
-    message.textContent=
-      "Editing "+profile.name;
-  }
+  if(message)message.textContent="";
 
   panel.style.display="block";
-
-  panel.scrollIntoView({
-    behavior:"smooth",
-    block:"center"
-  });
+  panel.scrollIntoView({behavior:"smooth",block:"center"});
+  nameInput.focus();
 }
 
-
 async function saveArtistProfile(){
-  if(!currentUser){
-    alert("Please log in as admin to edit an artist.");
+  if(typeof currentUser==="undefined" || !currentUser){
+    alert("Please log in as admin first.");
     return;
   }
 
-  const oldName=artistBeingEdited;
+  const profile=artistProfiles.find(
+    p=>Number(p.id)===Number(artistBeingEdited)
+  );
+
   const nameInput=document.getElementById("editArtistName");
   const imageInput=document.getElementById("editArtistImage");
   const message=document.getElementById("editArtistMessage");
 
-  const newName=nameInput.value.trim();
-
-  if(!oldName){
-    message.textContent="Select an artist first.";
+  if(!profile){
+    if(message)message.textContent="Artist profile not found.";
     return;
   }
+
+  const newName=nameInput.value.trim();
 
   if(!newName){
     message.textContent="Please enter the artist name.";
     return;
   }
 
-  const current=artistProfiles.find(
-    p=>String(p.name).toLowerCase()===oldName.toLowerCase()
+  const duplicate=artistProfiles.find(
+    p=>Number(p.id)!==Number(profile.id) &&
+       String(p.name).toLowerCase()===newName.toLowerCase()
   );
 
-  if(!current){
-    message.textContent="Artist profile not found.";
+  if(duplicate){
+    message.textContent="Another artist already uses that name.";
     return;
   }
 
   try{
-    message.textContent="Saving artist profile...";
+    message.textContent="Saving...";
 
-    let imageUrl=current.image_url || null;
+    let imageUrl=profile.image_url||null;
 
     if(imageInput.files.length){
       const file=imageInput.files[0];
-
-      const path=
-        "artists/"+Date.now()+"_"+cleanName(file.name);
+      const path="artists/"+Date.now()+"_"+cleanName(file.name);
 
       const {error:uploadError}=await client.storage
         .from("artist-images")
         .upload(path,file,{
           upsert:false,
-          contentType:file.type
+          contentType:file.type||"image/jpeg"
         });
 
       if(uploadError){
@@ -2652,71 +2464,94 @@ async function saveArtistProfile(){
         client.storage
           .from("artist-images")
           .getPublicUrl(path)
-          .data.publicUrl;
+          .data
+          .publicUrl;
     }
 
-    const {error:updateError}=await client
+    const {error}=await client
       .from("artist_profiles")
       .update({
         name:newName,
         image_url:imageUrl
       })
-      .eq("id",current.id);
+      .eq("id",profile.id);
 
-    if(updateError){
+    if(error){
       message.textContent=
-        "Could not update artist: "+updateError.message;
+        "Could not update artist: "+error.message;
       return;
     }
 
     /*
-      If the artist name changed, update the songs that begin with
-      the old primary artist name. The rest of the credit stays intact.
-
+      Keep the full feat credit, but update the PRIMARY artist name.
       Example:
-      "Jamil Landin ft. Charlie" -> "Jamil Landin Jr. ft. Charlie"
+      Jamil Landin ft. Keyz -> Jamil Landin Jr. ft. Keyz
     */
-    if(oldName!==newName){
+    if(profile.name!==newName){
       const affected=songs.filter(song=>{
         const credit=String(song.artist||"").trim();
+        const old=String(profile.name).trim();
+
+        const low=credit.toLowerCase();
+        const oldLow=old.toLowerCase();
+
         return (
-          credit.toLowerCase()===oldName.toLowerCase() ||
-          credit.toLowerCase().startsWith(oldName.toLowerCase()+" ft") ||
-          credit.toLowerCase().startsWith(oldName.toLowerCase()+" feat") ||
-          credit.toLowerCase().startsWith(oldName.toLowerCase()+" featuring") ||
-          credit.toLowerCase().startsWith(oldName.toLowerCase()+" &") ||
-          credit.toLowerCase().startsWith(oldName.toLowerCase()+" x")
+          low===oldLow ||
+          low.startsWith(oldLow+" ft") ||
+          low.startsWith(oldLow+" feat") ||
+          low.startsWith(oldLow+" featuring") ||
+          low.startsWith(oldLow+" &") ||
+          low.startsWith(oldLow+" x") ||
+          low.startsWith(oldLow+" with")
         );
       });
 
       for(const song of affected){
         const credit=String(song.artist||"");
-        const replacement=
-          newName+credit.slice(oldName.length);
+        const updated=
+          newName+credit.slice(String(profile.name).length);
 
         await client
           .from("songs")
-          .update({artist:replacement})
+          .update({artist:updated})
           .eq("id",song.id);
       }
     }
 
-    message.textContent=
-      "Artist profile updated successfully! 🎤";
-
-    nameInput.value="";
-    imageInput.value="";
+    artistBeingEdited=null;
     panelHideEditArtist();
 
     await loadArtistProfiles();
-    await loadArtistProfiles();
-loadSongs();
+    await loadSongs();
+
+    message.textContent=
+      "Artist profile updated! 🎤";
 
   }catch(error){
     console.error(error);
     message.textContent=
       "Could not update artist: "+error.message;
   }
+}
+
+function panelHideEditArtist(){
+  const panel=document.getElementById("editArtistPanel");
+
+  if(panel){
+    panel.style.display="none";
+  }
+
+  artistBeingEdited=null;
+}
+
+function panelHideEditArtist(){
+  const panel=document.getElementById("editArtistPanel");
+
+  if(panel){
+    panel.style.display="none";
+  }
+
+  artistBeingEdited=null;
 }
 
 function panelHideEditArtist(){
@@ -2740,9 +2575,10 @@ function cancelEditArtist(){
 }
 
 
+async 
 async function createArtistProfile(){
-  if(!currentUser){
-    alert("Please log in as admin to create an artist.");
+  if(typeof currentUser==="undefined" || !currentUser){
+    alert("Please log in as admin first.");
     return;
   }
 
@@ -2762,33 +2598,34 @@ async function createArtistProfile(){
     return;
   }
 
+  const already=artistProfiles.find(
+    p=>String(p.name).toLowerCase()===name.toLowerCase()
+  );
+
+  if(already){
+    message.textContent="That artist profile already exists.";
+    return;
+  }
+
   message.textContent="Uploading artist picture...";
 
   try{
-    const existing=artistProfiles.find?.(
-      p=>String(p.name).toLowerCase()===name.toLowerCase()
-    );
-
-    if(existing){
-      message.textContent="That artist profile already exists.";
-      return;
-    }
-
     const file=imageInput.files[0];
+    const safeName=cleanName(file.name);
 
     const path=
-      "artists/"+Date.now()+"_"+cleanName(file.name);
+      "artists/"+Date.now()+"_"+safeName;
 
     const {error:uploadError}=await client.storage
       .from("artist-images")
       .upload(path,file,{
         upsert:false,
-        contentType:file.type
+        contentType:file.type||"image/jpeg"
       });
 
     if(uploadError){
       message.textContent=
-        "Artist picture upload failed: "+uploadError.message;
+        "Picture upload failed: "+uploadError.message;
       return;
     }
 
@@ -2796,7 +2633,8 @@ async function createArtistProfile(){
       client.storage
         .from("artist-images")
         .getPublicUrl(path)
-        .data.publicUrl;
+        .data
+        .publicUrl;
 
     const {error:dbError}=await client
       .from("artist_profiles")
@@ -2811,11 +2649,10 @@ async function createArtistProfile(){
       return;
     }
 
-    message.textContent=
-      "Artist profile created! 🎤";
-
     nameInput.value="";
     imageInput.value="";
+    message.textContent=
+      "Artist profile created! 🎤";
 
     await loadArtistProfiles();
 
@@ -2848,19 +2685,19 @@ async function loadArtistProfiles(){
 
   artistProfiles=data||[];
   renderArtists();
+  renderHomeDashboard();
 }
 
 function renderArtists(){
   const grid=document.getElementById("artistsGrid");
   if(!grid)return;
 
-  const datalist=document.getElementById("artistNames");
-
   const profileNames=artistProfiles
-    .map(profile=>profile.name)
-    .filter(name=>String(name||"").trim())
+    .filter(p=>String(p.name||"").trim())
+    .map(p=>p.name)
     .sort((a,b)=>a.localeCompare(b));
 
+  const datalist=document.getElementById("artistNames");
   if(datalist){
     datalist.innerHTML=profileNames.map(name=>
       `<option value="${escapeHtml(name)}"></option>`
@@ -2869,7 +2706,7 @@ function renderArtists(){
 
   if(!profileNames.length){
     grid.innerHTML=
-      '<div style="color:#888">No artist profiles yet.</div>';
+      '<div style="color:#888">No artist profiles yet. Create one while logged in as admin.</div>';
     return;
   }
 
@@ -2878,12 +2715,12 @@ function renderArtists(){
       p=>String(p.name).toLowerCase()===String(name).toLowerCase()
     );
 
-    const artistSongs=songsForArtist(name);
-
     const image=
       profile?.image_url ||
       document.querySelector(".logo")?.src ||
       "";
+
+    const count=songsForArtist(name).length;
 
     return `
       <div style="
@@ -2895,7 +2732,7 @@ function renderArtists(){
 
         <img
           src="${escapeHtml(image)}"
-          onerror="this.style.opacity='0.2'"
+          onerror="this.style.opacity='.2'"
           alt="${escapeHtml(name)}"
           style="
             width:100%;
@@ -2919,8 +2756,7 @@ function renderArtists(){
           </div>
 
           <div style="color:#999;font-size:12px;margin-top:4px">
-            ${artistSongs.length}
-            song${artistSongs.length===1?"":"s"}
+            ${count} song${count===1?"":"s"}
           </div>
 
           <button
@@ -2940,44 +2776,50 @@ function renderArtists(){
             View Artist
           </button>
 
-          <button
-            onclick="openEditArtist('${escapeJs(name)}')"
-            style="
-              margin-top:7px;
-              width:100%;
-              background:#111;
-              color:#ffd76a;
-              border:1px solid #9f741c;
-              border-radius:7px;
-              padding:8px;
-              font-weight:bold;
-              cursor:pointer;
-            "
-          >
-            ✏️ Edit Artist
-          </button>
+          <div class="admin-only">
 
-          <button
-            onclick="deleteArtistProfile('${escapeJs(name)}')"
-            style="
-              margin-top:7px;
-              width:100%;
-              background:#111;
-              color:#ff7568;
-              border:1px solid #8d382f;
-              border-radius:7px;
-              padding:8px;
-              font-weight:bold;
-              cursor:pointer;
-            "
-          >
-            🗑 Delete Artist
-          </button>
+            <button
+              onclick="openEditArtist('${escapeJs(name)}')"
+              style="
+                margin-top:7px;
+                width:100%;
+                background:#111;
+                color:#ffd76a;
+                border:1px solid #9f741c;
+                border-radius:7px;
+                padding:8px;
+                font-weight:bold;
+                cursor:pointer;
+              "
+            >
+              ✏️ Edit Artist
+            </button>
+
+            <button
+              onclick="deleteArtistProfile('${escapeJs(name)}')"
+              style="
+                margin-top:7px;
+                width:100%;
+                background:#111;
+                color:#ff7568;
+                border:1px solid #8d382f;
+                border-radius:7px;
+                padding:8px;
+                font-weight:bold;
+                cursor:pointer;
+              "
+            >
+              🗑 Delete Artist
+            </button>
+
+          </div>
 
         </div>
       </div>
     `;
   }).join("");
+
+  updateAdminVisibility();
 }
 
 function playArtistByName(name){
@@ -3114,11 +2956,6 @@ function hideEdit(id){
 }
 
 async function saveEdit(id){
-  if(!currentUser){
-    alert("Please log in as admin to edit songs.");
-    return;
-  }
-
   const title=
     document.getElementById("edit-title-"+id)
       .value.trim();
@@ -3174,11 +3011,6 @@ loadSongs();
 }
 
 async function uploadSong(){
-  if(!currentUser){
-    alert("Please log in as admin to upload a song.");
-    return;
-  }
-
   const title=
     document.getElementById("songTitle")
       .value.trim();
@@ -3280,11 +3112,6 @@ async function uploadSong(){
 }
 
 async function deleteSong(id){
-  if(!currentUser){
-    alert("Please log in as admin to delete songs.");
-    return;
-  }
-
   if(!confirm("Are you sure you want to delete this song?"))return;
 
   const {error}=await client
@@ -3300,51 +3127,14 @@ async function deleteSong(id){
   await loadSongs();
 }
 
+loadArtistProfiles();
 loadSongs();
 
 
-function setAdminMode(user){
-  currentUser=user||null;
-  document.body.classList.toggle("admin-mode",!!currentUser);
-
-  const loginButton=document.getElementById("loginButton");
-  const logoutButton=document.getElementById("logoutButton");
-  const badge=document.getElementById("adminBadge");
-
-  if(loginButton)loginButton.style.display=currentUser?"none":"inline-block";
-  if(logoutButton)logoutButton.style.display=currentUser?"inline-block":"none";
-  if(badge)badge.style.display=currentUser?"inline-block":"none";
-
-  [
-    "newArtistPanel",
-    "editArtistPanel"
-  ].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){
-      el.style.display=currentUser ? "" : "none";
-    }
-  });
-
-  const adminPanel=document.querySelector(".admin-only:not(#newArtistPanel):not(#editArtistPanel)");
-  document.querySelectorAll(".admin-only").forEach(el=>{
-    if(el.id!=="newArtistPanel" && el.id!=="editArtistPanel"){
-      el.style.display=currentUser ? "" : "none";
-    }
-  });
-
-  renderSongs(songs);
-  renderArtists();
-  renderHomeDashboard();
-}
 
 function openAdminLogin(){
   const panel=document.getElementById("adminLoginPanel");
-  const status=document.getElementById("adminStatus");
-
-  if(status)status.textContent="";
   if(panel)panel.style.display="block";
-
-  document.getElementById("adminEmail")?.focus();
 }
 
 function closeAdminLogin(){
@@ -3357,7 +3147,7 @@ async function adminLogin(){
   const password=document.getElementById("adminPassword")?.value;
   const status=document.getElementById("adminStatus");
 
-  if(!email || !password){
+  if(!email||!password){
     if(status)status.textContent="Enter your email and password.";
     return;
   }
@@ -3365,45 +3155,60 @@ async function adminLogin(){
   if(status)status.textContent="Logging in...";
 
   const {data,error}=await client.auth.signInWithPassword({
-    email,
-    password
+    email,password
   });
 
   if(error){
-    console.error(error);
     if(status)status.textContent="Login failed: "+error.message;
     return;
   }
 
-  setAdminMode(data.user);
+  currentUser=data.user;
+  updateAdminVisibility();
   closeAdminLogin();
-
-  if(status)status.textContent="";
+  renderArtists();
 }
 
 async function adminLogout(){
   await client.auth.signOut();
-  setAdminMode(null);
+  currentUser=null;
+  updateAdminVisibility();
+  renderArtists();
 }
 
 async function initializeAuth(){
-  try{
-    const {data}=await client.auth.getSession();
+  const {data}=await client.auth.getSession();
+  currentUser=data?.session?.user||null;
+  updateAdminVisibility();
 
-    setAdminMode(data?.session?.user || null);
-
-    client.auth.onAuthStateChange((_event,session)=>{
-      setAdminMode(session?.user || null);
-    });
-  }catch(error){
-    console.error("Auth initialization error:",error);
-    setAdminMode(null);
-  }finally{
-    authLoading=false;
-  }
+  client.auth.onAuthStateChange((_event,session)=>{
+    currentUser=session?.user||null;
+    updateAdminVisibility();
+  });
 }
 
-initializeAuth();
+function updateAdminVisibility(){
+  const loggedIn=!!currentUser;
+
+  document.querySelectorAll(".admin-only").forEach(el=>{
+    el.style.display=loggedIn ? "" : "none";
+  });
+
+  const loginButton=document.getElementById("loginButton");
+  const logoutButton=document.getElementById("logoutButton");
+  const badge=document.getElementById("adminBadge");
+
+  if(loginButton)loginButton.style.display=loggedIn?"none":"inline-block";
+  if(logoutButton)logoutButton.style.display=loggedIn?"inline-block":"none";
+  if(badge)badge.style.display=loggedIn?"inline-block":"none";
+
+  const newArtist=document.getElementById("newArtistPanel");
+  const editArtist=document.getElementById("editArtistPanel");
+
+  if(newArtist)newArtist.style.display=loggedIn?"block":"none";
+  if(editArtist && !loggedIn)editArtist.style.display="none";
+}
+
 </script>
 
 </body>
