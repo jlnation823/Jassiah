@@ -614,6 +614,21 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   .jc-head,.jc-row{min-width:720px}.jc-table{overflow-x:auto}
   .jc-admin-grid{grid-template-columns:1fr}.jc-detail{flex-direction:column;align-items:flex-start}.jc-detail img{width:140px;height:140px}
 }
+
+/* USER REQUEST: no extra large play buttons beside song rows */
+.jc-song-cell .jc-play-small,
+.jx-row-play,
+.jx-artist-play{
+  display:none!important;
+}
+.jc-song-cell{
+  position:relative!important;
+  padding-right:0!important;
+}
+#jcDeleteArtist{
+  width:100%;
+  box-sizing:border-box;
+}
 </style>
 </head>
 
@@ -1204,9 +1219,13 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 
           <div class="jc-admin-card">
             <h3>🗑️ Delete Artist</h3>
-            <select id="jcDeleteArtist"></select>
+            <label>Artist name</label>
+            <input id="jcDeleteArtist" list="jcDeleteArtistList"
+              placeholder="Type artist name...">
+            <datalist id="jcDeleteArtistList"></datalist>
             <button class="jc-admin-btn jc-admin-danger" onclick="jcDeleteArtist()">Delete Artist Profile</button>
             <div class="jc-muted" style="font-size:11px;margin-top:6px">Songs remain on the site.</div>
+            <div id="jcDeleteArtistStatus" class="jc-admin-status"></div>
           </div>
 
           <div class="jc-admin-card" style="grid-column:1/-1">
@@ -3923,7 +3942,6 @@ initializeAuth();
               <div class="jc-song-title">${esc(song.title||"Untitled")}</div>
               <div class="jc-song-credit">${esc(song.artist||"Unknown Artist")}</div>
             </div>
-            <button class="jc-play-small" type="button" onclick="event.stopPropagation();playSong(${idx})">▶</button>
           </div>
           <div class="jc-artist-cell" onclick="event.stopPropagation();jcOpenArtist('${jsEsc(artist)}')">${esc(song.artist||"Unknown Artist")}</div>
           <div class="jc-date">${esc(added(song))}</div>
@@ -4394,6 +4412,113 @@ initializeAuth();
     setTimeout(bindLoginButton,300);
     setTimeout(bindLoginButton,1200);
   });
+})();
+</script>
+
+<script id="jassiah-exact-user-fixes">
+(function(){
+
+  /* ---------- Delete Artist: searchable ---------- */
+  function refreshDeleteArtistList(){
+    const list=document.getElementById("jcDeleteArtistList");
+    if(!list)return;
+
+    const names = typeof artistNames==="function"
+      ? artistNames()
+      : Object.keys(
+          (typeof artistProfiles!=="undefined"&&artistProfiles)
+            ? artistProfiles : {}
+        ).sort((a,b)=>a.localeCompare(b));
+
+    list.innerHTML=names.map(name=>
+      `<option value="${escapeHtml(name)}"></option>`
+    ).join("");
+  }
+
+  /* Replace the old select-based delete routine. */
+  window.jcDeleteArtist=function(){
+    const status=document.getElementById("jcDeleteArtistStatus");
+    const input=document.getElementById("jcDeleteArtist");
+    const name=(input?.value||"").trim();
+
+    if(typeof currentUser==="undefined" || !currentUser){
+      if(status)status.textContent="Please log in as admin first.";
+      return;
+    }
+
+    if(!name){
+      if(status)status.textContent="Type an artist name.";
+      return;
+    }
+
+    const profilesMap=(
+      typeof artistProfiles!=="undefined"&&artistProfiles
+    ) ? artistProfiles : {};
+
+    const exact=Object.keys(profilesMap).find(
+      n=>n.toLowerCase()===name.toLowerCase()
+    );
+
+    if(!exact){
+      if(status)status.textContent="Artist not found. Check the name.";
+      return;
+    }
+
+    if(!confirm('Delete artist profile "'+exact+'"?'))return;
+
+    delete profilesMap[exact];
+
+    localStorage.setItem(
+      "jassiahArtistProfiles",
+      JSON.stringify(profilesMap)
+    );
+
+    if(status)status.textContent="Artist profile deleted.";
+    if(input)input.value="";
+
+    refreshDeleteArtistList();
+
+    if(typeof renderHome==="function")renderHome();
+    if(typeof renderArtists==="function")renderArtists();
+  };
+
+  /* ---------- Security/session state ----------
+     A visitor's browser session is separate from the admin's browser.
+     We explicitly initialize currentUser from Supabase here so we don't
+     accidentally treat a stale client-side variable as an admin session. */
+  async function syncAdminSession(){
+    try{
+      if(typeof client==="undefined" || !client.auth)return;
+
+      const {data,error}=await client.auth.getSession();
+      if(error){
+        console.warn("Auth session check:",error.message);
+        return;
+      }
+
+      currentUser=data?.session?.user||null;
+
+      const button=document.getElementById("jcAdminButton");
+
+      if(button){
+        button.textContent=currentUser
+          ? "⚙ Admin Hub"
+          : "🔐 Admin Login";
+      }
+    }catch(error){
+      console.warn("Auth initialization:",error);
+    }
+  }
+
+  /* ---------- Startup ---------- */
+  document.addEventListener("DOMContentLoaded",()=>{
+    refreshDeleteArtistList();
+    syncAdminSession();
+
+    /* Keep the searchable list current after Supabase/local data loads. */
+    setTimeout(refreshDeleteArtistList,1200);
+  });
+
 })();
 </script>
 </body>
