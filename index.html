@@ -356,50 +356,6 @@ audio{width:100%;height:40px}
   .home-stats{grid-template-columns:repeat(2,1fr)}
   .site-nav{overflow-x:auto;flex-wrap:nowrap}
 }
-
-/* PUBLIC SITE: VIEW/LISTEN ONLY */
-#newArtistPanel,
-#editArtistPanel,
-.panel:has(#musicFile){
-  display:none !important;
-}
-
-/* Hide management buttons while keeping visitor playback/favorites. */
-.actions button:not(.favoriteSongBtn){
-  display:none !important;
-}
-
-/* Playlist management is hidden; playback remains available. */
-#playlistPanel button[onclick^="createPlaylist"]{
-  display:none !important;
-}
-#playlistPanel button[onclick^="deletePlaylist"],
-#playlistPanel button[onclick^="removeFromPlaylist"],
-#playlistPanel button[onclick^="addSongToPlaylist"]{
-  display:none !important;
-}
-
-/* Album management is hidden; playback remains available. */
-#albumPanel button[onclick^="createAlbum"],
-#albumPanel button[onclick^="deleteAlbum"],
-#albumPanel button[onclick^="removeSongFromAlbum"],
-#albumPanel button[onclick^="addSongToAlbum"]{
-  display:none !important;
-}
-
-/* Artist management is hidden; viewing remains available. */
-#artistsPanel button[onclick^="openEditArtist"],
-#artistPage button[onclick^="openEditArtist"],
-#artistsPanel button[onclick^="deleteArtistProfile"],
-#artistPage button[onclick^="deleteArtistProfile"],
-#artistsPanel button[onclick^="selectArtistForSong"]{
-  display:none !important;
-}
-
-/* Featured-song management is hidden; play remains available. */
-button[onclick^="setFeaturedSong"]{
-  display:none !important;
-}
 </style>
 </head>
 
@@ -411,7 +367,7 @@ button[onclick^="setFeaturedSong"]{
   <div class="home-shell">
     <div class="home-kicker">WELCOME TO</div>
     <div class="home-title">Jassiah Music</div>
-    <div class="home-subtitle">Listen, browse artists, favorites, playlists and albums.</div>
+    <div class="home-subtitle">Your music. Your favorites. Your world.</div>
 
     <div class="home-actions">
       <button class="home-primary" onclick="playFeaturedFromHome()">▶ Play Featured</button>
@@ -881,7 +837,7 @@ let repeat=false;
 let favorites=JSON.parse(localStorage.getItem("jassiahFavorites")||"[]").map(Number);
 let favoritesOnly=false;
 let playlists=JSON.parse(localStorage.getItem("jassiahPlaylists")||"{}");
-let artistProfiles=JSON.parse(localStorage.getItem("jassiahArtistProfiles")||"{}");
+let artistProfiles={};
 let playlistQueue=null;
 let albums=JSON.parse(localStorage.getItem("jassiahAlbums")||"{}");
 let albumQueue=null;
@@ -954,6 +910,7 @@ async function loadSongs(){
   renderArtists();
   renderFavoriteSongs();
   renderHomeDashboard();
+  await loadArtistProfiles();
   renderHomeDashboard();
 }
 
@@ -2185,13 +2142,16 @@ function openArtistPage(artistName){
   window.currentArtistName=name;
   window.currentArtistSongs=artistSongs;
 
-  const profile=artistProfiles[name] || {};
+  const profile=artistProfiles.find(
+    p=>String(p.name).toLowerCase()===name.toLowerCase()
+  ) || {};
+
   const fallback=
     document.querySelector(".logo")?.src ||
     document.querySelector("header img")?.src ||
     "";
 
-  const image=profile.image || fallback;
+  const image=profile.image_url || fallback;
 
   hero.innerHTML=`
     <img
@@ -2450,43 +2410,35 @@ function closeArtistPage(){
 
 
 
+
 function songsForArtist(artistName){
   const name=String(artistName||"").trim().toLowerCase();
 
   if(!name)return [];
 
-  /*
-    One artist profile represents the artist's whole catalog.
-
-    Example:
-      Jamil Landin
-      Jamil Landin ft Moneyman Keyz
-      Jamil Landin ft Charlie Woods
-      Jamil Landin ft Jessica Lane
-
-    All four belong to the single Jamil Landin profile.
-    The original artist credit on each song is NOT changed.
-  */
   return songs.filter(song=>{
     const credited=String(song.artist||"").trim().toLowerCase();
 
-    return credited.includes(name);
+    return credited===name || credited.startsWith(name+" ft") ||
+      credited.startsWith(name+" feat") ||
+      credited.startsWith(name+" featuring") ||
+      credited.startsWith(name+" &") ||
+      credited.startsWith(name+" x") ||
+      credited.startsWith(name+" with");
   });
 }
 
-function saveArtistProfiles(){
-  localStorage.setItem(
-    "jassiahArtistProfiles",
-    JSON.stringify(artistProfiles)
-  );
-}
-
-
-let artistBeingEdited="";
-
 function openEditArtist(name){
-  const profile=artistProfiles[name]||{};
-  artistBeingEdited=name;
+  const profile=artistProfiles.find(
+    p=>String(p.name).toLowerCase()===String(name).toLowerCase()
+  );
+
+  if(!profile){
+    alert("Artist profile not found.");
+    return;
+  }
+
+  artistBeingEdited=profile.name;
 
   const panel=document.getElementById("editArtistPanel");
   const nameInput=document.getElementById("editArtistName");
@@ -2495,9 +2447,13 @@ function openEditArtist(name){
 
   if(!panel||!nameInput||!imageInput)return;
 
-  nameInput.value=name;
+  nameInput.value=profile.name;
   imageInput.value="";
-  message.textContent="";
+
+  if(message){
+    message.textContent=
+      "Editing "+profile.name;
+  }
 
   panel.style.display="block";
 
@@ -2505,13 +2461,11 @@ function openEditArtist(name){
     behavior:"smooth",
     block:"center"
   });
-
-  nameInput.focus();
 }
 
-function saveArtistProfile(){
-  const oldName=artistBeingEdited;
 
+async function saveArtistProfile(){
+  const oldName=artistBeingEdited;
   const nameInput=document.getElementById("editArtistName");
   const imageInput=document.getElementById("editArtistImage");
   const message=document.getElementById("editArtistMessage");
@@ -2519,7 +2473,7 @@ function saveArtistProfile(){
   const newName=nameInput.value.trim();
 
   if(!oldName){
-    message.textContent="Select an artist to edit.";
+    message.textContent="Select an artist first.";
     return;
   }
 
@@ -2528,92 +2482,118 @@ function saveArtistProfile(){
     return;
   }
 
-  const oldProfile=artistProfiles[oldName]||{};
+  const current=artistProfiles.find(
+    p=>String(p.name).toLowerCase()===oldName.toLowerCase()
+  );
 
-  const applySave=(image)=>{
-    /*
-      Move the profile to the new artist name so the
-      picture stays attached even when the name changes.
-    */
-    delete artistProfiles[oldName];
+  if(!current){
+    message.textContent="Artist profile not found.";
+    return;
+  }
 
-    artistProfiles[newName]={
-      image:image || oldProfile.image || ""
-    };
+  try{
+    message.textContent="Saving artist profile...";
 
-    saveArtistProfiles();
+    let imageUrl=current.image_url || null;
 
-    /*
-      Update existing songs when the artist name itself changes.
-      This keeps the artist's songs connected to the new profile.
-    */
-    if(oldName!==newName){
-      const ids=songs
-        .filter(song =>
-          String(song.artist||"").trim().toLowerCase()===
-          oldName.trim().toLowerCase()
-        )
-        .map(song=>song.id);
+    if(imageInput.files.length){
+      const file=imageInput.files[0];
 
-      if(ids.length){
-        Promise.all(
-          ids.map(id =>
-            client
-              .from("songs")
-              .update({artist:newName})
-              .eq("id",id)
-          )
-        ).then(async()=>{
-          artistBeingEdited=newName;
-          message.textContent=
-            "Artist profile updated successfully! 🎤";
+      const path=
+        "artists/"+Date.now()+"_"+cleanName(file.name);
 
-          await loadSongs();
-          renderArtists();
-          renderHomeDashboard();
-        }).catch(error=>{
-          console.error(error);
-          message.textContent=
-            "The profile saved, but some song names may need updating.";
-          renderArtists();
+      const {error:uploadError}=await client.storage
+        .from("artist-images")
+        .upload(path,file,{
+          upsert:false,
+          contentType:file.type
         });
 
+      if(uploadError){
+        message.textContent=
+          "Picture upload failed: "+uploadError.message;
         return;
+      }
+
+      imageUrl=
+        client.storage
+          .from("artist-images")
+          .getPublicUrl(path)
+          .data.publicUrl;
+    }
+
+    const {error:updateError}=await client
+      .from("artist_profiles")
+      .update({
+        name:newName,
+        image_url:imageUrl
+      })
+      .eq("id",current.id);
+
+    if(updateError){
+      message.textContent=
+        "Could not update artist: "+updateError.message;
+      return;
+    }
+
+    /*
+      If the artist name changed, update the songs that begin with
+      the old primary artist name. The rest of the credit stays intact.
+
+      Example:
+      "Jamil Landin ft. Charlie" -> "Jamil Landin Jr. ft. Charlie"
+    */
+    if(oldName!==newName){
+      const affected=songs.filter(song=>{
+        const credit=String(song.artist||"").trim();
+        return (
+          credit.toLowerCase()===oldName.toLowerCase() ||
+          credit.toLowerCase().startsWith(oldName.toLowerCase()+" ft") ||
+          credit.toLowerCase().startsWith(oldName.toLowerCase()+" feat") ||
+          credit.toLowerCase().startsWith(oldName.toLowerCase()+" featuring") ||
+          credit.toLowerCase().startsWith(oldName.toLowerCase()+" &") ||
+          credit.toLowerCase().startsWith(oldName.toLowerCase()+" x")
+        );
+      });
+
+      for(const song of affected){
+        const credit=String(song.artist||"");
+        const replacement=
+          newName+credit.slice(oldName.length);
+
+        await client
+          .from("songs")
+          .update({artist:replacement})
+          .eq("id",song.id);
       }
     }
 
-    artistBeingEdited=newName;
-
-    nameInput.value="";
-    imageInput.value="";
     message.textContent=
       "Artist profile updated successfully! 🎤";
 
-    renderArtists();
-    renderHomeDashboard();
+    nameInput.value="";
+    imageInput.value="";
+    panelHideEditArtist();
 
-    const page=document.getElementById("artistPage");
-    if(page && page.style.display!=="none"){
-      openArtistPage(newName);
-    }
-  };
+    await loadArtistProfiles();
+    await loadArtistProfiles();
+loadSongs();
 
-  if(imageInput.files.length){
-    const reader=new FileReader();
-
-    reader.onload=function(){
-      applySave(reader.result);
-    };
-
-    reader.onerror=function(){
-      message.textContent=
-        "Could not read that picture.";
-    };
-
-    reader.readAsDataURL(imageInput.files[0]);
-  }else{
-    applySave("");
+  }catch(error){
+    console.error(error);
+    message.textContent=
+      "Could not update artist: "+error.message;
   }
+}
+
+function panelHideEditArtist(){
+  const panel=document.getElementById("editArtistPanel");
+
+  if(panel){
+    panel.style.display="none";
+  }
+
+  artistBeingEdited="";
 }
 
 function cancelEditArtist(){
@@ -2626,7 +2606,8 @@ function cancelEditArtist(){
   artistBeingEdited="";
 }
 
-function createArtistProfile(){
+
+async function createArtistProfile(){
   const nameInput=document.getElementById("newArtistName");
   const imageInput=document.getElementById("newArtistImage");
   const message=document.getElementById("artistUploadMessage");
@@ -2639,38 +2620,97 @@ function createArtistProfile(){
   }
 
   if(!imageInput.files.length){
-    message.textContent="Please choose the artist's picture.";
+    message.textContent="Please choose the artist profile picture.";
     return;
   }
 
-  const reader=new FileReader();
+  message.textContent="Uploading artist picture...";
 
-  reader.onload=function(){
-    artistProfiles[name]={
-      image:reader.result
-    };
+  try{
+    const existing=artistProfiles.find?.(
+      p=>String(p.name).toLowerCase()===name.toLowerCase()
+    );
 
-    saveArtistProfiles();
-    renderArtists();
-    renderHomeDashboard();
+    if(existing){
+      message.textContent="That artist profile already exists.";
+      return;
+    }
+
+    const file=imageInput.files[0];
+
+    const path=
+      "artists/"+Date.now()+"_"+cleanName(file.name);
+
+    const {error:uploadError}=await client.storage
+      .from("artist-images")
+      .upload(path,file,{
+        upsert:false,
+        contentType:file.type
+      });
+
+    if(uploadError){
+      message.textContent=
+        "Artist picture upload failed: "+uploadError.message;
+      return;
+    }
+
+    const imageUrl=
+      client.storage
+        .from("artist-images")
+        .getPublicUrl(path)
+        .data.publicUrl;
+
+    const {error:dbError}=await client
+      .from("artist_profiles")
+      .insert({
+        name:name,
+        image_url:imageUrl
+      });
+
+    if(dbError){
+      message.textContent=
+        "Artist profile could not be saved: "+dbError.message;
+      return;
+    }
+
+    message.textContent=
+      "Artist profile created! 🎤";
 
     nameInput.value="";
     imageInput.value="";
-    message.textContent=
-      "Artist profile created successfully! 🎤";
-  };
 
-  reader.onerror=function(){
-    message.textContent=
-      "Could not read that picture.";
-  };
+    await loadArtistProfiles();
 
-  reader.readAsDataURL(imageInput.files[0]);
+    const artistInput=document.getElementById("artist");
+    if(artistInput){
+      artistInput.value=name;
+    }
+
+  }catch(error){
+    console.error(error);
+    message.textContent=
+      "Artist upload failed: "+error.message;
+  }
 }
 
 
 
+async function loadArtistProfiles(){
+  const {data,error}=await client
+    .from("artist_profiles")
+    .select("id,name,image_url,created_at")
+    .order("name",{ascending:true});
 
+  if(error){
+    console.error("Artist profiles:",error);
+    artistProfiles=[];
+    renderArtists();
+    return;
+  }
+
+  artistProfiles=data||[];
+  renderArtists();
+}
 
 function renderArtists(){
   const grid=document.getElementById("artistsGrid");
@@ -2678,8 +2718,9 @@ function renderArtists(){
 
   const datalist=document.getElementById("artistNames");
 
-  const profileNames=Object.keys(artistProfiles)
-    .filter(name=>String(name).trim())
+  const profileNames=artistProfiles
+    .map(profile=>profile.name)
+    .filter(name=>String(name||"").trim())
     .sort((a,b)=>a.localeCompare(b));
 
   if(datalist){
@@ -2690,32 +2731,33 @@ function renderArtists(){
 
   if(!profileNames.length){
     grid.innerHTML=
-      '<div style="color:#888">No artist profiles yet. Create one above.</div>';
+      '<div style="color:#888">No artist profiles yet.</div>';
     return;
   }
 
   grid.innerHTML=profileNames.map(name=>{
+    const profile=artistProfiles.find(
+      p=>String(p.name).toLowerCase()===String(name).toLowerCase()
+    );
+
     const artistSongs=songsForArtist(name);
-    const profile=artistProfiles[name] || {};
 
     const image=
-      profile.image ||
+      profile?.image_url ||
       document.querySelector(".logo")?.src ||
       "";
 
     return `
-      <div
-        style="
-          background:#111;
-          border:1px solid #332817;
-          border-radius:13px;
-          overflow:hidden;
-        "
-      >
+      <div style="
+        background:#111;
+        border:1px solid #332817;
+        border-radius:13px;
+        overflow:hidden;
+      ">
 
         <img
           src="${escapeHtml(image)}"
-          onerror="this.src='${escapeJs(document.querySelector(".logo")?.src||"")}'"
+          onerror="this.style.opacity='0.2'"
           alt="${escapeHtml(name)}"
           style="
             width:100%;
@@ -2738,11 +2780,7 @@ function renderArtists(){
             ${escapeHtml(name)}
           </div>
 
-          <div style="
-            color:#999;
-            font-size:12px;
-            margin-top:4px;
-          ">
+          <div style="color:#999;font-size:12px;margin-top:4px">
             ${artistSongs.length}
             song${artistSongs.length===1?"":"s"}
           </div>
@@ -2781,8 +2819,24 @@ function renderArtists(){
             ✏️ Edit Artist
           </button>
 
-        </div>
+          <button
+            onclick="deleteArtistProfile('${escapeJs(name)}')"
+            style="
+              margin-top:7px;
+              width:100%;
+              background:#111;
+              color:#ff7568;
+              border:1px solid #8d382f;
+              border-radius:7px;
+              padding:8px;
+              font-weight:bold;
+              cursor:pointer;
+            "
+          >
+            🗑 Delete Artist
+          </button>
 
+        </div>
       </div>
     `;
   }).join("");
