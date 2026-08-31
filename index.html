@@ -322,6 +322,42 @@ audio{width:100%;height:40px}
 </div>
 
 
+
+<section class="panel" id="featuredPanel">
+  <div style="color:#a99a72;font-size:12px;letter-spacing:3px;font-weight:bold;margin-bottom:8px">
+    FEATURED SONG
+  </div>
+
+  <div id="featuredContent" style="
+    display:flex;
+    gap:18px;
+    align-items:center;
+    background:linear-gradient(135deg,#1b160c,#111);
+    border:1px solid #8f6a1c;
+    border-radius:14px;
+    padding:16px;
+  ">
+    <div style="
+      width:105px;
+      height:105px;
+      border-radius:10px;
+      background:#222;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:42px;
+      color:#ffd76a;
+      flex-shrink:0;
+    ">♫</div>
+    <div>
+      <div style="font-size:22px;font-weight:bold">Choose a featured song</div>
+      <div style="color:#aaa;margin-top:5px">
+        Use "Set Featured" on any song below.
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="panel">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
     <h2 style="margin:0">♫ Playlists</h2>
@@ -499,6 +535,7 @@ let favorites=JSON.parse(localStorage.getItem("jassiahFavorites")||"[]").map(Num
 let favoritesOnly=false;
 let playlists=JSON.parse(localStorage.getItem("jassiahPlaylists")||"{}");
 let playlistQueue=null;
+let featuredSongId=Number(localStorage.getItem("jassiahFeaturedSong")||0);
 
 const player=document.getElementById("playerAudio");
 const playButton=document.getElementById("playButton");
@@ -561,6 +598,7 @@ async function loadSongs(){
   songs=data||[];
   renderSongs(songs);
   renderPlaylists();
+  renderFeaturedSong();
 }
 
 function renderSongs(list){
@@ -604,6 +642,13 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
+
+          <button
+            onclick="setFeaturedSong(${song.id})"
+            style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
+          >
+            ⭐ Set Featured
+          </button>
 
           <button
             onclick="addSongToPlaylist(${song.id})"
@@ -1156,6 +1201,119 @@ function escapeJs(value){
     .replace(/'/g,"\\'")
     .replace(/\n/g,"\\n")
     .replace(/\r/g,"\\r");
+}
+
+
+function setFeaturedSong(id){
+  featuredSongId=Number(id);
+
+  localStorage.setItem(
+    "jassiahFeaturedSong",
+    String(featuredSongId)
+  );
+
+  renderFeaturedSong();
+
+  alert("Featured song updated! ⭐");
+}
+
+function renderFeaturedSong(){
+  const box=document.getElementById("featuredContent");
+  if(!box)return;
+
+  const song=songs.find(
+    s=>Number(s.id)===Number(featuredSongId)
+  );
+
+  if(!song){
+    box.innerHTML=`
+      <div style="
+        width:105px;
+        height:105px;
+        border-radius:10px;
+        background:#222;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:42px;
+        color:#ffd76a;
+        flex-shrink:0;
+      ">♫</div>
+
+      <div>
+        <div style="font-size:22px;font-weight:bold">
+          Choose a featured song
+        </div>
+        <div style="color:#aaa;margin-top:5px">
+          Use "Set Featured" on any song below.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const cover=coverUrl(song);
+
+  box.innerHTML=`
+    <img
+      src="${escapeHtml(cover)}"
+      onerror="this.style.display='none'"
+      style="
+        width:105px;
+        height:105px;
+        object-fit:cover;
+        border-radius:10px;
+        flex-shrink:0;
+      "
+      alt=""
+    >
+
+    <div style="flex:1;min-width:0">
+
+      <div style="
+        color:#ffd76a;
+        font-size:12px;
+        letter-spacing:2px;
+        font-weight:bold;
+        margin-bottom:5px;
+      ">
+        NOW FEATURED
+      </div>
+
+      <div style="
+        font-size:25px;
+        font-weight:bold;
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      ">
+        ${escapeHtml(song.title||"Untitled")}
+      </div>
+
+      <div style="
+        color:#aaa;
+        margin:5px 0 12px;
+      ">
+        ${escapeHtml(song.artist||"Unknown Artist")}
+      </div>
+
+      <button
+        onclick="playSong(${songs.findIndex(s=>Number(s.id)===Number(song.id))})"
+        style="
+          background:linear-gradient(135deg,#f0c653,#9d7014);
+          color:#111;
+          border:0;
+          border-radius:8px;
+          padding:10px 16px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        ▶ Play Featured Song
+      </button>
+
+    </div>
+  `;
 }
 
 function filterSongs(){
