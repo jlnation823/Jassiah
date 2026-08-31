@@ -1,1854 +1,383 @@
-/* =========================================================
-   JASSIAH MUSIC WEBSITE
-   COMPLETE SUPABASE SCRIPT
-   ========================================================= */
+const SUPABASE_URL = "https://axkdbcyvuezawgbqjtyq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_O0oXTHsPLxZGD2Wo5ayouw_-a9zJKgn";
 
-/* =========================
-   SUPABASE CONNECTION
-========================= */
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-const SUPABASE_URL =
-  "https://axkdbcyvuezawgbqjtyq.supabase.co";
+const audio = document.getElementById("audio");
+const songList = document.getElementById("songList");
+const empty = document.getElementById("empty");
+const playBtn = document.getElementById("playBtn");
+const progress = document.getElementById("progress");
+const current = document.getElementById("current");
+const duration = document.getElementById("duration");
+const volume = document.getElementById("volume");
+const search = document.getElementById("search");
 
-const SUPABASE_KEY =
-  "sb_publishable_O0oXTHsPLxZGD2Wo5ayouw_-a9zJKgn";
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-const MUSIC_BUCKET = "music";
-
-
-/* =========================
-   VARIABLES
-========================= */
+const nowTitle = document.getElementById("nowTitle");
+const nowArtist = document.getElementById("nowArtist");
+const miniArt = document.getElementById("miniArt");
 
 let songs = [];
-let currentIndex = -1;
-let currentAudio = null;
+let index = -1;
 
+function fmt(seconds) {
+  if (!isFinite(seconds)) return "0:00";
 
-/* =========================
-   FIND PAGE ELEMENTS
-========================= */
+  const minutes = Math.floor(seconds / 60);
+  const secondsPart = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, "0");
 
-const audio =
-  document.getElementById("audio") ||
-  document.getElementById("mainAudio") ||
-  document.getElementById("bottomAudio");
-
-const fileInput =
-  document.getElementById("fileInput") ||
-  document.getElementById("musicFile");
-
-const songList =
-  document.getElementById("songList") ||
-  document.getElementById("songs");
-
-const empty =
-  document.getElementById("empty");
-
-const playBtn =
-  document.getElementById("playBtn") ||
-  document.getElementById("mainPlayButton") ||
-  document.getElementById("playPauseBtn");
-
-const progress =
-  document.getElementById("progress") ||
-  document.getElementById("progressBar");
-
-const current =
-  document.getElementById("current") ||
-  document.getElementById("currentTime");
-
-const duration =
-  document.getElementById("duration");
-
-const volume =
-  document.getElementById("volume");
-
-const search =
-  document.getElementById("search") ||
-  document.getElementById("searchInput");
-
-
-/* =========================
-   HELPER FUNCTIONS
-========================= */
-
-function formatTime(seconds) {
-
-  if (
-    !isFinite(seconds) ||
-    seconds < 0
-  ) {
-    return "0:00";
-  }
-
-  const minutes =
-    Math.floor(seconds / 60);
-
-  const secs =
-    Math.floor(seconds % 60)
-      .toString()
-      .padStart(2, "0");
-
-  return minutes + ":" + secs;
+  return `${minutes}:${secondsPart}`;
 }
 
-
-function cleanFileName(name) {
-
-  return String(name)
-    .replace(/\s+/g, "_")
-    .replace(/[^a-zA-Z0-9._-]/g, "");
+function esc(text) {
+  return String(text ?? "").replace(
+    /[&<>"']/g,
+    char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    }[char])
+  );
 }
-
-
-function escapeHtml(value) {
-
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-
-/* =========================
-   GET MUSIC URL
-========================= */
 
 function getMusicUrl(song) {
-
-  if (!song) {
+  if (!song || !song.file_path) {
     return "";
   }
 
-  /* Already has URL */
-  if (
-    song.music_url &&
-    typeof song.music_url === "string"
-  ) {
-    return song.music_url;
-  }
+  const result = db
+    .storage
+    .from("music")
+    .getPublicUrl(song.file_path);
 
-  /* Already has another URL field */
-  if (
-    song.url &&
-    typeof song.url === "string"
-  ) {
-    return song.url;
-  }
-
-  /* Use the actual database file_path */
-  if (song.file_path) {
-
-    let path =
-      String(song.file_path).trim();
-
-    /*
-      Remove the bucket name if it
-      accidentally appears in the path.
-    */
-    if (
-      path.startsWith("music/")
-    ) {
-      path =
-        path.substring(6);
-    }
-
-    /*
-      If a complete Supabase URL was
-      stored in file_path.
-    */
-    if (
-      path.startsWith("http://") ||
-      path.startsWith("https://")
-    ) {
-      return path;
-    }
-
-    const result =
-      supabaseClient
-        .storage
-        .from(MUSIC_BUCKET)
-        .getPublicUrl(path);
-
-    return result.data.publicUrl;
-  }
-
-  return "";
+  return result.data.publicUrl;
 }
-
-
-/* =========================
-   GET COVER URL
-========================= */
 
 function getCoverUrl(song) {
-
-  if (
-    song &&
-    song.cover_url
-  ) {
-    return song.cover_url;
-  }
-
-  return "";
+  return song?.cover_url || "";
 }
-
-
-/* =========================
-   LOAD SONGS FROM SUPABASE
-========================= */
 
 async function loadSongs() {
+  songList.innerHTML = "<div>Loading your music...</div>";
 
-  try {
+  const { data, error } = await db
+    .from("songs")
+    .select("*")
+    .order("id", { ascending: false });
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("songs")
-        .select("*")
-        .order("id", {
-          ascending: false
-        });
-
-    if (error) {
-
-      console.error(
-        "Supabase error:",
-        error
-      );
-
-      showError(
-        "Could not load your music: " +
-        error.message
-      );
-
-      return;
-    }
-
-    songs =
-      data || [];
-
-    renderSongs(songs);
-
-  } catch (error) {
-
+  if (error) {
     console.error(error);
-
-    showError(
-      "Could not load your music."
-    );
-  }
-}
-
-
-/* =========================
-   ERROR MESSAGE
-========================= */
-
-function showError(message) {
-
-  if (!songList) {
+    songList.innerHTML =
+      `<div style="color:#ff5555">
+        Could not load music: ${esc(error.message)}
+      </div>`;
     return;
   }
 
-  songList.innerHTML =
-    `
-      <div style="
-        padding:25px;
-        color:#ff5c5c;
-        text-align:center;
-      ">
-        ${escapeHtml(message)}
-      </div>
-    `;
+  songs = data || [];
+
+  render(search ? search.value : "");
 }
 
-
-/* =========================
-   RENDER SONGS
-========================= */
-
-function renderSongs(list) {
-
-  if (!songList) {
-    return;
-  }
-
+function render(filter = "") {
   songList.innerHTML = "";
 
+  const query = filter.toLowerCase().trim();
 
-  if (!list.length) {
+  const shown = songs
+    .map((song, i) => ({ song, i }))
+    .filter(({ song }) => {
+      const title = String(song.title || "").toLowerCase();
+      const artist = String(song.artist || "").toLowerCase();
 
-    if (empty) {
-      empty.style.display =
-        "block";
-    }
-
-    songList.innerHTML =
-      `
-        <div style="
-          text-align:center;
-          color:#aaa;
-          padding:30px;
-        ">
-          No songs uploaded yet.
-        </div>
-      `;
-
-    return;
-  }
-
+      return (
+        title.includes(query) ||
+        artist.includes(query)
+      );
+    });
 
   if (empty) {
     empty.style.display =
-      "none";
+      shown.length ? "none" : "block";
   }
 
+  if (!shown.length) {
+    songList.innerHTML =
+      `<div style="padding:30px;color:#aaa;text-align:center">
+        No songs found.
+      </div>`;
+    return;
+  }
 
-  list.forEach(
-    (song, displayIndex) => {
+  shown.forEach(({ song, i }, n) => {
+    const row = document.createElement("div");
 
-      const actualIndex =
-        songs.findIndex(
-          item =>
-            Number(item.id) ===
-            Number(song.id)
-        );
+    row.className = "song";
 
+    const cover = getCoverUrl(song);
+    const musicUrl = getMusicUrl(song);
 
-      const musicUrl =
-        getMusicUrl(song);
-
-      const coverUrl =
-        getCoverUrl(song);
-
-
-      const row =
-        document.createElement("div");
-
-
-      /*
-        Match either the old .song
-        styling or create a safe style.
-      */
-
-      row.className =
-        "song";
-
-
-      row.dataset.songId =
-        song.id;
-
-
-      row.innerHTML = `
-
-        ${
-          coverUrl
-            ? `
-              <img
-                src="${escapeHtml(coverUrl)}"
-                alt="Cover"
-                class="cover"
-                style="
-                  width:80px;
-                  height:80px;
-                  object-fit:cover;
-                  border-radius:8px;
-                "
-                onerror="this.style.display='none'"
-              >
-            `
-            : `
-              <div
-                class="cover"
-                style="
-                  width:80px;
-                  height:80px;
-                  display:flex;
-                  align-items:center;
-                  justify-content:center;
-                  background:#333;
-                  border-radius:8px;
-                  font-size:32px;
-                "
-              >
-                🎵
-              </div>
-            `
-        }
-
-        <div
-          class="song-info"
-          style="flex:1;min-width:0;"
-        >
-
-          <div
-            class="song-title"
-            style="font-weight:bold;font-size:18px;"
-          >
-            ${escapeHtml(
-              song.title ||
-              "Untitled"
-            )}
-          </div>
-
-          <div
-            class="artist"
-            style="color:#aaa;margin:4px 0 8px;"
-          >
-            ${escapeHtml(
-              song.artist ||
-              "Unknown Artist"
-            )}
-          </div>
-
-          ${
-            musicUrl
-              ? `
-                <audio
-                  controls
-                  preload="metadata"
-                  style="width:100%;"
-                  src="${escapeHtml(
-                    musicUrl
-                  )}"
-                ></audio>
-              `
-              : `
-                <div style="
-                  color:#ff6666;
-                  font-size:13px;
-                  margin:8px 0;
-                ">
-                  Music file not found.
-                </div>
-              `
-          }
-
-          <div
-            class="song-buttons"
-            style="margin-top:8px;"
-          >
-
-            <button
-              type="button"
-              onclick="editSong(${song.id})"
-              style="
-                background:#168ddd;
-                color:white;
-                border:0;
-                padding:9px 14px;
-                border-radius:7px;
-                cursor:pointer;
-                font-weight:bold;
-              "
-            >
-              ✏️ Edit
-            </button>
-
-            <button
-              type="button"
-              onclick="deleteSong(${song.id})"
-              style="
-                background:#e74c3c;
-                color:white;
-                border:0;
-                padding:9px 14px;
-                border-radius:7px;
-                cursor:pointer;
-                font-weight:bold;
-              "
-            >
-              🗑️ Delete
-            </button>
-
-          </div>
-
-          <div
-            id="edit-${song.id}"
-            style="
-              display:none;
-              margin-top:10px;
-              padding:12px;
-              background:#222;
-              border-radius:8px;
-            "
-          >
-
-            <input
-              id="edit-title-${song.id}"
-              type="text"
-              value="${escapeHtml(
-                song.title || ""
-              )}"
-              placeholder="Song title"
-              style="
-                width:100%;
-                padding:10px;
-                margin-bottom:8px;
-                background:#111;
-                color:white;
-                border:1px solid #444;
-                border-radius:7px;
-              "
-            >
-
-            <input
-              id="edit-artist-${song.id}"
-              type="text"
-              value="${escapeHtml(
-                song.artist || ""
-              )}"
-              placeholder="Artist"
-              style="
-                width:100%;
-                padding:10px;
-                margin-bottom:8px;
-                background:#111;
-                color:white;
-                border:1px solid #444;
-                border-radius:7px;
-              "
-            >
-
-            <input
-              id="edit-cover-${song.id}"
-              type="file"
-              accept="image/*"
-              style="
-                width:100%;
-                margin-bottom:8px;
-                color:white;
-              "
-            >
-
-            <button
-              type="button"
-              onclick="saveEdit(${song.id})"
-              style="
-                background:#1db954;
-                color:white;
-                border:0;
-                padding:9px 14px;
-                border-radius:7px;
-                cursor:pointer;
-                font-weight:bold;
-              "
-            >
-              💾 Save Changes
-            </button>
-
-            <button
-              type="button"
-              onclick="hideEdit(${song.id})"
-              style="
-                background:#555;
-                color:white;
-                border:0;
-                padding:9px 14px;
-                border-radius:7px;
-                cursor:pointer;
-                font-weight:bold;
-              "
-            >
-              Cancel
-            </button>
-
-          </div>
-
-        </div>
-      `;
-
-
-      songList.appendChild(row);
-
-
-      /* CONNECT NATIVE AUDIO TO PLAYER */
-
-      const nativeAudio =
-        row.querySelector("audio");
-
-
-      if (nativeAudio) {
-
-        nativeAudio.addEventListener(
-          "play",
-          function() {
-
-            /*
-              Stop other song players.
-            */
-
-            document
-              .querySelectorAll(
-                ".song audio"
-              )
-              .forEach(
-                other => {
-
-                  if (
-                    other !==
-                    nativeAudio
-                  ) {
-                    other.pause();
-                  }
-
-                }
-              );
-
-
-            currentIndex =
-              actualIndex;
-
-            startMainPlayer(
-              song,
-              musicUrl
-            );
-          }
-        );
-
-
-        nativeAudio.addEventListener(
-          "error",
-          function() {
-
-            console.error(
-              "Music could not load:",
-              musicUrl
-            );
-
-          }
-        );
+    row.innerHTML = `
+      ${
+        cover
+          ? `<img
+               src="${esc(cover)}"
+               alt="Cover"
+               style="
+                 width:70px;
+                 height:70px;
+                 object-fit:cover;
+                 border-radius:8px;
+               "
+             >`
+          : `<div style="
+               width:70px;
+               height:70px;
+               display:flex;
+               align-items:center;
+               justify-content:center;
+               background:#333;
+               border-radius:8px;
+               font-size:30px;
+             ">🎵</div>`
       }
 
-    }
-  );
+      <div class="song-info" style="flex:1">
+        <strong>
+          ${esc(song.title || "Untitled")}
+        </strong>
+
+        <span>
+          ${esc(song.artist || "Unknown Artist")}
+        </span>
+
+        <audio
+          controls
+          preload="metadata"
+          style="width:100%"
+          src="${esc(musicUrl)}"
+        ></audio>
+      </div>
+    `;
+
+    const songAudio = row.querySelector("audio");
+
+    songAudio.addEventListener("play", () => {
+      index = i;
+
+      document
+        .querySelectorAll("#songList audio")
+        .forEach(other => {
+          if (other !== songAudio) {
+            other.pause();
+          }
+        });
+
+      audio.src = musicUrl;
+
+      if (nowTitle) {
+        nowTitle.textContent =
+          song.title || "Untitled";
+      }
+
+      if (nowArtist) {
+        nowArtist.textContent =
+          song.artist || "Unknown Artist";
+      }
+
+      if (miniArt) {
+        if (cover) {
+          miniArt.src = cover;
+        }
+      };
+
+      audio.play().catch(() => {});
+    });
+
+    songList.appendChild(row);
+  });
 }
 
-
-/* =========================
-   MAIN PLAYER
-========================= */
-
-function startMainPlayer(
-  song,
-  url
-) {
-
+function load(indexToLoad, autoplay = false) {
   if (
-    !audio ||
-    !url
+    indexToLoad < 0 ||
+    indexToLoad >= songs.length
   ) {
     return;
   }
 
+  index = indexToLoad;
 
-  if (
-    currentAudio &&
-    currentAudio !== audio
-  ) {
-    currentAudio.pause();
+  const song = songs[index];
+  const url = getMusicUrl(song);
+
+  if (!url) {
+    alert("This song has no music file.");
+    return;
   }
 
+  audio.src = url;
 
-  audio.src =
-    url;
-
-  currentAudio =
-    audio;
-
-
-  const title =
-    document.getElementById(
-      "nowTitle"
-    );
-
-  const artist =
-    document.getElementById(
-      "nowArtist"
-    );
-
-
-  if (title) {
-
-    title.textContent =
-      song.title ||
-      "Untitled";
+  if (nowTitle) {
+    nowTitle.textContent =
+      song.title || "Untitled";
   }
 
-
-  if (artist) {
-
-    artist.textContent =
-      song.artist ||
-      "Unknown Artist";
+  if (nowArtist) {
+    nowArtist.textContent =
+      song.artist || "Unknown Artist";
   }
 
+  const cover = getCoverUrl(song);
 
-  const nowCover =
-    document.getElementById(
-      "miniArt"
-    ) ||
-    document.getElementById(
-      "playerCover"
-    );
-
-
-  if (
-    nowCover &&
-    song.cover_url
-  ) {
-
-    if (
-      nowCover.tagName === "IMG"
-    ) {
-
-      nowCover.src =
-        song.cover_url;
-
-    } else {
-
-      nowCover.textContent =
-        "♪";
-    }
+  if (miniArt && cover) {
+    miniArt.src = cover;
   }
 
-
-  audio.play()
-    .then(() => {
-
-      setPlayButton(
-        true
-      );
-
-    })
-    .catch(
-      error => {
-
+  if (autoplay) {
+    audio.play()
+      .then(() => {
+        if (playBtn) {
+          playBtn.textContent = "Ⅱ";
+        }
+      })
+      .catch(error => {
         console.error(
           "Playback error:",
           error
         );
-
-      }
-    );
-}
-
-
-/* =========================
-   PLAY A SONG
-========================= */
-
-function playSong(index) {
-
-  if (
-    index < 0 ||
-    index >= songs.length
-  ) {
-    return;
-  }
-
-
-  const song =
-    songs[index];
-
-  const url =
-    getMusicUrl(song);
-
-
-  if (!url) {
-
-    alert(
-      "This song does not have a valid music file."
-    );
-
-    return;
-  }
-
-
-  currentIndex =
-    index;
-
-
-  if (!audio) {
-
-    /*
-      If the page does not have a
-      bottom player, create one.
-    */
-
-    const newAudio =
-      document.createElement(
-        "audio"
-      );
-
-    newAudio.controls = true;
-
-    newAudio.style.position =
-      "fixed";
-
-    newAudio.style.bottom =
-      "0";
-
-    newAudio.style.left =
-      "0";
-
-    newAudio.style.width =
-      "100%";
-
-    newAudio.style.zIndex =
-      "99999";
-
-    document.body.appendChild(
-      newAudio
-    );
-
-    currentAudio =
-      newAudio;
-
-    newAudio.src =
-      url;
-
-    newAudio.play()
-      .catch(
-        error =>
-          console.error(error)
-      );
-
-    return;
-  }
-
-
-  startMainPlayer(
-    song,
-    url
-  );
-}
-
-
-/* =========================
-   PLAY / PAUSE
-========================= */
-
-function togglePlay() {
-
-  if (
-    !audio
-  ) {
-    return;
-  }
-
-
-  if (
-    !audio.src
-  ) {
-
-    if (
-      songs.length
-    ) {
-
-      playSong(0);
-
-    }
-
-    return;
-  }
-
-
-  if (
-    audio.paused
-  ) {
-
-    audio.play()
-      .then(
-        () =>
-          setPlayButton(true)
-      )
-      .catch(
-        error =>
-          console.error(error)
-      );
-
-  } else {
-
-    audio.pause();
-
-    setPlayButton(
-      false
-    );
+      });
   }
 }
-
-
-/* =========================
-   PLAY BUTTON
-========================= */
-
-function setPlayButton(
-  playing
-) {
-
-  if (!playBtn) {
-    return;
-  }
-
-
-  playBtn.textContent =
-    playing
-      ? "Ⅱ"
-      : "▶";
-}
-
-
-/* =========================
-   NEXT SONG
-========================= */
-
-function nextSong() {
-
-  if (
-    !songs.length
-  ) {
-    return;
-  }
-
-
-  let next =
-    currentIndex + 1;
-
-
-  if (
-    next >= songs.length
-  ) {
-
-    next = 0;
-
-  }
-
-
-  playSong(next);
-}
-
-
-/* =========================
-   PREVIOUS SONG
-========================= */
-
-function previousSong() {
-
-  if (
-    !songs.length
-  ) {
-    return;
-  }
-
-
-  let previous =
-    currentIndex - 1;
-
-
-  if (
-    previous < 0
-  ) {
-
-    previous =
-      songs.length - 1;
-
-  }
-
-
-  playSong(
-    previous
-  );
-}
-
-
-/* =========================
-   PLAYER EVENTS
-========================= */
-
-if (audio) {
-
-  audio.addEventListener(
-    "play",
-    function() {
-
-      currentAudio =
-        audio;
-
-      setPlayButton(
-        true
-      );
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "pause",
-    function() {
-
-      setPlayButton(
-        false
-      );
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "timeupdate",
-    function() {
-
-      if (
-        progress &&
-        audio.duration
-      ) {
-
-        progress.value =
-          (
-            audio.currentTime /
-            audio.duration
-          ) * 100;
-
-      }
-
-
-      if (current) {
-
-        current.textContent =
-          formatTime(
-            audio.currentTime
-          );
-
-      }
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "loadedmetadata",
-    function() {
-
-      if (duration) {
-
-        duration.textContent =
-          formatTime(
-            audio.duration
-          );
-
-      }
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "ended",
-    function() {
-
-      nextSong();
-
-    }
-  );
-
-
-  audio.addEventListener(
-    "error",
-    function() {
-
-      console.error(
-        "Main player error:",
-        audio.src
-      );
-
-    }
-  );
-}
-
-
-/* =========================
-   PROGRESS
-========================= */
-
-if (progress) {
-
-  progress.addEventListener(
-    "input",
-    function() {
-
-      if (
-        audio &&
-        audio.duration
-      ) {
-
-        audio.currentTime =
-          (
-            progress.value /
-            100
-          ) *
-          audio.duration;
-
-      }
-
-    }
-  );
-}
-
-
-/* =========================
-   VOLUME
-========================= */
-
-if (
-  volume &&
-  audio
-) {
-
-  volume.addEventListener(
-    "input",
-    function() {
-
-      audio.volume =
-        Number(
-          volume.value
-        );
-
-    }
-  );
-
-  audio.volume =
-    Number(
-      volume.value
-    );
-}
-
-
-/* =========================
-   SEARCH
-========================= */
-
-function searchSongs() {
-
-  if (!search) {
-    return;
-  }
-
-
-  const query =
-    search.value
-      .toLowerCase()
-      .trim();
-
-
-  if (!query) {
-
-    renderSongs(
-      songs
-    );
-
-    return;
-  }
-
-
-  const filtered =
-    songs.filter(
-      song => {
-
-        const title =
-          String(
-            song.title || ""
-          )
-            .toLowerCase();
-
-        const artist =
-          String(
-            song.artist || ""
-          )
-            .toLowerCase();
-
-
-        return (
-          title.includes(
-            query
-          ) ||
-          artist.includes(
-            query
-          )
-        );
-      }
-    );
-
-
-  renderSongs(
-    filtered
-  );
-}
-
-
-if (search) {
-
-  search.addEventListener(
-    "input",
-    searchSongs
-  );
-
-}
-
-
-/* =========================
-   EDIT
-========================= */
-
-function editSong(id) {
-
-  const area =
-    document.getElementById(
-      "edit-" + id
-    );
-
-
-  if (area) {
-
-    area.style.display =
-      "block";
-
-  }
-}
-
-
-function hideEdit(id) {
-
-  const area =
-    document.getElementById(
-      "edit-" + id
-    );
-
-
-  if (area) {
-
-    area.style.display =
-      "none";
-
-  }
-}
-
-
-async function saveEdit(id) {
-
-  const titleInput =
-    document.getElementById(
-      "edit-title-" + id
-    );
-
-  const artistInput =
-    document.getElementById(
-      "edit-artist-" + id
-    );
-
-  const coverInput =
-    document.getElementById(
-      "edit-cover-" + id
-    );
-
-
-  const title =
-    titleInput
-      ? titleInput.value.trim()
-      : "";
-
-  const artist =
-    artistInput
-      ? artistInput.value.trim()
-      : "";
-
-
-  if (
-    !title ||
-    !artist
-  ) {
-
-    alert(
-      "Please enter the song title and artist."
-    );
-
-    return;
-  }
-
-
-  const updateData = {
-
-    title:
-      title,
-
-    artist:
-      artist
-
-  };
-
-
-  try {
-
-    /* NEW COVER */
-
-    if (
-      coverInput &&
-      coverInput.files.length
-    ) {
-
-      const file =
-        coverInput.files[0];
-
-      const coverPath =
-        "covers/" +
-        Date.now() +
-        "_" +
-        cleanFileName(
-          file.name
-        );
-
-
-      const {
-        error
-      } =
-        await supabaseClient
-          .storage
-          .from(
-            MUSIC_BUCKET
-          )
-          .upload(
-            coverPath,
-            file,
-            {
-              upsert: false
-            }
-          );
-
-
-      if (error) {
-
-        alert(
-          "Cover upload failed: " +
-          error.message
-        );
-
-        return;
-      }
-
-
-      const result =
-        supabaseClient
-          .storage
-          .from(
-            MUSIC_BUCKET
-          )
-          .getPublicUrl(
-            coverPath
-          );
-
-
-      updateData.cover_url =
-        result.data.publicUrl;
-    }
-
-
-    /* UPDATE DATABASE */
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .from("songs")
-        .update(
-          updateData
-        )
-        .eq(
-          "id",
-          id
-        );
-
-
-    if (error) {
-
-      alert(
-        "Could not save changes: " +
-        error.message
-      );
-
-      return;
-    }
-
-
-    alert(
-      "Song updated successfully! 🎉"
-    );
-
-
-    await loadSongs();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Something went wrong: " +
-      error.message
-    );
-
-  }
-
-}
-
-
-/* =========================
-   UPLOAD NEW SONG
-========================= */
-
-async function uploadSong() {
-
-  const titleInput =
-    document.getElementById(
-      "songTitle"
-    );
-
-  const artistInput =
-    document.getElementById(
-      "artist"
-    );
-
-
-  const musicInput =
-    document.getElementById(
-      "musicFile"
-    );
-
-
-  const coverInput =
-    document.getElementById(
-      "coverFile"
-    );
-
-
-  const message =
-    document.getElementById(
-      "uploadMessage"
-    );
-
-
-  const title =
-    titleInput
-      ? titleInput.value.trim()
-      : "";
-
-
-  const artist =
-    artistInput
-      ? artistInput.value.trim()
-      : "";
-
-
-  if (
-    !title ||
-    !artist ||
-    !musicInput ||
-    !musicInput.files.length
-  ) {
-
-    if (message) {
-
-      message.textContent =
-        "Please enter the title, artist, and music file.";
-
-    }
-
-    return;
-  }
-
-
-  try {
-
-    if (message) {
-
-      message.textContent =
-        "Uploading song...";
-
-    }
-
-
-    const musicFile =
-      musicInput.files[0];
-
-
-    const musicPath =
-      "songs/" +
-      Date.now() +
-      "_" +
-      cleanFileName(
-        musicFile.name
-      );
-
-
-    /* UPLOAD MUSIC */
-
-    const {
-      error: musicError
-    } =
-      await supabaseClient
-        .storage
-        .from(
-          MUSIC_BUCKET
-        )
-        .upload(
-          musicPath,
-          musicFile,
-          {
-            upsert: false,
-            contentType:
-              musicFile.type
-          }
-        );
-
-
-    if (musicError) {
-
-      throw new Error(
-        "Music upload failed: " +
-        musicError.message
-      );
-
-    }
-
-
-    /* COVER */
-
-    let coverUrl =
-      null;
-
-
-    if (
-      coverInput &&
-      coverInput.files.length
-    ) {
-
-      if (message) {
-
-        message.textContent =
-          "Uploading cover...";
-
-      }
-
-
-      const coverFile =
-        coverInput.files[0];
-
-
-      const coverPath =
-        "covers/" +
-        Date.now() +
-        "_" +
-        cleanFileName(
-          coverFile.name
-        );
-
-
-      const {
-        error: coverError
-      } =
-        await supabaseClient
-          .storage
-          .from(
-            MUSIC_BUCKET
-          )
-          .upload(
-            coverPath,
-            coverFile,
-            {
-              upsert: false,
-              contentType:
-                coverFile.type
-            }
-          );
-
-
-      if (coverError) {
-
-        throw new Error(
-          "Cover upload failed: " +
-          coverError.message
-        );
-      }
-
-
-      const coverResult =
-        supabaseClient
-          .storage
-          .from(
-            MUSIC_BUCKET
-          )
-          .getPublicUrl(
-            coverPath
-          );
-
-
-      coverUrl =
-        coverResult.data.publicUrl;
-
-    }
-
-
-    /* SAVE SONG */
-
-    const {
-      error: databaseError
-    } =
-      await supabaseClient
-        .from("songs")
-        .insert({
-
-          title:
-            title,
-
-          artist:
-            artist,
-
-          file_path:
-            musicPath,
-
-          cover_url:
-            coverUrl
-
-        });
-
-
-    if (databaseError) {
-
-      throw new Error(
-        "Database error: " +
-        databaseError.message
-      );
-
-    }
-
-
-    /* CLEAR FORM */
-
-    if (titleInput) {
-      titleInput.value = "";
-    }
-
-    if (artistInput) {
-      artistInput.value = "";
-    }
-
-    musicInput.value =
-      "";
-
-    if (coverInput) {
-      coverInput.value =
-        "";
-    }
-
-
-    if (message) {
-
-      message.textContent =
-        "Song uploaded successfully! 🎵";
-
-    }
-
-
-    await loadSongs();
-
-  } catch (error) {
-
-    console.error(error);
-
-    if (message) {
-
-      message.textContent =
-        error.message;
-
-    } else {
-
-      alert(
-        error.message
-      );
-
-    }
-
-  }
-
-}
-
-
-/* =========================
-   DELETE
-========================= */
-
-async function deleteSong(id) {
-
-  const song =
-    songs.find(
-      item =>
-        Number(item.id) ===
-        Number(id)
-    );
-
-
-  if (!song) {
-
-    return;
-
-  }
-
-
-  const confirmed =
-    confirm(
-      'Delete "' +
-      (song.title || "this song") +
-      '"?'
-    );
-
-
-  if (!confirmed) {
-
-    return;
-
-  }
-
-
-  try {
-
-    /*
-      Delete the database record.
-      We intentionally leave the storage
-      file alone so a failed database
-      operation won't destroy the audio.
-    */
-
-    const {
-      error
-    } =
-      await supabaseClient
-        .from("songs")
-        .delete()
-        .eq(
-          "id",
-          id
-        );
-
-
-    if (error) {
-
-      alert(
-        "Could not delete song: " +
-        error.message
-      );
-
-      return;
-    }
-
-
-    if (
-      currentIndex >= 0 &&
-      songs[
-        currentIndex
-      ] &&
-      Number(
-        songs[
-          currentIndex
-        ].id
-      ) === Number(id)
-    ) {
-
-      if (audio) {
-
-        audio.pause();
-
-        audio.removeAttribute(
-          "src"
-        );
-
-        audio.load();
-
-      }
-
-      currentIndex =
-        -1;
-
-    }
-
-
-    await loadSongs();
-
-  } catch (error) {
-
-    console.error(error);
-
-    alert(
-      "Delete failed: " +
-      error.message
-    );
-
-  }
-
-}
-
-
-/* =========================
-   OLD PLAYER BUTTONS
-========================= */
-
-const nextBtn =
-  document.getElementById(
-    "nextBtn"
-  );
-
-const prevBtn =
-  document.getElementById(
-    "prevBtn"
-  );
-
-
-if (nextBtn) {
-
-  nextBtn.onclick =
-    nextSong;
-
-}
-
-
-if (prevBtn) {
-
-  prevBtn.onclick =
-    previousSong;
-
-}
-
 
 if (playBtn) {
+  playBtn.onclick = () => {
 
-  playBtn.onclick =
-    togglePlay;
+    if (
+      index < 0 &&
+      songs.length
+    ) {
+      load(0, true);
+      return;
+    }
 
+    if (audio.paused) {
+      audio.play()
+        .then(() => {
+          playBtn.textContent = "Ⅱ";
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    } else {
+      audio.pause();
+      playBtn.textContent = "▶";
+    }
+  };
 }
 
+const nextBtn =
+  document.getElementById("nextBtn");
 
-/* =========================
-   INITIALIZE
-========================= */
+if (nextBtn) {
+  nextBtn.onclick = () => {
+    if (!songs.length) return;
+
+    load(
+      (index + 1) % songs.length,
+      true
+    );
+  };
+}
+
+const prevBtn =
+  document.getElementById("prevBtn");
+
+if (prevBtn) {
+  prevBtn.onclick = () => {
+    if (!songs.length) return;
+
+    load(
+      (index - 1 + songs.length) %
+        songs.length,
+      true
+    );
+  };
+}
+
+audio.ontimeupdate = () => {
+  if (progress) {
+    progress.value =
+      audio.duration
+        ? (audio.currentTime /
+            audio.duration) * 100
+        : 0;
+  }
+
+  if (current) {
+    current.textContent =
+      fmt(audio.currentTime);
+  }
+};
+
+audio.onloadedmetadata = () => {
+  if (duration) {
+    duration.textContent =
+      fmt(audio.duration);
+  }
+};
+
+audio.onplay = () => {
+  if (playBtn) {
+    playBtn.textContent = "Ⅱ";
+  }
+};
+
+audio.onpause = () => {
+  if (playBtn) {
+    playBtn.textContent = "▶";
+  }
+};
+
+audio.onended = () => {
+  if (!songs.length) return;
+
+  load(
+    (index + 1) % songs.length,
+    true
+  );
+};
+
+if (progress) {
+  progress.oninput = () => {
+    if (audio.duration) {
+      audio.currentTime =
+        (progress.value / 100) *
+        audio.duration;
+    }
+  };
+}
+
+if (volume) {
+  volume.oninput = () => {
+    audio.volume =
+      Number(volume.value);
+  };
+
+  audio.volume = 0.8;
+}
+
+if (search) {
+  search.oninput = () => {
+    render(search.value);
+  };
+}
 
 loadSongs();
