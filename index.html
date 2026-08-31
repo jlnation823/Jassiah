@@ -723,6 +723,12 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 .jc-nav[data-page="6"]{
   color:#ffd76a;
 }
+
+#jcPhotosNav{
+  font-weight:900!important;
+  color:#ffd76a!important;
+  font-family:Arial,sans-serif!important;
+}
 </style>
 </head>
 
@@ -1202,12 +1208,12 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 <div class="jc-app" id="jcApp">
   <aside class="jc-sidebar">
     <div class="jc-logo">J</div>
-    <button class="jc-nav active" data-page="0" onclick="jcGo(0)">⌂</button>
-    <button class="jc-nav" data-page="1" onclick="jcGo(1)">♫</button>
-    <button class="jc-nav" data-page="2" onclick="jcGo(2)">🎤</button>
-    <button class="jc-nav" data-page="3" onclick="jcGo(3)">✓</button>
-    <button class="jc-nav" data-page="4" onclick="jcGo(4)">☷</button>
-    <button class="jc-nav" data-page="5" onclick="jcGo(5)">💿</button><button class="jc-nav" data-page="6" onclick="jcGo(6)" title="Fan Photos" aria-label="Fan Photos">🖼️</button>
+    <button class="jc-nav active" data-page="0" id="jcHomeNav" title="Home">⌂</button>
+    <button class="jc-nav" data-page="1" id="jcSongsNav" title="Songs">♫</button>
+    <button class="jc-nav" data-page="2" id="jcArtistsNav" title="Artists">🎤</button>
+    <button class="jc-nav" data-page="3" id="jcLikedNav" title="Liked Songs">✓</button>
+    <button class="jc-nav" data-page="4" id="jcPlaylistsNav" title="Playlists">☷</button>
+    <button class="jc-nav" data-page="5" id="jcAlbumsNav" title="Albums">💿</button><button class="jc-nav" data-page="6" onclick="jcGo(6)" title="Fan Photos" aria-label="Fan Photos">🖼️</button>
   </aside>
 
   <header class="jc-top">
@@ -5015,6 +5021,293 @@ initializeAuth();
       renderSongs();
       renderArtists();
     },1400);
+  });
+
+})();
+</script>
+
+<script id="jassiah-navigation-and-player-final">
+(function(){
+
+  /* =========================================================
+     PUBLIC NAVIGATION
+     Explicit handlers prevent old slider patches from hijacking
+     the Songs/Liked/Photos buttons.
+     ========================================================= */
+
+  function goPublic(pageNumber){
+    const n=Number(pageNumber);
+    if(typeof window.jcGo==="function"){
+      window.jcGo(n);
+    }else{
+      const track=document.getElementById("jcTrack");
+      if(track)track.style.transform=`translateX(-${n*100}%)`;
+    }
+  }
+
+  window.jcOpenSongsPage=function(){
+    goPublic(1);
+    setTimeout(function(){
+      if(typeof window.renderSongs==="function")window.renderSongs();
+      if(typeof window.renderHome==="function" && false)window.renderHome();
+    },40);
+  };
+
+  window.jcOpenLikedPage=function(){
+    goPublic(3);
+    setTimeout(function(){
+      if(typeof window.renderSongs==="function")window.renderSongs();
+    },40);
+  };
+
+  window.jcOpenArtistsPage=function(){
+    goPublic(2);
+    setTimeout(function(){
+      if(typeof window.renderArtists==="function")window.renderArtists();
+    },40);
+  };
+
+  window.jcOpenPlaylistsPage=function(){
+    goPublic(4);
+    setTimeout(function(){
+      if(typeof window.renderPlaylists==="function")window.renderPlaylists();
+    },40);
+  };
+
+  window.jcOpenAlbumsPage=function(){
+    goPublic(5);
+    setTimeout(function(){
+      if(typeof window.renderAlbums==="function")window.renderAlbums();
+    },40);
+  };
+
+  window.jcOpenPhotosPage=function(){
+    goPublic(6);
+    setTimeout(function(){
+      if(typeof window.jcLoadFanPhotos==="function")window.jcLoadFanPhotos();
+    },40);
+  };
+
+  window.jcOpenHomePage=function(){
+    goPublic(0);
+    setTimeout(function(){
+      if(typeof window.renderHome==="function")window.renderHome();
+    },40);
+  };
+
+  function bindPublicNav(){
+    const nav=[
+      ["jcHomeNav",jcOpenHomePage],
+      ["jcSongsNav",jcOpenSongsPage],
+      ["jcArtistsNav",jcOpenArtistsPage],
+      ["jcLikedNav",jcOpenLikedPage],
+      ["jcPlaylistsNav",jcOpenPlaylistsPage],
+      ["jcAlbumsNav",jcOpenAlbumsPage],
+      ["jcPhotosNav",jcOpenPhotosPage]
+    ];
+
+    nav.forEach(([id,fn])=>{
+      const b=document.getElementById(id);
+      if(!b)return;
+      b.removeAttribute("onclick");
+      b.addEventListener("pointerdown",e=>e.stopPropagation(),{passive:true});
+      b.onclick=e=>{
+        e.preventDefault();
+        e.stopPropagation();
+        fn();
+        return false;
+      };
+    });
+  }
+
+  /* =========================================================
+     PLAYER PERSISTENCE
+     Save the exact song + position while the viewer listens.
+     Restore it after the site's Supabase song load completes.
+     ========================================================= */
+
+  const PLAYER_KEY="jassiahPersistentPlayerV5";
+
+  function currentSongList(){
+    return (typeof songs!=="undefined" && Array.isArray(songs)) ? songs : [];
+  }
+
+  function getAudio(){
+    return document.getElementById("playerAudio") || document.querySelector("audio#playerAudio");
+  }
+
+  function savePersistentPlayer(){
+    try{
+      const audio=getAudio();
+      const list=currentSongList();
+
+      if(!audio || !list.length || typeof currentIndex==="undefined" || currentIndex<0 || !list[currentIndex])return;
+
+      const song=list[currentIndex];
+
+      localStorage.setItem(PLAYER_KEY,JSON.stringify({
+        songId:Number(song.id)||0,
+        filePath:String(song.file_path||""),
+        time:Number(audio.currentTime)||0,
+        volume:Number(audio.volume),
+        muted:Boolean(audio.muted),
+        paused:Boolean(audio.paused)
+      }));
+    }catch(error){
+      console.warn("Player save:",error);
+    }
+  }
+
+  async function restorePersistentPlayer(){
+    try{
+      const raw=localStorage.getItem(PLAYER_KEY);
+      if(!raw)return;
+
+      const state=JSON.parse(raw||"{}");
+      const list=currentSongList();
+
+      if(!list.length)return;
+
+      let index=list.findIndex(
+        song=>Number(song.id)===Number(state.songId)
+      );
+
+      /* Fallback to file_path in case the row id changed. */
+      if(index<0 && state.filePath){
+        index=list.findIndex(
+          song=>String(song.file_path||"")===String(state.filePath)
+        );
+      }
+
+      if(index<0)return;
+
+      const audio=getAudio();
+      if(!audio)return;
+
+      const song=list[index];
+      const url=typeof musicUrl==="function"?musicUrl(song):"";
+      if(!url)return;
+
+      currentIndex=index;
+
+      /* Restore the title/art immediately. */
+      if(typeof setNowPlaying==="function"){
+        setNowPlaying(song);
+      }
+
+      audio.src=url;
+
+      const applyPosition=()=>{
+        try{
+          const t=Math.max(0,Number(state.time)||0);
+          if(Number.isFinite(audio.duration)&&audio.duration>0){
+            audio.currentTime=Math.min(t,audio.duration);
+          }else{
+            audio.currentTime=t;
+          }
+        }catch(_){}
+
+        if(Number.isFinite(Number(state.volume))){
+          audio.volume=Math.max(0,Math.min(1,Number(state.volume)));
+        }
+
+        audio.muted=Boolean(state.muted);
+
+        if(typeof updatePlayerButton==="function"){
+          updatePlayerButton(false);
+        }
+
+        if(typeof jcUpdateNow==="function"){
+          jcUpdateNow();
+        }
+      };
+
+      audio.addEventListener("loadedmetadata",applyPosition,{once:true});
+      audio.load();
+
+      /* Fallback for cached metadata. */
+      setTimeout(applyPosition,350);
+
+    }catch(error){
+      console.warn("Player restore:",error);
+    }
+  }
+
+  function hookPlayerPersistence(){
+    const audio=getAudio();
+    if(!audio)return false;
+
+    if(audio.dataset.jassiahPersistence==="1")return true;
+    audio.dataset.jassiahPersistence="1";
+
+    audio.addEventListener("timeupdate",savePersistentPlayer);
+    audio.addEventListener("pause",savePersistentPlayer);
+    audio.addEventListener("volumechange",savePersistentPlayer);
+    audio.addEventListener("ended",savePersistentPlayer);
+
+    return true;
+  }
+
+  /* Watch for the player element even when the page initializes slowly. */
+  function startPlayerPersistence(){
+    if(hookPlayerPersistence()){
+      restorePersistentPlayer();
+    }
+
+    let attempts=0;
+    const timer=setInterval(()=>{
+      attempts++;
+      hookPlayerPersistence();
+
+      if(currentSongList().length){
+        restorePersistentPlayer();
+      }
+
+      if(attempts>=12)clearInterval(timer);
+    },700);
+  }
+
+  /* Wrap the existing playSong without replacing its actual audio behavior. */
+  function hookPlaySong(){
+    if(typeof window.playSong!=="function")return;
+    if(window.playSong.__jassiahPersistenceWrapped)return;
+
+    const original=window.playSong;
+
+    function wrapped(){
+      const result=original.apply(this,arguments);
+      setTimeout(savePersistentPlayer,150);
+      return result;
+    }
+
+    wrapped.__jassiahPersistenceWrapped=true;
+    window.playSong=wrapped;
+  }
+
+  window.addEventListener("beforeunload",savePersistentPlayer);
+  window.addEventListener("pagehide",savePersistentPlayer);
+
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="hidden"){
+      savePersistentPlayer();
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    bindPublicNav();
+    hookPlaySong();
+    startPlayerPersistence();
+
+    /* Retry after the original Supabase load has populated songs. */
+    setTimeout(()=>{
+      bindPublicNav();
+      hookPlaySong();
+      restorePersistentPlayer();
+    },1200);
+
+    setTimeout(()=>{
+      restorePersistentPlayer();
+    },2600);
   });
 
 })();
