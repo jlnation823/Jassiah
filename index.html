@@ -508,6 +508,35 @@ body{background:#000!important;color:#fff!important;padding-bottom:96px!importan
   .j-modern-head,.j-modern-row{min-width:740px}
   .j-row-play{opacity:1}
 }
+
+@media(min-width:1001px){
+  .j-search-wrap{margin-right:120px}
+}
+@media(max-width:700px){
+  #authBar{right:8px!important;top:8px!important}
+  .j-topbar{height:106px!important;align-items:flex-end!important;padding-bottom:9px!important;box-sizing:border-box}
+  .j-search-wrap{width:86%!important}
+  #adminLoginPanel{top:55px!important;right:8px!important}
+}
+
+#favoritePlayerBtn{
+  position:relative;
+  overflow:hidden;
+}
+#favoritePlayerBtn svg{
+  width:19px!important;
+  height:19px!important;
+  display:block;
+}
+#favoritePlayerBtn svg path{
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:1.8!important;
+}
+#favoritePlayerBtn.active svg path{
+  fill:#ffd76a!important;
+  stroke:#ffd76a!important;
+}
 </style>
 </head>
 
@@ -529,9 +558,150 @@ body{background:#000!important;color:#fff!important;padding-bottom:96px!importan
     <button type="button" onclick="history.back()">‹</button>
     <button type="button" onclick="history.forward()">›</button>
   </div>
+<div id="authBar" style="
+  position:absolute;
+  right:16px;
+  top:12px;
+  z-index:16000;
+  display:flex;
+  align-items:center;
+  gap:8px;
+">
+  <span id="adminBadge" style="
+    display:none;
+    background:#ffd76a;
+    color:#111;
+    padding:7px 10px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:900;
+  ">ADMIN MODE</span>
+
+  <button
+    id="loginButton"
+    type="button"
+    onclick="openAdminLogin()"
+    style="
+      background:#242424;
+      color:#ffd76a;
+      border:1px solid #6b5118;
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:800;
+      cursor:pointer;
+    "
+  >🔐 Log In</button>
+
+  <button
+    id="logoutButton"
+    type="button"
+    onclick="adminLogout()"
+    style="
+      display:none;
+      background:#242424;
+      color:#ffd76a;
+      border:1px solid #6b5118;
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:800;
+      cursor:pointer;
+    "
+  >Log Out</button>
+</div>
+
+<div id="adminLoginPanel" style="
+  display:none;
+  position:absolute;
+  right:16px;
+  top:58px;
+  width:min(370px,calc(100vw - 24px));
+  box-sizing:border-box;
+  background:#181818;
+  border:1px solid #3a301a;
+  border-radius:10px;
+  padding:15px;
+  z-index:16001;
+  box-shadow:0 18px 40px rgba(0,0,0,.55);
+">
+  <div style="font-size:18px;font-weight:900;color:#ffd76a;margin-bottom:10px">
+    🔐 Jassiah Admin
+  </div>
+
+  <input
+    id="adminEmail"
+    name="jassiah-admin-email"
+    type="email"
+    autocomplete="username"
+    autocapitalize="none"
+    spellcheck="false"
+    placeholder="Admin email"
+    style="
+      width:100%;
+      box-sizing:border-box;
+      margin:0 0 8px;
+      padding:10px 11px;
+      border-radius:7px;
+      border:1px solid #3b3b3b;
+      background:#242424;
+      color:#fff;
+    "
+  >
+
+  <input
+    id="adminPassword"
+    name="jassiah-admin-password"
+    type="password"
+    autocomplete="current-password"
+    placeholder="Password"
+    style="
+      width:100%;
+      box-sizing:border-box;
+      margin:0 0 10px;
+      padding:10px 11px;
+      border-radius:7px;
+      border:1px solid #3b3b3b;
+      background:#242424;
+      color:#fff;
+    "
+  >
+
+  <div>
+    <button
+      type="button"
+      onclick="adminLogin()"
+      style="
+        background:#ffd76a;
+        color:#111;
+        border:0;
+        border-radius:999px;
+        padding:9px 14px;
+        font-weight:900;
+        cursor:pointer;
+      "
+    >Log In</button>
+
+    <button
+      type="button"
+      onclick="closeAdminLogin()"
+      style="
+        background:#333;
+        color:#fff;
+        border:0;
+        border-radius:999px;
+        padding:9px 14px;
+        font-weight:800;
+        cursor:pointer;
+        margin-left:6px;
+      "
+    >Cancel</button>
+  </div>
+
+  <div id="adminStatus" style="min-height:18px;margin-top:9px;color:#ffd76a;font-size:12px"></div>
+</div>
+
   <div class="j-search-wrap">
     <span class="j-search-icon">⌕</span>
-    <input id="jTopSearch" type="text" placeholder="What do you want to play?" autocomplete="off">
+    <input id="jTopSearch" type="search" name="jassiah-site-search" value="" readonly autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="What do you want to play?">
     <div id="jSearchResults"></div>
   </div>
 </div>
@@ -546,95 +716,14 @@ body{background:#000!important;color:#fff!important;padding-bottom:96px!importan
     <div class="j-now-label">About the artist</div>
     <div class="j-artist-mini">
       <img id="jNowArtistImage" src="" alt="">
-      <div id="jNowArtistName" class="j-artist-mini-name">Jassiah</div>
+      <button id="jNowArtistName" type="button" class="j-artist-mini-name" onclick="jOpenCurrentArtist()" style="border:0;background:transparent;text-align:left;padding:0;cursor:pointer">Jassiah</button>
     </div>
   </div>
 </aside>
 
-<div id="authBar" style="
-  width:min(950px,94%);
-  margin:8px auto 10px;
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:8px;
-  position:relative;
-  z-index:5000;
-">
-  <span id="adminBadge" style="
-    display:none;
-    background:#ffd76a;
-    color:#111;
-    padding:7px 10px;
-    border-radius:999px;
-    font-size:12px;
-    font-weight:bold;
-  ">ADMIN MODE</span>
 
-  <button id="loginButton" type="button" onclick="openAdminLogin()" style="
-    background:#111;
-    color:#ffd76a;
-    border:1px solid #9f741c;
-    border-radius:8px;
-    padding:9px 13px;
-    font-weight:bold;
-    cursor:pointer;
-  ">🔐 Admin Login</button>
 
-  <button id="logoutButton" type="button" onclick="adminLogout()" style="
-    display:none;
-    background:#111;
-    color:#ffd76a;
-    border:1px solid #9f741c;
-    border-radius:8px;
-    padding:9px 13px;
-    font-weight:bold;
-    cursor:pointer;
-  ">Log Out</button>
-</div>
 
-<div id="adminLoginPanel" style="
-  display:none;
-  width:min(430px,90%);
-  margin:10px auto 16px;
-  padding:18px;
-  background:#101010;
-  border:1px solid #604a18;
-  border-radius:12px;
-  position:relative;
-  z-index:5001;
-  box-shadow:0 10px 30px rgba(0,0,0,.45);
-">
-  <h2 style="margin:0 0 10px;color:#ffd76a">🔐 Jassiah Admin</h2>
-  <input id="adminEmail" type="email" placeholder="Email">
-  <input id="adminPassword" type="password" placeholder="Password">
-
-  <button type="button" onclick="adminLogin()" style="
-    background:linear-gradient(135deg,#f0c653,#9d7014);
-    color:#111;
-    border:0;
-    border-radius:8px;
-    padding:10px 15px;
-    font-weight:bold;
-    cursor:pointer;
-  ">Log In</button>
-
-  <button type="button" onclick="closeAdminLogin()" style="
-    background:#333;
-    color:#fff;
-    border:0;
-    border-radius:8px;
-    padding:10px 15px;
-    margin-left:6px;
-    cursor:pointer;
-  ">Cancel</button>
-
-  <div id="adminStatus" style="
-    min-height:20px;
-    margin-top:10px;
-    color:#ffd76a;
-    font-size:13px;
-  "></div>
 </div>
 
 
@@ -1233,6 +1322,7 @@ async function loadSongs(){
   renderFavoriteSongs();
   renderHomeDashboard();
   renderHomeDashboard();
+  setTimeout(jLoadSongDurations,250);
 }
 
 
@@ -1315,13 +1405,14 @@ function renderSongs(list){
             </div>
 
             <div class="j-date-added">${escapeHtml(date)}</div>
-            <div class="j-duration">${duration}</div>
+            <div class="j-duration" data-song-id="${Number(song.id)}">${duration}</div>
           </div>
         `;
       }).join("")}
     </div>
   `;
 }
+
 
 
 function setNowPlaying(song){
@@ -1337,7 +1428,6 @@ function setNowPlaying(song){
   updatePlayerButton(true);
   updateCurrentFavoriteButton();
 
-  /* Right-side Spotify-style Now Playing panel */
   const rightArt=document.getElementById("jNowArt");
   const rightTitle=document.getElementById("jNowTitle");
   const rightArtist=document.getElementById("jNowArtist");
@@ -1346,31 +1436,55 @@ function setNowPlaying(song){
 
   if(rightArt)rightArt.src=coverUrl(song);
   if(rightTitle)rightTitle.textContent=song.title||"Untitled";
-  if(rightArtist)rightArtist.textContent=song.artist||"Unknown Artist";
+
+  if(rightArtist){
+    rightArtist.textContent=song.artist||"Unknown Artist";
+    rightArtist.style.cursor="pointer";
+    rightArtist.onclick=jOpenCurrentArtist;
+  }
 
   const credit=String(song.artist||"").trim().toLowerCase();
-  const profiles=window.jArtistCloudProfiles||[];
+  const profiles=Array.isArray(window.jArtistCloudProfiles)
+    ? window.jArtistCloudProfiles
+    : [];
 
-  const profile=profiles.find(p=>{
-    const name=String(p.name||"").trim().toLowerCase();
-
-    return name && (
-      credit===name ||
-      credit.startsWith(name+" ft") ||
-      credit.startsWith(name+" feat") ||
-      credit.startsWith(name+" featuring") ||
-      credit.startsWith(name+" &") ||
-      credit.startsWith(name+" x") ||
-      credit.startsWith(name+" with")
-    );
-  });
+  const profile=profiles
+    .slice()
+    .sort((a,b)=>String(b.name||"").length-String(a.name||"").length)
+    .find(p=>{
+      const name=String(p.name||"").trim().toLowerCase();
+      return name && (
+        credit===name ||
+        credit.startsWith(name+" ft") ||
+        credit.startsWith(name+" feat") ||
+        credit.startsWith(name+" featuring") ||
+        credit.startsWith(name+" &") ||
+        credit.startsWith(name+" x") ||
+        credit.startsWith(name+" with")
+      );
+    });
 
   if(profile){
-    if(artistImage)artistImage.src=profile.image_url||coverUrl(song);
-    if(artistName)artistName.textContent=profile.name;
+    if(artistImage){
+      artistImage.src=profile.image_url||coverUrl(song);
+      artistImage.style.cursor="pointer";
+      artistImage.onclick=jOpenCurrentArtist;
+    }
+
+    if(artistName){
+      artistName.textContent=profile.name;
+      artistName.title="Open "+profile.name+" artist page";
+    }
   }else{
-    if(artistImage)artistImage.src=coverUrl(song);
-    if(artistName)artistName.textContent=song.artist||"Unknown Artist";
+    if(artistImage){
+      artistImage.src=coverUrl(song);
+      artistImage.style.cursor="pointer";
+      artistImage.onclick=jOpenCurrentArtist;
+    }
+
+    if(artistName){
+      artistName.textContent=song.artist||"Unknown Artist";
+    }
   }
 }
 
@@ -3493,108 +3607,6 @@ async function deleteSong(id){
 loadSongs();
 
 
-function updateAdminVisibility(){
-  const loggedIn=!!currentUser;
-
-  document.body.classList.toggle("admin-mode",loggedIn);
-
-  const loginButton=document.getElementById("loginButton");
-  const logoutButton=document.getElementById("logoutButton");
-  const badge=document.getElementById("adminBadge");
-
-  if(loginButton)loginButton.style.display=loggedIn?"none":"inline-block";
-  if(logoutButton)logoutButton.style.display=loggedIn?"inline-block":"none";
-  if(badge)badge.style.display=loggedIn?"inline-block":"none";
-
-  document.querySelectorAll(".admin-only").forEach(el=>{
-    el.style.display=loggedIn?"":"none";
-  });
-}
-
-function openAdminLogin(){
-  const panel=document.getElementById("adminLoginPanel");
-  const status=document.getElementById("adminStatus");
-
-  if(status)status.textContent="";
-  if(panel){
-    panel.style.display="block";
-    panel.scrollIntoView({behavior:"smooth",block:"center"});
-  }
-
-  document.getElementById("adminEmail")?.focus();
-}
-
-function closeAdminLogin(){
-  const panel=document.getElementById("adminLoginPanel");
-  if(panel)panel.style.display="none";
-}
-
-async function adminLogin(){
-  const email=document.getElementById("adminEmail")?.value.trim();
-  const password=document.getElementById("adminPassword")?.value;
-  const status=document.getElementById("adminStatus");
-
-  if(!email||!password){
-    if(status)status.textContent="Enter your email and password.";
-    return;
-  }
-
-  if(status)status.textContent="Logging in...";
-
-  const {data,error}=await client.auth.signInWithPassword({
-    email,
-    password
-  });
-
-  if(error){
-    console.error(error);
-    if(status)status.textContent="Login failed: "+error.message;
-    return;
-  }
-
-  currentUser=data.user;
-  updateAdminVisibility();
-  closeAdminLogin();
-
-  const pw=document.getElementById("adminPassword");
-  if(pw)pw.value="";
-}
-
-async function adminLogout(){
-  await client.auth.signOut();
-  currentUser=null;
-  updateAdminVisibility();
-}
-
-async function initializeAuth(){
-  try{
-    const {data,error}=await client.auth.getSession();
-
-    if(error){
-      console.error(error);
-      currentUser=null;
-    }else{
-      currentUser=data?.session?.user||null;
-    }
-
-    updateAdminVisibility();
-
-    client.auth.onAuthStateChange((_event,session)=>{
-      currentUser=session?.user||null;
-      updateAdminVisibility();
-    });
-  }catch(error){
-    console.error("Auth initialization:",error);
-    currentUser=null;
-    updateAdminVisibility();
-  }
-}
-
-initializeAuth();
-
-
-window.jArtistCloudProfiles=[];
-
 async function jLoadCloudArtists(){
   try{
     const {data,error}=await client
@@ -3834,6 +3846,225 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   jLoadCloudArtists();
 });
+
+function updateAdminVisibility(){
+  const loggedIn=!!currentUser;
+
+  document.body.classList.toggle("admin-mode",loggedIn);
+
+  const loginButton=document.getElementById("loginButton");
+  const logoutButton=document.getElementById("logoutButton");
+  const badge=document.getElementById("adminBadge");
+
+  if(loginButton)loginButton.style.display=loggedIn?"none":"inline-block";
+  if(logoutButton)logoutButton.style.display=loggedIn?"inline-block":"none";
+  if(badge)badge.style.display=loggedIn?"inline-block":"none";
+
+  document.querySelectorAll(".admin-only").forEach(el=>{
+    el.style.display=loggedIn?"":"none";
+  });
+
+  const newArtist=document.getElementById("newArtistPanel");
+  if(newArtist)newArtist.style.display=loggedIn?"block":"none";
+
+  const editArtist=document.getElementById("editArtistPanel");
+  if(editArtist && !loggedIn)editArtist.style.display="none";
+}
+
+function openAdminLogin(){
+  const panel=document.getElementById("adminLoginPanel");
+  const status=document.getElementById("adminStatus");
+
+  if(status)status.textContent="";
+
+  if(panel){
+    panel.style.display="block";
+  }
+
+  document.getElementById("adminEmail")?.focus();
+}
+
+function closeAdminLogin(){
+  const panel=document.getElementById("adminLoginPanel");
+  if(panel)panel.style.display="none";
+}
+
+async function adminLogin(){
+  const email=document.getElementById("adminEmail")?.value.trim();
+  const password=document.getElementById("adminPassword")?.value;
+  const status=document.getElementById("adminStatus");
+
+  if(!email||!password){
+    if(status)status.textContent="Enter your email and password.";
+    return;
+  }
+
+  if(status)status.textContent="Logging in...";
+
+  const {data,error}=await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    console.error(error);
+    if(status)status.textContent="Login failed: "+error.message;
+    return;
+  }
+
+  currentUser=data.user;
+  updateAdminVisibility();
+  closeAdminLogin();
+
+  const passwordInput=document.getElementById("adminPassword");
+  if(passwordInput)passwordInput.value="";
+
+  const search=document.getElementById("jTopSearch");
+  if(search)search.value="";
+}
+
+async function adminLogout(){
+  await client.auth.signOut();
+  currentUser=null;
+  updateAdminVisibility();
+
+  const search=document.getElementById("jTopSearch");
+  if(search)search.value="";
+}
+
+async function initializeAuth(){
+  try{
+    const {data,error}=await client.auth.getSession();
+
+    if(error){
+      console.error(error);
+      currentUser=null;
+    }else{
+      currentUser=data?.session?.user||null;
+    }
+
+    updateAdminVisibility();
+
+    client.auth.onAuthStateChange((_event,session)=>{
+      currentUser=session?.user||null;
+      updateAdminVisibility();
+    });
+  }catch(error){
+    console.error("Auth initialization:",error);
+    currentUser=null;
+    updateAdminVisibility();
+  }
+}
+
+function jSetupSearch(){
+  const input=document.getElementById("jTopSearch");
+  if(!input)return;
+
+  input.addEventListener("focus",()=>{
+    input.removeAttribute("readonly");
+  });
+
+  input.addEventListener("input",()=>{
+    if(input.value.trim()===""){
+      const box=document.getElementById("jSearchResults");
+      if(box)box.style.display="none";
+      return;
+    }
+    jSearchResults(input.value);
+  });
+
+  input.addEventListener("keydown",event=>{
+    if(event.key==="Escape"){
+      input.value="";
+      const box=document.getElementById("jSearchResults");
+      if(box)box.style.display="none";
+    }
+  });
+
+  /* Never let a saved email populate the site search field. */
+  if(input.value.includes("@")){
+    input.value="";
+  }
+}
+
+document.addEventListener("DOMContentLoaded",jSetupSearch);
+
+function jOpenCurrentArtist(){
+  if(currentIndex<0 || !songs[currentIndex])return;
+
+  const song=songs[currentIndex];
+  const credit=String(song.artist||"").trim().toLowerCase();
+  const profiles=Array.isArray(window.jArtistCloudProfiles)
+    ? window.jArtistCloudProfiles
+    : [];
+
+  const profile=profiles
+    .slice()
+    .sort((a,b)=>String(b.name||"").length-String(a.name||"").length)
+    .find(p=>{
+      const name=String(p.name||"").trim().toLowerCase();
+      return name && (
+        credit===name ||
+        credit.startsWith(name+" ft") ||
+        credit.startsWith(name+" feat") ||
+        credit.startsWith(name+" featuring") ||
+        credit.startsWith(name+" &") ||
+        credit.startsWith(name+" x") ||
+        credit.startsWith(name+" with")
+      );
+    });
+
+  if(profile){
+    openArtistPage(profile.name);
+  }
+}
+
+function jLoadSongDurations(){
+  document.querySelectorAll(".j-duration[data-song-id]").forEach(el=>{
+    if(el.dataset.probed==="1")return;
+
+    const id=Number(el.dataset.songId);
+    const song=songs.find(s=>Number(s.id)===id);
+
+    if(!song)return;
+
+    const existing=
+      song.duration_seconds ??
+      song.duration ??
+      song.length;
+
+    if(Number.isFinite(Number(existing)) && Number(existing)>0){
+      el.textContent=formatTime(Number(existing));
+      return;
+    }
+
+    const url=musicUrl(song);
+
+    if(!url)return;
+
+    el.dataset.probed="1";
+
+    const a=new Audio();
+    a.preload="metadata";
+
+    const finish=()=>{
+      try{ a.removeAttribute("src"); a.load(); }catch(_){}
+    };
+
+    a.addEventListener("loadedmetadata",()=>{
+      if(Number.isFinite(a.duration)){
+        el.textContent=formatTime(a.duration);
+      }
+      finish();
+    },{once:true});
+
+    a.addEventListener("error",finish,{once:true});
+
+    a.src=url;
+  });
+}
+
+initializeAuth();
 </script>
 
 </body>
