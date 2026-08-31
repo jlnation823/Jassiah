@@ -719,6 +719,10 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   .jc-manage-row{align-items:flex-start}
   .jc-manage-actions{flex-wrap:wrap;justify-content:flex-end}
 }
+
+.jc-nav[data-page="6"]{
+  color:#ffd76a;
+}
 </style>
 </head>
 
@@ -1203,7 +1207,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
     <button class="jc-nav" data-page="2" onclick="jcGo(2)">🎤</button>
     <button class="jc-nav" data-page="3" onclick="jcGo(3)">✓</button>
     <button class="jc-nav" data-page="4" onclick="jcGo(4)">☷</button>
-    <button class="jc-nav" data-page="5" onclick="jcGo(5)">💿</button><button class="jc-nav" data-page="6" onclick="jcGo(6)" title="Fan Photos">🖼</button>
+    <button class="jc-nav" data-page="5" onclick="jcGo(5)">💿</button><button class="jc-nav" data-page="6" onclick="jcGo(6)" title="Fan Photos" aria-label="Fan Photos">🖼️</button>
   </aside>
 
   <header class="jc-top">
@@ -4144,7 +4148,7 @@ initializeAuth();
     </div>
     <div class="jc-section">Songs by ${esc(artistName)}</div>
     ${songRows(list)}`;
-    document.getElementById("jcTrack").style.transform="translateX(-600%)";
+    document.getElementById("jcTrack").style.transform="translateX(-700%)";
   };
 
   window.jcPlayArtist=function(){
@@ -4164,19 +4168,59 @@ initializeAuth();
   };
 
   window.jcGo=function(n){
-    page=Math.max(0,Math.min(6,Number(n)||0));
+    page=Math.max(0,Math.min(8,Number(n)||0));
+
     const track=document.getElementById("jcTrack");
-    if(track)track.style.transform=`translateX(-${page*100}%)`;
-    document.querySelectorAll(".jc-nav").forEach(b=>b.classList.toggle("active",Number(b.dataset.page)===Math.min(page,5)));
+    if(track){
+      track.style.transform=`translateX(-${page*100}%)`;
+    }
+
+    /* Only the 7 public sidebar pages get an active sidebar highlight. */
+    document.querySelectorAll(".jc-nav").forEach(btn=>{
+      btn.classList.toggle(
+        "active",
+        Number(btn.dataset.page)===page
+      );
+    });
+
     if(page===0)renderHome();
     if(page===1)renderSongs();
     if(page===2)renderArtists();
     if(page===3)renderSongs();
     if(page===4)renderPlaylists();
     if(page===5)renderAlbums();
+    if(page===6)jcLoadFanPhotos();
+
+    /* Page 7 is a dynamically filled Artist Detail page. */
+    if(page===7){
+      /* Keep the detail page as-is. */
+    }
+
+    if(page===8){
+      if(!adminNow()){
+        alert("Please log in as admin first.");
+        page=0;
+        if(track)track.style.transform="translateX(0)";
+        return;
+      }
+
+      refreshAdminNames();
+      refreshAlbumSongChecks();
+      jcRenderDeleteSongList();
+      jcRenderOrderList();
+      jcLoadFanPhotos();
+    }
   };
-  window.jcBack=function(){jcGo(page<=0?5:page-1)};
-  window.jcForward=function(){jcGo(page>=5?0:page+1)};
+
+  /* Back/forward controls cycle through the public slides.
+     Artist details are opened directly from an artist click. */
+  window.jcBack=function(){
+    jcGo(page<=0?6:page-1);
+  };
+
+  window.jcForward=function(){
+    jcGo(page>=6?0:page+1);
+  };
 
   window.jcToggleLike=function(id){
     const n=Number(id);
