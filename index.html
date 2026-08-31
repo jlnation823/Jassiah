@@ -322,7 +322,7 @@ audio{width:100%;height:40px}
 .mobile-nav-open + .mobile-menu-button span:nth-child(3){
   transform:translateY(-7px) rotate(-45deg);
 }
-@media(max-width:650px){
+@media(max-width:650px){\n  #artistHero{flex-direction:column;align-items:flex-start}\n
   .mobile-menu-button{display:block}
   .site-nav{
     max-height:0;
@@ -576,6 +576,40 @@ audio{width:100%;height:40px}
   </div>
 
   <div id="recentSongs" style="margin-top:14px"></div>
+</section>
+
+
+<section class="panel" id="artistPage" style="display:none">
+  <button
+    onclick="closeArtistPage()"
+    style="
+      background:#111;
+      color:#ffd76a;
+      border:1px solid #9f741c;
+      border-radius:8px;
+      padding:9px 14px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-bottom:14px;
+    "
+  >
+    ← Back to Music
+  </button>
+
+  <div
+    id="artistHero"
+    style="
+      display:flex;
+      gap:18px;
+      align-items:center;
+      background:linear-gradient(135deg,#1d180d,#101010);
+      border:1px solid #5c4618;
+      border-radius:14px;
+      padding:18px;
+    "
+  ></div>
+
+  <div id="artistSongs" style="margin-top:18px"></div>
 </section>
 
 <input id="search" class="search" type="text"
@@ -2084,54 +2118,217 @@ window.addEventListener("scroll",()=>{
 });
 
 
+
+
 function showArtist(artistName){
-  const searchBox=document.getElementById("search");
-
-  if(searchBox){
-    searchBox.value=artistName;
-  }
-
-  renderSongs(
-    songs.filter(song =>
-      String(song.artist||"").toLowerCase() ===
-      String(artistName||"").toLowerCase()
-    )
+  const artistSongs=songs.filter(song =>
+    String(song.artist||"").toLowerCase() ===
+    String(artistName||"").toLowerCase()
   );
 
-  const songsPanel=document.getElementById("songsPanel") || document.getElementById("songs");
-  if(songsPanel){
-    songsPanel.scrollIntoView({
-      behavior:"smooth",
-      block:"start"
-    });
+  if(!artistSongs.length){
+    return;
   }
-}
 
+  const page=document.getElementById("artistPage");
+  const hero=document.getElementById("artistHero");
+  const list=document.getElementById("artistSongs");
+  const currentArtist=artistSongs[0].artist || artistName;
 
-function toggleMobileNav(){
-  const nav=document.querySelector(".site-nav");
-  const button=document.getElementById("mobileMenuButton");
+  const image=
+    artistSongs.find(song=>song.cover_url)?.cover_url ||
+    "data:image/svg+xml;charset=UTF-8,"+
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="220" height="220">
+        <rect width="100%" height="100%" fill="#222"/>
+        <text x="50%" y="50%" text-anchor="middle"
+              dominant-baseline="middle" font-size="72">🎤</text>
+      </svg>
+    `);
 
-  if(!nav)return;
+  hero.innerHTML=`
+    <img
+      src="${escapeHtml(image)}"
+      onerror="this.style.display='none'"
+      style="
+        width:130px;
+        height:130px;
+        object-fit:cover;
+        border-radius:50%;
+        border:2px solid #c99a2f;
+        flex-shrink:0;
+      "
+      alt=""
+    >
 
-  nav.classList.toggle("mobile-nav-open");
-  button.classList.toggle("mobile-nav-open");
-}
+    <div style="min-width:0;flex:1">
+      <div style="
+        color:#b39a5d;
+        font-size:11px;
+        letter-spacing:3px;
+        font-weight:bold;
+      ">
+        ARTIST
+      </div>
 
-document.querySelectorAll(".nav-link").forEach(link=>{
-  link.addEventListener("click",()=>{
-    const nav=document.querySelector(".site-nav");
-    const button=document.getElementById("mobileMenuButton");
+      <div style="
+        font:italic 42px Georgia,serif;
+        color:#ffd76a;
+        margin-top:3px;
+      ">
+        ${escapeHtml(currentArtist)}
+      </div>
 
-    if(nav){
-      nav.classList.remove("mobile-nav-open");
-    }
+      <div style="
+        color:#aaa;
+        margin-top:6px;
+      ">
+        ${artistSongs.length}
+        song${artistSongs.length===1?"":"s"}
+      </div>
 
-    if(button){
-      button.classList.remove("mobile-nav-open");
+      <button
+        onclick="playArtistSongs('${escapeJs(currentArtist)}')"
+        style="
+          margin-top:12px;
+          background:linear-gradient(135deg,#f0c653,#9d7014);
+          color:#111;
+          border:0;
+          border-radius:8px;
+          padding:10px 15px;
+          font-weight:bold;
+          cursor:pointer;
+        "
+      >
+        ▶ Play All
+      </button>
+    </div>
+  `;
+
+  list.innerHTML=artistSongs.map(song=>{
+    const originalIndex=
+      songs.findIndex(s=>Number(s.id)===Number(song.id));
+
+    return `
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:11px 0;
+        border-bottom:1px solid #222;
+      ">
+        <img
+          src="${escapeHtml(song.cover_url || image)}"
+          onerror="this.src='${escapeJs(image)}'"
+          style="
+            width:60px;
+            height:60px;
+            object-fit:cover;
+            border-radius:8px;
+          "
+          alt=""
+        >
+
+        <div style="flex:1;min-width:0">
+          <div style="
+            font-weight:bold;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+          ">
+            ${escapeHtml(song.title||"Untitled")}
+          </div>
+          <div style="
+            color:#999;
+            font-size:12px;
+            margin-top:3px;
+          ">
+            ${escapeHtml(song.artist||"Unknown Artist")}
+          </div>
+        </div>
+
+        <button
+          onclick="playSong(${originalIndex})"
+          style="
+            width:38px;
+            height:38px;
+            border-radius:50%;
+            background:#ffd76a;
+            color:#111;
+            border:0;
+            cursor:pointer;
+            font-weight:bold;
+          "
+        >
+          ▶
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  page.style.display="block";
+
+  const panels=document.querySelectorAll(".panel");
+  panels.forEach(panel=>{
+    if(
+      panel.id!=="artistPage" &&
+      panel.id!=="featuredPanel" &&
+      panel.id!=="recentPanel"
+    ){
+      panel.style.display="none";
     }
   });
-});
+
+  page.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+function playArtistSongs(artistName){
+  const queue=songs.filter(song =>
+    String(song.artist||"").toLowerCase()===
+    String(artistName||"").toLowerCase()
+  );
+
+  if(!queue.length)return;
+
+  /*
+    Temporarily use the artist's songs as the playback queue.
+  */
+  playlistQueue={
+    name:"Artist: "+artistName,
+    songs:queue
+  };
+
+  albumQueue=null;
+  currentIndex=0;
+
+  const song=queue[0];
+  const url=musicUrl(song);
+
+  if(!url)return;
+
+  player.src=url;
+  setNowPlaying(song);
+  player.play().catch(()=>{});
+}
+
+function closeArtistPage(){
+  const page=document.getElementById("artistPage");
+  if(page){
+    page.style.display="none";
+  }
+
+  document.querySelectorAll(".panel").forEach(panel=>{
+    panel.style.display="";
+  });
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
 
 function filterSongs(){
   const q=document.getElementById("search").value.toLowerCase().trim();
