@@ -754,6 +754,27 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 }
 .jc-list-like.liked{background:#ffd76a!important;color:#111!important}
 #jcPhotosNav{font-weight:900!important;color:#ffd76a!important}
+
+/* Reorder controls: compact, visible, and clickable */
+.jc-order-btn{
+  width:32px!important;
+  height:32px!important;
+  min-width:32px!important;
+  min-height:32px!important;
+  border:1px solid #6b5219!important;
+  border-radius:7px!important;
+  background:#181818!important;
+  color:#ffd76a!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  cursor:pointer!important;
+  font-size:16px!important;
+  font-weight:900!important;
+}
+.jc-order-btn:not(:disabled):hover{background:#292929!important}
+.jc-order-btn:disabled{opacity:.25!important;cursor:default!important}
 </style>
 </head>
 
@@ -5640,6 +5661,247 @@ initializeAuth();
   window.addEventListener("pagehide",saveExactPlayer);
   document.addEventListener("visibilitychange",()=>{
     if(document.visibilityState==="hidden")saveExactPlayer();
+  });
+
+})();
+</script>
+
+<script id="jassiah-reorder-real-fix">
+(function(){
+
+  const LOCAL_ORDER_KEY="jassiahArtistSongOrderV1";
+  const ORDER_TABLE="artist_song_order";
+
+  function currentSongs(){
+    return (typeof songs!=="undefined"&&Array.isArray(songs))?songs:[];
+  }
+
+  function currentProfiles(){
+    return (typeof artistProfiles!=="undefined"&&artistProfiles)?artistProfiles:{};
+  }
+
+  function artistNames(){
+    return Object.keys(currentProfiles()).filter(Boolean);
+  }
+
+  function primary(credit){
+    const c=String(credit||"").trim().toLowerCase();
+    const names=artistNames().sort((a,b)=>b.length-a.length);
+    const hit=names.find(n=>{
+      const x=n.toLowerCase();
+      return c===x||c.startsWith(x+" ft")||c.startsWith(x+" feat")||c.startsWith(x+" featuring");
+    });
+    return hit||String(credit||"").split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+  }
+
+  function loadLocalOrder(){
+    try{
+      const obj=JSON.parse(localStorage.getItem(LOCAL_ORDER_KEY)||"{}");
+      return obj&&typeof obj==="object"?obj:{};
+    }catch(_){
+      return {};
+    }
+  }
+
+  function saveLocalOrder(map){
+    localStorage.setItem(LOCAL_ORDER_KEY,JSON.stringify(map||{}));
+  }
+
+  let orderMap=loadLocalOrder();
+
+  function applyOrder(list,name){
+    const ids=(orderMap[String(name)]||[]).map(Number);
+    if(!ids.length)return list.slice();
+
+    const ranks=new Map(ids.map((id,i)=>[id,i]));
+    return list.slice().sort((a,b)=>{
+      const ai=ranks.has(Number(a.id))?ranks.get(Number(a.id)):100000+Number(a.id||0);
+      const bi=ranks.has(Number(b.id))?ranks.get(Number(b.id)):100000+Number(b.id||0);
+      return ai-bi;
+    });
+  }
+
+  async function loadRemoteOrder(){
+    try{
+      const {data,error}=await client
+        .from(ORDER_TABLE)
+        .select("artist_name,song_ids");
+
+      if(error)return false;
+
+      (data||[]).forEach(row=>{
+        if(row?.artist_name && Array.isArray(row.song_ids)){
+          orderMap[row.artist_name]=row.song_ids.map(Number);
+        }
+      });
+
+      saveLocalOrder(orderMap);
+      return true;
+    }catch(_){
+      return false;
+    }
+  }
+
+  async function saveRemoteOrder(name,ids){
+    try{
+      const {error}=await client
+        .from(ORDER_TABLE)
+        .upsert(
+          {
+            artist_name:name,
+            song_ids:ids,
+            updated_at:new Date().toISOString()
+          },
+          {onConflict:"artist_name"}
+        );
+      return !error;
+    }catch(_){
+      return false;
+    }
+  }
+
+  function refreshOrderArtistList(){
+    const list=document.getElementById("jcOrderArtistList");
+    if(!list)return;
+    list.innerHTML=artistNames()
+      .sort((a,b)=>a.localeCompare(b))
+      .map(n=>`<option value="${escapeHtml(n)}"></option>`)
+      .join("");
+  }
+
+  window.jcRenderOrderList=function(){
+    const box=document.getElementById("jcOrderList");
+    if(!box)return;
+
+    const raw=(document.getElementById("jcOrderArtist")?.value||"").trim();
+    if(!raw){
+      box.innerHTML='<div style="padding:12px;color:#777;font-size:11px">Type an artist name to manage song order.</div>';
+      return;
+    }
+
+    const exact=artistNames().find(n=>n.toLowerCase()===raw.toLowerCase());
+    if(!exact){
+      box.innerHTML='<div style="padding:12px;color:#777;font-size:11px">Artist not found.</div>';
+      return;
+    }
+
+    const list=applyOrder(
+      currentSongs().filter(s=>primary(s.artist).toLowerCase()===exact.toLowerCase()),
+      exact
+    );
+
+    if(!list.length){
+      box.innerHTML='<div style="padding:12px;color:#777;font-size:11px">No songs for this artist.</div>';
+      return;
+    }
+
+    box.innerHTML=list.map((song,i)=>`
+      <div class="jc-order-row">
+        <img src="${escapeHtml(typeof coverUrl==="function"?coverUrl(song):"")}" alt="">
+        <div class="jc-order-name">
+          <strong>${escapeHtml(song.title||"Untitled")}</strong>
+          <span>${escapeHtml(song.artist||"")}</span>
+        </div>
+        <button class="jc-order-btn" type="button"
+          ${i===0?"disabled":""}
+          onclick="jcMoveArtistSong(${Number(song.id)},-1)">↑</button>
+        <button class="jc-order-btn" type="button"
+          ${i===list.length-1?"disabled":""}
+          onclick="jcMoveArtistSong(${Number(song.id)},1)">↓</button>
+      </div>
+    `).join("");
+  };
+
+  window.jcMoveArtistSong=async function(id,direction){
+    if(!(typeof currentUser!=="undefined"&&currentUser)){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    const raw=(document.getElementById("jcOrderArtist")?.value||"").trim();
+    const exact=artistNames().find(n=>n.toLowerCase()===raw.toLowerCase());
+
+    if(!exact)return;
+
+    let list=applyOrder(
+      currentSongs().filter(s=>primary(s.artist).toLowerCase()===exact.toLowerCase()),
+      exact
+    );
+
+    const at=list.findIndex(s=>Number(s.id)===Number(id));
+    const to=at+Number(direction);
+
+    if(at<0||to<0||to>=list.length)return;
+
+    [list[at],list[to]]=[list[to],list[at]];
+
+    const ids=list.map(s=>Number(s.id));
+
+    /* SAVE LOCALLY FIRST — the reorder works immediately even when the
+       optional Supabase order table hasn't been created yet. */
+    orderMap[exact]=ids;
+    saveLocalOrder(orderMap);
+
+    const status=document.getElementById("jcOrderStatus");
+    if(status)status.textContent="Order saved.";
+
+    jcRenderOrderList();
+
+    /* Sync to Supabase when the table/policies are available. */
+    const remoteOk=await saveRemoteOrder(exact,ids);
+
+    if(remoteOk){
+      if(status)status.textContent="Order saved.";
+    }else{
+      if(status)status.textContent="Order saved on this browser. Add the Supabase order table later to share the order with all viewers.";
+    }
+
+    /* Repaint artist detail if open. */
+    try{
+      if(typeof artistName!=="undefined" && artistName===exact &&
+         typeof jcOpenArtistFinal==="function"){
+        jcOpenArtistFinal(exact);
+      }
+    }catch(_){}
+  };
+
+  /* Replace the artist detail renderer so its song list uses the same order. */
+  window.jcOpenArtistFinal=function(name){
+    const clean=String(name||"").trim();
+    const list=applyOrder(
+      currentSongs().filter(s=>primary(s.artist).toLowerCase()===clean.toLowerCase()),
+      clean
+    );
+
+    const profile=currentProfiles()[clean]||null;
+    const image=profile?.image||(list[0]?coverUrl(list[0]):"");
+    const box=document.getElementById("jcArtistPage");
+    const track=document.getElementById("jcTrack");
+    if(!box||!track)return;
+
+    box.innerHTML=`
+      <div class="jc-detail">
+        <img src="${escapeHtml(image||"")}" alt="${escapeHtml(clean)}">
+        <div style="min-width:0">
+          <div class="jc-kicker">ARTIST PROFILE</div>
+          <div class="jc-detail-name">${escapeHtml(clean)}</div>
+          <div class="jc-muted" style="margin-top:7px">
+            ${list.length} song${list.length===1?"":"s"}
+          </div>
+        </div>
+      </div>
+      <div class="jc-section">Songs by ${escapeHtml(clean)}</div>
+      ${typeof songRows==="function"?songRows(list):""}
+    `;
+
+    track.style.transform="translateX(-700%)";
+  };
+
+  document.addEventListener("DOMContentLoaded",async()=>{
+    refreshOrderArtistList();
+    await loadRemoteOrder();
+    refreshOrderArtistList();
+    jcRenderOrderList();
   });
 
 })();
