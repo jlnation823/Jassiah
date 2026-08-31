@@ -1307,6 +1307,40 @@ body{
 </head>
 
 <body>
+<div id="jEditArtistModalTarget2">
+  <div class="j-edit-card">
+    <div style="font-size:22px;font-weight:900;color:#ffd76a;margin-bottom:14px">
+      ✏️ Edit Artist
+    </div>
+
+    <label style="display:block;color:#aaa;font-size:12px;margin-bottom:5px">Artist name</label>
+    <input id="jEditArtistNameTarget2" type="text"
+      style="width:100%;box-sizing:border-box;background:#242424;color:#fff;
+             border:1px solid #444;border-radius:7px;padding:10px;margin-bottom:12px">
+
+    <label style="display:block;color:#aaa;font-size:12px;margin-bottom:5px">Artist picture</label>
+    <input id="jEditArtistImageTarget2" type="file" accept="image/*"
+      style="width:100%;box-sizing:border-box;background:#242424;color:#ddd;
+             border:1px solid #444;border-radius:7px;padding:8px;margin-bottom:13px">
+
+    <div style="display:flex;gap:8px">
+      <button type="button" onclick="jSaveArtistTarget2()"
+        style="background:#ffd76a;color:#111;border:0;border-radius:999px;
+               padding:10px 15px;font-weight:900;cursor:pointer">
+        Save Changes
+      </button>
+      <button type="button" onclick="jCloseArtistTarget2()"
+        style="background:#333;color:#fff;border:1px solid #555;border-radius:999px;
+               padding:10px 15px;font-weight:800;cursor:pointer">
+        Cancel
+      </button>
+    </div>
+
+    <div id="jEditArtistStatusTarget2"
+      style="min-height:20px;margin-top:9px;color:#ffd76a;font-size:12px"></div>
+  </div>
+</div>
+
 <div id="jEditArtistModalTarget">
   <div class="j-edit-box">
     <div style="font-size:22px;font-weight:900;color:#ffd76a;margin-bottom:14px">
@@ -7087,3 +7121,606 @@ document.addEventListener("keydown",event=>{
 
 </body>
 </html>
+
+<style id="jassiah-targeted-final-css">
+/* ===== ONLY THE USER-REQUESTED FIXES ===== */
+
+/* Search + top-right controls */
+.j-topbar #authBar.j-moved-auth{
+  position:absolute!important;
+  top:50%!important;
+  right:16px!important;
+  width:auto!important;
+  margin:0!important;
+  transform:translateY(-50%)!important;
+  z-index:20000!important;
+}
+.j-topbar #authBar.j-moved-auth button{
+  white-space:nowrap!important;
+}
+@media(min-width:701px){
+  .j-topbar .j-search-wrap{
+    transform:translateX(-65px)!important;
+  }
+}
+@media(max-width:700px){
+  .j-topbar #authBar.j-moved-auth{
+    right:6px!important;
+  }
+  .j-topbar .j-search-wrap{
+    transform:none!important;
+    width:54%!important;
+  }
+}
+
+/* Song-row play button: sit at the far right of the title area */
+.j-table-row .j-track{
+  position:relative!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  padding-right:48px!important;
+}
+.j-table-row .j-row-play{
+  position:absolute!important;
+  right:6px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  opacity:0!important;
+  z-index:6!important;
+}
+.j-table-row:hover .j-row-play,
+.j-row-play:focus{
+  opacity:1!important;
+}
+
+/* Gold microphone-head play button */
+#playButton.player-play{
+  position:relative!important;
+  width:58px!important;
+  height:58px!important;
+  min-width:58px!important;
+  min-height:58px!important;
+  border-radius:50%!important;
+  border:3px solid #8a6414!important;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.18) 0 1px,
+      transparent 1px 4px
+    ),
+    radial-gradient(
+      circle at 50% 45%,
+      #fff0a8 0%,
+      #ffd76a 35%,
+      #d6a12a 62%,
+      #946a12 84%,
+      #634407 100%
+    )!important;
+  color:#17120a!important;
+  box-shadow:
+    inset 0 0 0 2px rgba(82,56,5,.75),
+    inset 0 4px 10px rgba(255,255,255,.35),
+    0 3px 11px rgba(0,0,0,.58)!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#playButton.player-play::before{
+  content:""!important;
+  position:absolute!important;
+  inset:7px!important;
+  border-radius:50%!important;
+  border:1px solid rgba(255,255,255,.36)!important;
+  pointer-events:none!important;
+}
+#playButton.player-play::after{
+  content:""!important;
+  position:absolute!important;
+  width:16px!important;
+  height:8px!important;
+  left:50%!important;
+  bottom:-8px!important;
+  transform:translateX(-50%)!important;
+  border-radius:0 0 8px 8px!important;
+  background:#a87813!important;
+  box-shadow:0 3px 0 #5f4308!important;
+  pointer-events:none!important;
+}
+#playButton.player-play svg{
+  position:relative!important;
+  z-index:3!important;
+  width:24px!important;
+  height:24px!important;
+  fill:#18120a!important;
+  stroke:none!important;
+}
+
+/* Clean favorite heart */
+#favoritePlayerBtn{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+#favoritePlayerBtn .j-heart-final-target{
+  font-family:Arial,"Segoe UI Symbol",sans-serif!important;
+  font-size:25px!important;
+  line-height:1!important;
+  color:#ffd76a!important;
+  display:block!important;
+}
+
+/* The "About the artist" block is replaced by Related Songs below it. */
+.j-rightbar > .j-now-block:first-of-type{
+  display:none!important;
+}
+
+/* Edit dialog */
+#jEditArtistModalTarget2{
+  position:fixed!important;
+  inset:0!important;
+  z-index:60000!important;
+  display:none;
+  align-items:center!important;
+  justify-content:center!important;
+  background:rgba(0,0,0,.78)!important;
+  padding:16px!important;
+  box-sizing:border-box!important;
+}
+#jEditArtistModalTarget2 .j-edit-card{
+  width:min(430px,100%)!important;
+  background:#181818!important;
+  border:1px solid #6c5118!important;
+  border-radius:12px!important;
+  padding:18px!important;
+  box-shadow:0 30px 80px rgba(0,0,0,.75)!important;
+}
+</style>
+
+<script id="jassiah-targeted-final-js">
+/* =========================================================
+   TARGETED FINAL FIXES
+   ========================================================= */
+
+let jEditingArtistTarget2="";
+
+/* --- Move login/logout into the actual top bar --- */
+function jMoveAuthToTopbar2(){
+  const auth=document.getElementById("authBar");
+  const topbar=document.querySelector(".j-topbar");
+
+  if(!auth||!topbar)return;
+
+  if(auth.parentElement!==topbar){
+    topbar.appendChild(auth);
+  }
+
+  auth.classList.add("j-moved-auth");
+}
+
+/* --- Search field must never become the login email field --- */
+function jProtectSearch2(){
+  const input=document.getElementById("jTopSearch");
+  if(!input)return;
+
+  input.type="search";
+  input.name="jassiah-public-search";
+  input.autocomplete="off";
+  input.autocorrect="off";
+  input.autocapitalize="none";
+  input.spellcheck=false;
+
+  if(input.value.includes("@")){
+    input.value="";
+  }
+}
+
+/* --- Home must show artist cards only --- */
+function jRenderHomeArtistsOnly2(){
+  const box=document.getElementById("jHomeRecent");
+  if(!box)return;
+
+  const names=Object.keys(artistProfiles||{})
+    .filter(name=>String(name).trim())
+    .sort((a,b)=>a.localeCompare(b));
+
+  if(!names.length){
+    box.innerHTML='<div style="color:#888">No artist profiles added yet.</div>';
+    return;
+  }
+
+  box.innerHTML=names.map(name=>{
+    const profile=artistProfiles[name]||{};
+    const related=(typeof songsForArtist==="function")
+      ? songsForArtist(name)
+      : songs.filter(song=>{
+          const c=String(song.artist||"").toLowerCase();
+          const n=String(name).toLowerCase();
+          return c===n || c.startsWith(n+" ft") ||
+                 c.startsWith(n+" feat") ||
+                 c.startsWith(n+" featuring");
+        });
+
+    const image=profile.image || (related[0]?coverUrl(related[0]):"");
+
+    return `
+      <div
+        style="
+          background:#181818;
+          border:1px solid #282828;
+          border-radius:10px;
+          padding:11px;
+          cursor:pointer;
+        "
+        onclick="openArtistPage('${escapeJs(name)}')"
+      >
+        <img
+          src="${escapeHtml(image)}"
+          alt="${escapeHtml(name)}"
+          style="
+            display:block;width:100%;aspect-ratio:1;
+            object-fit:cover;border-radius:7px;background:#222;
+          "
+          onerror="this.style.opacity='.25'"
+        >
+        <div style="
+          margin-top:9px;
+          color:#ffd76a;
+          font-weight:900;
+          font-size:17px;
+          white-space:nowrap;
+          overflow:hidden;
+          text-overflow:ellipsis;
+        ">${escapeHtml(name)}</div>
+      </div>
+    `;
+  }).join("");
+}
+
+/* --- Related Songs on right panel --- */
+function jRenderRelatedSongs2(){
+  const box=document.getElementById("jRelatedSongs");
+  if(!box)return;
+
+  const song=(
+    typeof currentIndex!=="undefined" &&
+    currentIndex>=0 &&
+    songs[currentIndex]
+  ) ? songs[currentIndex] : null;
+
+  if(!song){
+    box.innerHTML='<div style="color:#777;font-size:12px">Play a song to see related songs.</div>';
+    return;
+  }
+
+  const artistName=
+    Object.keys(artistProfiles||{})
+      .sort((a,b)=>String(b).length-String(a).length)
+      .find(name=>{
+        const c=String(song.artist||"").toLowerCase();
+        const n=String(name).toLowerCase();
+        return c===n || c.startsWith(n+" ft") ||
+               c.startsWith(n+" feat") ||
+               c.startsWith(n+" featuring");
+      }) ||
+    String(song.artist||"").split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+
+  const related=(typeof songsForArtist==="function")
+    ? songsForArtist(artistName)
+    : songs.filter(s=>{
+        const c=String(s.artist||"").toLowerCase();
+        const n=artistName.toLowerCase();
+        return c===n || c.startsWith(n+" ft") ||
+               c.startsWith(n+" feat") ||
+               c.startsWith(n+" featuring");
+      });
+
+  box.innerHTML=related.length ? related.map(item=>{
+    const i=songs.findIndex(s=>Number(s.id)===Number(item.id));
+    return `
+      <button
+        type="button"
+        onclick="playSong(${i})"
+        style="
+          width:100%;background:#151515;border:0;border-radius:7px;
+          color:#fff;padding:7px;display:flex;gap:9px;
+          align-items:center;text-align:left;cursor:pointer;margin-bottom:7px;
+        "
+      >
+        <img src="${escapeHtml(coverUrl(item))}" alt=""
+          style="width:45px;height:45px;object-fit:cover;border-radius:5px;background:#222">
+        <span style="min-width:0;flex:1">
+          <span style="
+            display:block;font-weight:800;white-space:nowrap;
+            overflow:hidden;text-overflow:ellipsis;
+          ">${escapeHtml(item.title||"Untitled")}</span>
+          <span style="
+            display:block;color:#999;font-size:11px;margin-top:2px;
+            white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+          ">${escapeHtml(item.artist||"")}</span>
+        </span>
+      </button>
+    `;
+  }).join("") : '<div style="color:#777;font-size:12px">No related songs.</div>';
+}
+
+/* --- Make the right-side artist credit open its dedicated artist page --- */
+function jBindCurrentArtistClick2(){
+  const credit=document.getElementById("jNowArtist");
+  if(!credit)return;
+
+  credit.style.cursor="pointer";
+  credit.onclick=jOpenCurrentArtist2;
+}
+
+function jOpenCurrentArtist2(){
+  if(typeof currentIndex==="undefined" || currentIndex<0)return;
+  const song=songs[currentIndex];
+  if(!song)return;
+
+  const primary=Object.keys(artistProfiles||{})
+    .sort((a,b)=>String(b).length-String(a).length)
+    .find(name=>{
+      const c=String(song.artist||"").toLowerCase();
+      const n=String(name).toLowerCase();
+      return c===n || c.startsWith(n+" ft") ||
+             c.startsWith(n+" feat") ||
+             c.startsWith(n+" featuring");
+    }) ||
+    String(song.artist||"").split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+
+  if(primary){
+    openArtistPage(primary);
+  }
+}
+
+/* Wrap arrows. */
+window.jHistoryBack=function(){
+  let page=Number(window.jPageIndex||0);
+
+  if(page<=0) page=5;
+  else page--;
+
+  if(typeof jGoToPage==="function"){
+    jGoToPage(page);
+  }
+};
+
+window.jHistoryForward=function(){
+  let page=Number(window.jPageIndex||0);
+
+  if(page>=5) page=0;
+  else page++;
+
+  if(typeof jGoToPage==="function"){
+    jGoToPage(page);
+  }
+};
+
+/* Artist previous/next should wrap, not stop. */
+window.jPreviousArtistFinal=function(){
+  const list=Object.keys(artistProfiles||{})
+    .filter(n=>String(n).trim())
+    .sort((a,b)=>a.localeCompare(b));
+
+  if(!list.length)return;
+
+  const current=String(window.currentArtistName||"").toLowerCase();
+  let i=list.findIndex(n=>n.toLowerCase()===current);
+  if(i<0)i=0;
+
+  openArtistPage(list[(i-1+list.length)%list.length]);
+};
+
+window.jNextArtistFinal=function(){
+  const list=Object.keys(artistProfiles||{})
+    .filter(n=>String(n).trim())
+    .sort((a,b)=>a.localeCompare(b));
+
+  if(!list.length)return;
+
+  const current=String(window.currentArtistName||"").toLowerCase();
+  let i=list.findIndex(n=>n.toLowerCase()===current);
+  if(i<0)i=0;
+
+  openArtistPage(list[(i+1)%list.length]);
+};
+
+/* --- Real Edit Artist dialog --- */
+window.openEditArtist=function(name){
+  if(!currentUser){
+    alert("Please log in as admin to edit an artist.");
+    return;
+  }
+
+  jEditingArtistTarget2=String(name||"").trim();
+
+  const profile=artistProfiles[jEditingArtistTarget2]||{};
+
+  const modal=document.getElementById("jEditArtistModalTarget2");
+  const nameInput=document.getElementById("jEditArtistNameTarget2");
+  const imageInput=document.getElementById("jEditArtistImageTarget2");
+  const status=document.getElementById("jEditArtistStatusTarget2");
+
+  if(!modal||!nameInput||!imageInput||!status){
+    alert("Edit Artist window could not be opened.");
+    return;
+  }
+
+  nameInput.value=jEditingArtistTarget2;
+  imageInput.value="";
+  status.textContent="";
+  modal.style.display="flex";
+  nameInput.focus();
+};
+
+window.jCloseArtistTarget2=function(){
+  const modal=document.getElementById("jEditArtistModalTarget2");
+  if(modal)modal.style.display="none";
+  jEditingArtistTarget2="";
+};
+
+window.jSaveArtistTarget2=function(){
+  if(!currentUser){
+    alert("Please log in as admin.");
+    return;
+  }
+
+  const oldName=jEditingArtistTarget2;
+  const newName=String(
+    document.getElementById("jEditArtistNameTarget2")?.value||""
+  ).trim();
+
+  const imageInput=document.getElementById("jEditArtistImageTarget2");
+  const status=document.getElementById("jEditArtistStatusTarget2");
+
+  if(!oldName){
+    status.textContent="No artist selected.";
+    return;
+  }
+
+  if(!newName){
+    status.textContent="Enter an artist name.";
+    return;
+  }
+
+  const oldProfile=artistProfiles[oldName]||{};
+
+  const save=(image)=>{
+    if(oldName!==newName){
+      delete artistProfiles[oldName];
+
+      songs.forEach(song=>{
+        const credit=String(song.artist||"");
+        const low=credit.toLowerCase();
+        const oldLow=oldName.toLowerCase();
+
+        if(low===oldLow){
+          song.artist=newName;
+        }else if(
+          low.startsWith(oldLow+" ft") ||
+          low.startsWith(oldLow+" feat") ||
+          low.startsWith(oldLow+" featuring")
+        ){
+          song.artist=newName+credit.substring(oldName.length);
+        }
+      });
+
+      /* Update DB artist credits where possible. */
+      Promise.all(
+        songs.map(song=>
+          client.from("songs")
+            .update({artist:song.artist})
+            .eq("id",song.id)
+        )
+      ).catch(err=>console.error("artist credit update",err));
+    }
+
+    artistProfiles[newName]={
+      image:image||oldProfile.image||""
+    };
+
+    if(typeof saveArtistProfiles==="function"){
+      saveArtistProfiles();
+    }else{
+      localStorage.setItem(
+        "jassiahArtistProfiles",
+        JSON.stringify(artistProfiles)
+      );
+    }
+
+    window.currentArtistName=newName;
+    status.textContent="Artist profile updated.";
+
+    setTimeout(()=>{
+      jCloseArtistTarget2();
+
+      try{ renderArtists(); }catch(_){}
+      try{ renderHomeDashboard(); }catch(_){}
+      try{ jRenderHomeArtistsOnly2(); }catch(_){}
+      try{ jRenderArtistCardsFinal && jRenderArtistCardsFinal(); }catch(_){}
+      try{ if(typeof loadSongs==="function")loadSongs(); }catch(_){}
+      try{ openArtistPage(newName); }catch(_){}
+    },350);
+  };
+
+  if(imageInput?.files?.length){
+    const reader=new FileReader();
+    reader.onload=()=>save(String(reader.result||""));
+    reader.onerror=()=>status.textContent="Could not read that picture.";
+    reader.readAsDataURL(imageInput.files[0]);
+  }else{
+    save("");
+  }
+};
+
+/* --- Bottom player visual fixes --- */
+function jFixBottomPlayer2(){
+  const btn=document.getElementById("favoritePlayerBtn");
+
+  if(btn){
+    if(!btn.querySelector(".j-heart-final-target")){
+      btn.innerHTML='<span class="j-heart-final-target">♡</span>';
+    }
+
+    const glyph=btn.querySelector(".j-heart-final-target");
+
+    if(glyph){
+      glyph.textContent=
+        btn.classList.contains("active") ? "♥" : "♡";
+    }
+  }
+
+  const play=document.getElementById("playButton");
+  if(play){
+    play.classList.add("player-play");
+  }
+}
+
+/* Re-run after the working music engine changes the player. */
+const jFixObserver2=new MutationObserver(()=>{
+  jFixBottomPlayer2();
+  jRenderRelatedSongs2();
+  jBindCurrentArtistClick2();
+});
+
+document.addEventListener("DOMContentLoaded",()=>{
+  jMoveAuthToTopbar2();
+  jProtectSearch2();
+  jRenderHomeArtistsOnly2();
+  jRenderRelatedSongs2();
+  jBindCurrentArtistClick2();
+  jFixBottomPlayer2();
+
+  setTimeout(jFixBottomPlayer2,250);
+  setTimeout(jFixBottomPlayer2,700);
+
+  const player=document.querySelector(".player");
+  if(player){
+    jFixObserver2.observe(player,{
+      childList:true,
+      subtree:true,
+      attributes:true,
+      attributeFilter:["class"]
+    });
+  }
+
+  const songBox=document.getElementById("songs");
+  if(songBox){
+    jFixObserver2.observe(songBox,{
+      childList:true,
+      subtree:true
+    });
+  }
+
+  document.addEventListener("keydown",event=>{
+    if(event.key==="Escape"){
+      jCloseArtistTarget2();
+    }
+  });
+});
+</script>
