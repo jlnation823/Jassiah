@@ -442,6 +442,56 @@ body:not(.admin-mode) .admin-only{
 #favoritePlayerBtn.active .j-step2-heart{
   color:#ffd76a !important;
 }
+
+/* STEP 3 ONLY: position the What's New bell */
+#jHeaderActions{
+  position:absolute !important;
+  top:50% !important;
+  right:14px !important;
+  transform:translateY(-50%) !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  z-index:20000 !important;
+}
+
+#jNewBell{
+  position:relative !important;
+  width:38px !important;
+  height:38px !important;
+  min-width:38px !important;
+  min-height:38px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+}
+
+@media(min-width:701px){
+  .j-topbar .j-search-wrap{
+    transform:translateX(-55px) !important;
+  }
+}
+
+@media(max-width:700px){
+  #jHeaderActions{
+    right:6px !important;
+    gap:5px !important;
+  }
+
+  #jNewBell{
+    width:34px !important;
+    height:34px !important;
+    min-width:34px !important;
+    min-height:34px !important;
+  }
+
+  .j-topbar .j-search-wrap{
+    width:55% !important;
+    transform:none !important;
+  }
+}
 </style>
 </head>
 
