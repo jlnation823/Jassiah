@@ -356,10 +356,136 @@ audio{width:100%;height:40px}
   .home-stats{grid-template-columns:repeat(2,1fr)}
   .site-nav{overflow-x:auto;flex-wrap:nowrap}
 }
+
+/* AUTH / ADMIN */
+#authBar{
+  width:min(950px,94%);
+  margin:0 auto 12px;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:8px;
+}
+.auth-btn{
+  background:#111;
+  color:#ffd76a;
+  border:1px solid #9f741c;
+  border-radius:8px;
+  padding:9px 13px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.admin-badge{
+  color:#111;
+  background:#ffd76a;
+  border-radius:999px;
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:bold;
+}
+#adminLoginPanel{
+  width:min(520px,94%);
+  margin:14px auto;
+  padding:18px;
+  background:rgba(16,16,16,.98);
+  border:1px solid #604a18;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+  display:none;
+}
+#adminLoginPanel h2{
+  margin:0 0 10px;
+  color:#ffd76a;
+}
+#adminLoginPanel input{
+  width:100%;
+  box-sizing:border-box;
+  margin:7px 0;
+  padding:11px;
+  border-radius:8px;
+}
+#adminStatus{
+  min-height:20px;
+  color:#ffd76a;
+  margin-top:8px;
+  font-size:13px;
+}
+.admin-only{
+  display:none !important;
+}
+body.admin-mode .admin-only{
+  display:block !important;
+}
+body.admin-mode .song .admin-only,
+body.admin-mode .actions .admin-only{
+  display:inline-block !important;
+}
+body.admin-mode #adminLoginPanel{
+  display:none !important;
+}
+@media(max-width:650px){
+  #authBar{justify-content:center;flex-wrap:wrap}
+}
+
+body:not(.admin-mode) #newArtistPanel,
+body:not(.admin-mode) #editArtistPanel,
+body:not(.admin-mode) .admin-only{
+  display:none !important;
+}
 </style>
 </head>
 
 <body>
+
+<div id="authBar">
+  <span id="adminBadge" class="admin-badge" style="display:none">ADMIN MODE</span>
+  <button id="loginButton" class="auth-btn" onclick="openAdminLogin()">🔐 Admin Login</button>
+  <button id="logoutButton" class="auth-btn" onclick="adminLogout()" style="display:none">Log Out</button>
+</div>
+
+<div id="adminLoginPanel">
+  <h2>🔐 Jassiah Admin</h2>
+  <div style="color:#aaa;font-size:13px;margin-bottom:10px">
+    Sign in to manage songs and artist profiles.
+  </div>
+
+  <input id="adminEmail" type="email" placeholder="Email">
+  <input id="adminPassword" type="password" placeholder="Password">
+
+  <button
+    onclick="adminLogin()"
+    style="
+      background:linear-gradient(135deg,#f0c653,#9d7014);
+      color:#111;
+      border:0;
+      border-radius:8px;
+      padding:10px 15px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    Log In
+  </button>
+
+  <button
+    onclick="closeAdminLogin()"
+    style="
+      background:#333;
+      color:#fff;
+      border:0;
+      border-radius:8px;
+      padding:10px 15px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-left:6px;
+    "
+  >
+    Cancel
+  </button>
+
+  <div id="adminStatus"></div>
+</div>
+
 
 <div class="wrap">
 
@@ -412,7 +538,7 @@ audio{width:100%;height:40px}
 
 
 
-<div class="panel" id="newArtistPanel">
+<div class="admin-only panel" id="newArtistPanel">
   <h2>🎤 Create Artist Profile</h2>
 
   <input
@@ -461,7 +587,7 @@ audio{width:100%;height:40px}
 </div>
 
 
-<div class="panel" id="editArtistPanel" style="display:none">
+<div class="admin-only panel" id="editArtistPanel" style="display:none">
   <h2>✏️ Edit Artist Profile</h2>
 
   <input
@@ -520,7 +646,7 @@ audio{width:100%;height:40px}
   ></div>
 </div>
 
-<div class="panel">
+<div class="panel admin-only">
   <h2>♫ Add New Song</h2>
 
   <input id="songTitle" type="text" placeholder="Song title">
@@ -842,6 +968,8 @@ let playlistQueue=null;
 let albums=JSON.parse(localStorage.getItem("jassiahAlbums")||"{}");
 let albumQueue=null;
 let featuredSongId=Number(localStorage.getItem("jassiahFeaturedSong")||0);
+let currentUser=null;
+let authLoading=true;
 
 const player=document.getElementById("playerAudio");
 const playButton=document.getElementById("playButton");
@@ -955,7 +1083,7 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
-<button
+<button class="admin-only"
             onclick="addSongToAlbum(${song.id})"
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
@@ -969,7 +1097,7 @@ function renderSongs(list){
             ⭐ Set Featured
           </button>
 
-          <button
+          <button class="admin-only"
             onclick="addSongToPlaylist(${song.id})"
             style="
               background:#111;
@@ -992,12 +1120,12 @@ function renderSongs(list){
             ${favorites.includes(Number(song.id)) ? "♥ Favorited" : "♡ Favorite"}
           </button>
 
-          <button class="edit"
+          <button class="edit admin-only"
                   onclick="showEdit(${song.id})">
             ✏️ Edit
           </button>
 
-          <button class="delete"
+          <button class="delete admin-only"
                   onclick="deleteSong(${song.id})">
             🗑 Delete
           </button>
@@ -2218,7 +2346,7 @@ function openArtistPage(artistName){
         ▶ Play All
       </button>
 
-      <button
+      <button class="admin-only"
         onclick="openEditArtist('${escapeJs(name)}')"
         style="
           margin-top:13px;
@@ -2465,6 +2593,11 @@ function openEditArtist(name){
 
 
 async function saveArtistProfile(){
+  if(!currentUser){
+    alert("Please log in as admin to edit an artist.");
+    return;
+  }
+
   const oldName=artistBeingEdited;
   const nameInput=document.getElementById("editArtistName");
   const imageInput=document.getElementById("editArtistImage");
@@ -2608,6 +2741,11 @@ function cancelEditArtist(){
 
 
 async function createArtistProfile(){
+  if(!currentUser){
+    alert("Please log in as admin to create an artist.");
+    return;
+  }
+
   const nameInput=document.getElementById("newArtistName");
   const imageInput=document.getElementById("newArtistImage");
   const message=document.getElementById("artistUploadMessage");
@@ -2976,6 +3114,11 @@ function hideEdit(id){
 }
 
 async function saveEdit(id){
+  if(!currentUser){
+    alert("Please log in as admin to edit songs.");
+    return;
+  }
+
   const title=
     document.getElementById("edit-title-"+id)
       .value.trim();
@@ -3031,6 +3174,11 @@ loadSongs();
 }
 
 async function uploadSong(){
+  if(!currentUser){
+    alert("Please log in as admin to upload a song.");
+    return;
+  }
+
   const title=
     document.getElementById("songTitle")
       .value.trim();
@@ -3132,6 +3280,11 @@ async function uploadSong(){
 }
 
 async function deleteSong(id){
+  if(!currentUser){
+    alert("Please log in as admin to delete songs.");
+    return;
+  }
+
   if(!confirm("Are you sure you want to delete this song?"))return;
 
   const {error}=await client
@@ -3149,6 +3302,108 @@ async function deleteSong(id){
 
 loadSongs();
 
+
+function setAdminMode(user){
+  currentUser=user||null;
+  document.body.classList.toggle("admin-mode",!!currentUser);
+
+  const loginButton=document.getElementById("loginButton");
+  const logoutButton=document.getElementById("logoutButton");
+  const badge=document.getElementById("adminBadge");
+
+  if(loginButton)loginButton.style.display=currentUser?"none":"inline-block";
+  if(logoutButton)logoutButton.style.display=currentUser?"inline-block":"none";
+  if(badge)badge.style.display=currentUser?"inline-block":"none";
+
+  [
+    "newArtistPanel",
+    "editArtistPanel"
+  ].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){
+      el.style.display=currentUser ? "" : "none";
+    }
+  });
+
+  const adminPanel=document.querySelector(".admin-only:not(#newArtistPanel):not(#editArtistPanel)");
+  document.querySelectorAll(".admin-only").forEach(el=>{
+    if(el.id!=="newArtistPanel" && el.id!=="editArtistPanel"){
+      el.style.display=currentUser ? "" : "none";
+    }
+  });
+
+  renderSongs(songs);
+  renderArtists();
+  renderHomeDashboard();
+}
+
+function openAdminLogin(){
+  const panel=document.getElementById("adminLoginPanel");
+  const status=document.getElementById("adminStatus");
+
+  if(status)status.textContent="";
+  if(panel)panel.style.display="block";
+
+  document.getElementById("adminEmail")?.focus();
+}
+
+function closeAdminLogin(){
+  const panel=document.getElementById("adminLoginPanel");
+  if(panel)panel.style.display="none";
+}
+
+async function adminLogin(){
+  const email=document.getElementById("adminEmail")?.value.trim();
+  const password=document.getElementById("adminPassword")?.value;
+  const status=document.getElementById("adminStatus");
+
+  if(!email || !password){
+    if(status)status.textContent="Enter your email and password.";
+    return;
+  }
+
+  if(status)status.textContent="Logging in...";
+
+  const {data,error}=await client.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    console.error(error);
+    if(status)status.textContent="Login failed: "+error.message;
+    return;
+  }
+
+  setAdminMode(data.user);
+  closeAdminLogin();
+
+  if(status)status.textContent="";
+}
+
+async function adminLogout(){
+  await client.auth.signOut();
+  setAdminMode(null);
+}
+
+async function initializeAuth(){
+  try{
+    const {data}=await client.auth.getSession();
+
+    setAdminMode(data?.session?.user || null);
+
+    client.auth.onAuthStateChange((_event,session)=>{
+      setAdminMode(session?.user || null);
+    });
+  }catch(error){
+    console.error("Auth initialization error:",error);
+    setAdminMode(null);
+  }finally{
+    authLoading=false;
+  }
+}
+
+initializeAuth();
 </script>
 
 </body>
