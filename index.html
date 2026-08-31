@@ -758,6 +758,238 @@ body > #adminLoginPanel{display:none!important}
     width:calc(100vw - 10px)!important;
   }
 }
+
+/* =========================================================
+   FINAL REQUESTED FIXES — VISUALS + PERSISTENT PLAYER
+   ========================================================= */
+
+/* 1) Arrow placement: immediately after the left sidebar */
+.jx-top{
+  position:absolute!important;
+}
+.jx-top .jx-arrows{
+  position:absolute!important;
+  left:12px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  display:flex!important;
+  gap:7px!important;
+  z-index:100!important;
+}
+.jx-top .jx-arrows button{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  min-height:36px!important;
+  border-radius:50%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  padding:0!important;
+  background:#1b1b1b!important;
+  color:#ddd!important;
+  border:0!important;
+}
+.jx-top .jx-arrows button:hover{
+  background:#2b2b2b!important;
+  color:#fff!important;
+}
+
+/* 2) Search centered independently of the arrows */
+.jx-top > .jx-search-wrap,
+.jx-top > input.jx-search{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  margin:0!important;
+}
+
+/* 3) What's New bell to the right of the search */
+.jx-top .jx-actions{
+  position:absolute!important;
+  left:auto!important;
+  right:14px!important;
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  z-index:20000!important;
+}
+.jx-top .jx-new-btn{
+  position:relative!important;
+  width:38px!important;
+  height:38px!important;
+  min-width:38px!important;
+  min-height:38px!important;
+  border-radius:50%!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+.jx-top .jx-new-dot{
+  display:none;
+  position:absolute!important;
+  top:4px!important;
+  right:4px!important;
+  width:9px!important;
+  height:9px!important;
+  border-radius:50%!important;
+  background:#e00000!important;
+  border:2px solid #111!important;
+}
+
+/* 4) Home artist card: border/background surrounds art + artist name */
+#jxHomeArtists{
+  display:grid!important;
+  grid-template-columns:repeat(auto-fill,minmax(185px,185px))!important;
+  gap:16px!important;
+  align-items:start!important;
+}
+#jxHomeArtists .jx-artist-card{
+  width:185px!important;
+  box-sizing:border-box!important;
+  padding:10px!important;
+  background:#1b1b1b!important;
+  border:1px solid #3a3a3a!important;
+  border-radius:11px!important;
+  cursor:pointer!important;
+}
+#jxHomeArtists .jx-artist-card:hover{
+  background:#242424!important;
+  border-color:#70541a!important;
+}
+#jxHomeArtists .jx-artist-card img{
+  width:100%!important;
+  height:165px!important;
+  aspect-ratio:auto!important;
+  object-fit:cover!important;
+  display:block!important;
+  border-radius:8px!important;
+  background:#222!important;
+}
+#jxHomeArtists .jx-artist-card-name{
+  margin-top:9px!important;
+  padding:0 2px 2px!important;
+  color:#ffd76a!important;
+  font-size:17px!important;
+  line-height:1.1!important;
+  font-weight:900!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#jxHomeArtists .jx-count{
+  padding:0 2px 1px!important;
+  color:#8c8c8c!important;
+  font-size:11px!important;
+}
+
+/* 5) What's New panel */
+#jxNewPanel{
+  position:absolute!important;
+  right:12px!important;
+  top:56px!important;
+  width:370px!important;
+  max-width:calc(100vw - 20px)!important;
+  max-height:440px!important;
+  overflow-y:auto!important;
+  display:none;
+  box-sizing:border-box!important;
+  background:#292929!important;
+  border:1px solid #3e3e3e!important;
+  border-radius:10px!important;
+  box-shadow:0 20px 45px rgba(0,0,0,.7)!important;
+  z-index:50000!important;
+}
+.jx-new-titlebar{
+  padding:13px 14px 10px!important;
+  color:#fff!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  border-bottom:1px solid #3c3c3c!important;
+}
+.jx-new-item{
+  width:100%!important;
+  border:0!important;
+  background:transparent!important;
+  color:#fff!important;
+  display:flex!important;
+  gap:10px!important;
+  align-items:center!important;
+  padding:9px 12px!important;
+  text-align:left!important;
+  cursor:pointer!important;
+}
+.jx-new-item:hover{
+  background:#3a3a3a!important;
+}
+.jx-new-item img{
+  width:46px!important;
+  height:46px!important;
+  min-width:46px!important;
+  object-fit:cover!important;
+  border-radius:6px!important;
+  background:#1d1d1d!important;
+}
+.jx-new-main{
+  min-width:0!important;
+  flex:1!important;
+}
+.jx-new-item-title{
+  display:block!important;
+  font-weight:800!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.jx-new-item-sub{
+  display:block!important;
+  color:#aaa!important;
+  font-size:11px!important;
+  margin-top:2px!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+
+/* Mobile keeps arrows left, search centered, bell/login to the right */
+@media(max-width:700px){
+  .jx-top .jx-arrows{display:none!important}
+  .jx-top > .jx-search-wrap,
+  .jx-top > input.jx-search{
+    left:40%!important;
+    width:54%!important;
+  }
+  .jx-top .jx-actions{
+    right:5px!important;
+    gap:4px!important;
+  }
+  .jx-top .jx-new-btn{
+    width:34px!important;
+    min-width:34px!important;
+    height:34px!important;
+    min-height:34px!important;
+  }
+  #jxNewPanel{
+    top:52px!important;
+    right:5px!important;
+    width:calc(100vw - 10px)!important;
+  }
+  #jxHomeArtists{
+    grid-template-columns:repeat(2,minmax(145px,1fr))!important;
+  }
+  #jxHomeArtists .jx-artist-card{
+    width:auto!important;
+  }
+  #jxHomeArtists .jx-artist-card img{
+    height:auto!important;
+    aspect-ratio:1!important;
+  }
+}
 </style>
 </head>
 
@@ -4383,6 +4615,333 @@ if(typeof setNowPlaying==="function"){
     jxUpdateNow();
   };
 }
+</script>
+
+<script id="jassiah-final-stability-fix">
+/* =========================================================
+   FINAL STABILITY FIX
+   ========================================================= */
+
+(function(){
+
+  /* ---------- What's New ---------- */
+  const NEW_SEEN_KEY="jassiahWhat'sNewSeenAt";
+  const NEW_DEFAULT_WINDOW_MS=30*24*60*60*1000;
+
+  function profileMap(){
+    return (typeof artistProfiles!=="undefined" && artistProfiles)
+      ? artistProfiles : {};
+  }
+
+  function currentSongs(){
+    return (typeof songs!=="undefined" && Array.isArray(songs))
+      ? songs : [];
+  }
+
+  function itemDate(value){
+    const d=new Date(value||0);
+    return Number.isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+
+  function newestSiteItemTime(){
+    let latest=0;
+
+    currentSongs().forEach(song=>{
+      latest=Math.max(
+        latest,
+        itemDate(song.created_at||song.date_added||song.added_at)
+      );
+    });
+
+    Object.values(profileMap()).forEach(profile=>{
+      latest=Math.max(
+        latest,
+        itemDate(profile?.created_at||profile?.date_added)
+      );
+    });
+
+    return latest;
+  }
+
+  function hasUnseenNewItems(){
+    const latest=newestSiteItemTime();
+    const seen=Number(localStorage.getItem(NEW_SEEN_KEY)||0);
+
+    if(latest>0){
+      return latest>seen;
+    }
+
+    return false;
+  }
+
+  function updateNewDot(){
+    const dot=document.getElementById("jxNewDot");
+    if(dot){
+      dot.style.display=hasUnseenNewItems() ? "block" : "none";
+    }
+  }
+
+  function renderNewPanel(){
+    const panel=document.getElementById("jxNewPanel");
+    if(!panel)return;
+
+    const items=[];
+
+    currentSongs().forEach(song=>{
+      items.push({
+        type:"song",
+        id:Number(song.id),
+        title:song.title||"Untitled",
+        sub:song.artist||"Unknown Artist",
+        image:(typeof coverUrl==="function"?coverUrl(song):""),
+        time:itemDate(song.created_at||song.date_added||song.added_at)
+      });
+    });
+
+    Object.entries(profileMap()).forEach(([name,profile])=>{
+      items.push({
+        type:"artist",
+        name,
+        title:name,
+        sub:"New artist",
+        image:profile?.image||"",
+        time:itemDate(profile?.created_at||profile?.date_added)
+      });
+    });
+
+    items.sort((a,b)=>b.time-a.time);
+
+    let htmlOut='<div class="jx-new-titlebar">🔔 What\'s New</div>';
+
+    if(!items.length){
+      htmlOut+='<div style="padding:16px;color:#aaa">Nothing new yet.</div>';
+    }else{
+      htmlOut+=items.slice(0,20).map(item=>{
+        if(item.type==="song"){
+          return `
+            <button type="button" class="jx-new-item"
+              onclick="jxPickNewSongStable(${item.id})">
+              <img src="${escapeHtml(item.image)}" alt="">
+              <span class="jx-new-main">
+                <span class="jx-new-item-title">${escapeHtml(item.title)}</span>
+                <span class="jx-new-item-sub">${escapeHtml(item.sub)}</span>
+              </span>
+            </button>`;
+        }
+
+        return `
+          <button type="button" class="jx-new-item"
+            onclick="jxPickNewArtistStable('${escapeJs(item.name)}')">
+            <img src="${escapeHtml(item.image)}" alt="">
+            <span class="jx-new-main">
+              <span class="jx-new-item-title">${escapeHtml(item.title)}</span>
+              <span class="jx-new-item-sub">${escapeHtml(item.sub)}</span>
+            </span>
+          </button>`;
+      }).join("");
+    }
+
+    panel.innerHTML=htmlOut;
+    updateNewDot();
+  }
+
+  window.jxToggleNewStable=function(){
+    const panel=document.getElementById("jxNewPanel");
+    if(!panel)return;
+
+    if(panel.style.display==="block"){
+      panel.style.display="none";
+      return;
+    }
+
+    renderNewPanel();
+
+    /* The viewer has opened What's New, so mark the current newest item seen. */
+    const latest=newestSiteItemTime();
+    if(latest>0){
+      localStorage.setItem(NEW_SEEN_KEY,String(latest));
+    }
+
+    panel.style.display="block";
+    updateNewDot();
+  };
+
+  window.jxPickNewSongStable=function(id){
+    const panel=document.getElementById("jxNewPanel");
+    if(panel)panel.style.display="none";
+
+    const list=currentSongs();
+    const index=list.findIndex(s=>Number(s.id)===Number(id));
+
+    if(index>=0 && typeof playSong==="function"){
+      playSong(index);
+    }
+  };
+
+  window.jxPickNewArtistStable=function(name){
+    const panel=document.getElementById("jxNewPanel");
+    if(panel)panel.style.display="none";
+
+    if(typeof jxOpenArtist==="function"){
+      jxOpenArtist(name);
+    }
+  };
+
+  /* ---------- Bottom player persistence ---------- */
+  const PLAYER_STATE_KEY="jassiahPlayerStateV1";
+  let restoringPlayer=false;
+
+  function savePlayerState(){
+    try{
+      if(typeof currentIndex==="undefined" || currentIndex<0 || !songs[currentIndex]){
+        return;
+      }
+
+      const audio=document.getElementById("playerAudio");
+      if(!audio)return;
+
+      const state={
+        songId:Number(songs[currentIndex].id),
+        currentTime:Number(audio.currentTime)||0,
+        volume:Number(audio.volume),
+        muted:Boolean(audio.muted),
+        wasPlaying:!audio.paused
+      };
+
+      localStorage.setItem(PLAYER_STATE_KEY,JSON.stringify(state));
+    }catch(error){
+      console.warn("Could not save player state",error);
+    }
+  }
+
+  async function restorePlayerState(){
+    if(restoringPlayer)return;
+    restoringPlayer=true;
+
+    try{
+      const raw=localStorage.getItem(PLAYER_STATE_KEY);
+      if(!raw)return;
+
+      const state=JSON.parse(raw||"{}");
+      const list=currentSongs();
+
+      if(!state.songId || !list.length)return;
+
+      const index=list.findIndex(
+        song=>Number(song.id)===Number(state.songId)
+      );
+
+      if(index<0)return;
+
+      const audio=document.getElementById("playerAudio");
+      if(!audio)return;
+
+      /* Restore the track/title/art immediately. */
+      currentIndex=index;
+      const song=list[index];
+
+      if(typeof setNowPlaying==="function"){
+        setNowPlaying(song);
+      }
+
+      /* Set the source only when it differs. */
+      const url=typeof musicUrl==="function" ? musicUrl(song) : "";
+
+      if(url && (!audio.src || audio.src!==url)){
+        audio.src=url;
+      }
+
+      const applyTime=()=>{
+        try{
+          if(Number.isFinite(state.currentTime) && state.currentTime>=0){
+            const max=Number.isFinite(audio.duration)&&audio.duration>0
+              ? audio.duration
+              : state.currentTime;
+
+            audio.currentTime=Math.min(state.currentTime,max);
+          }
+        }catch(_){}
+
+        if(Number.isFinite(state.volume)){
+          audio.volume=Math.max(0,Math.min(1,state.volume));
+        }
+
+        audio.muted=Boolean(state.muted);
+
+        /* Do not force autoplay after refresh. Browsers block autoplay.
+           The position/song remains restored so the player never goes blank. */
+        if(typeof updatePlayerButton==="function"){
+          updatePlayerButton(false);
+        }
+      };
+
+      if(audio.readyState>=1){
+        applyTime();
+      }else{
+        audio.addEventListener("loadedmetadata",applyTime,{once:true});
+      }
+    }catch(error){
+      console.warn("Could not restore player state",error);
+    }finally{
+      restoringPlayer=false;
+    }
+  }
+
+  window.addEventListener("beforeunload",savePlayerState);
+
+  /* Save frequently enough to preserve position when the page is refreshed. */
+  const audioEl=document.getElementById("playerAudio");
+  if(audioEl){
+    audioEl.addEventListener("timeupdate",savePlayerState);
+    audioEl.addEventListener("pause",savePlayerState);
+    audioEl.addEventListener("volumechange",savePlayerState);
+  }
+
+  /* Don't override playSong. Just save the selected song when it is used. */
+  if(typeof playSong==="function"){
+    const originalPlaySong=playSong;
+    window.playSong=function(index){
+      originalPlaySong(index);
+      setTimeout(savePlayerState,150);
+    };
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    const bell=document.getElementById("jxNewButton");
+    if(bell){
+      bell.onclick=function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        jxToggleNewStable();
+      };
+    }
+
+    document.addEventListener("click",event=>{
+      if(!event.target.closest("#jxNewButton") &&
+         !event.target.closest("#jxNewPanel")){
+        const panel=document.getElementById("jxNewPanel");
+        if(panel)panel.style.display="none";
+      }
+    });
+
+    updateNewDot();
+
+    /* Give the existing Supabase loader time to populate its arrays. */
+    setTimeout(()=>{
+      updateNewDot();
+      try{
+        if(typeof jxRenderHome==="function")jxRenderHome();
+      }catch(_){}
+      try{
+        if(typeof jxRenderArtists==="function")jxRenderArtists();
+      }catch(_){}
+    },1200);
+
+    /* Restore the last song/position after songs are loaded. */
+    setTimeout(restorePlayerState,1600);
+  });
+
+})();
 </script>
 </body>
 </html>
