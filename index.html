@@ -2524,6 +2524,47 @@ function saveArtistProfiles(){
 
 let artistBeingEdited="";
 
+
+async function deleteArtistProfile(name){
+  name=String(name||"").trim();
+
+  if(!artistProfiles[name]){
+    alert("Artist profile not found.");
+    return;
+  }
+
+  const artistSongs=songsForArtist(name);
+
+  const message =
+    'Delete artist "'+name+'"?\n\n' +
+    'This will delete the artist profile only.' +
+    (artistSongs.length
+      ? '\n\nThe '+artistSongs.length+
+        ' song(s) will stay on your site with their original artist credits.'
+      : '\n\nNo songs are attached to this artist profile.');
+
+  if(!confirm(message)){
+    return;
+  }
+
+  delete artistProfiles[name];
+  saveArtistProfiles();
+
+  if(window.currentArtistName===name){
+    closeArtistPage();
+  }
+
+  renderArtists();
+  renderHomeDashboard();
+
+  const editPanel=document.getElementById("editArtistPanel");
+  if(editPanel){
+    editPanel.style.display="none";
+  }
+
+  alert("Artist profile deleted. The songs were not deleted.");
+}
+
 function openEditArtist(name){
   const profile=artistProfiles[name]||{};
   artistBeingEdited=name;
@@ -2819,6 +2860,23 @@ function renderArtists(){
             "
           >
             ✏️ Edit Artist
+          </button>
+
+          <button
+            onclick="deleteArtistProfile('${escapeJs(name)}')"
+            style="
+              margin-top:7px;
+              width:100%;
+              background:#111;
+              color:#ff7568;
+              border:1px solid #8d382f;
+              border-radius:7px;
+              padding:8px;
+              font-weight:bold;
+              cursor:pointer;
+            "
+          >
+            🗑 Delete Artist
           </button>
 
         </div>
