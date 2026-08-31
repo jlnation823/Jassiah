@@ -367,6 +367,64 @@ body:not(.admin-mode) #editArtistPanel{
 </head>
 
 <body>
+<div id="authBar" style="
+  width:min(950px,94%);
+  margin:8px auto 10px;
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:8px;
+  position:relative;
+  z-index:3000;
+">
+  <span id="adminBadge" style="
+    display:none;background:#ffd76a;color:#111;
+    padding:7px 10px;border-radius:999px;
+    font-size:12px;font-weight:bold
+  ">ADMIN MODE</span>
+
+  <button id="loginButton" type="button" onclick="openAdminLogin()" style="
+    background:#111;color:#ffd76a;border:1px solid #9f741c;
+    border-radius:8px;padding:9px 13px;font-weight:bold;cursor:pointer
+  ">🔐 Admin Login</button>
+
+  <button id="logoutButton" type="button" onclick="adminLogout()" style="
+    display:none;background:#111;color:#ffd76a;border:1px solid #9f741c;
+    border-radius:8px;padding:9px 13px;font-weight:bold;cursor:pointer
+  ">Log Out</button>
+</div>
+
+<div id="adminLoginPanel" style="
+  display:none;
+  width:min(430px,90%);
+  margin:10px auto 16px;
+  padding:18px;
+  background:#101010;
+  border:1px solid #604a18;
+  border-radius:12px;
+  position:relative;
+  z-index:3100;
+  box-shadow:0 10px 30px rgba(0,0,0,.45);
+">
+  <h2 style="margin:0 0 10px;color:#ffd76a">🔐 Jassiah Admin</h2>
+  <input id="adminEmail" type="email" placeholder="Email">
+  <input id="adminPassword" type="password" placeholder="Password">
+
+  <button type="button" onclick="adminLogin()" style="
+    background:linear-gradient(135deg,#f0c653,#9d7014);
+    color:#111;border:0;border-radius:8px;
+    padding:10px 15px;font-weight:bold;cursor:pointer
+  ">Log In</button>
+
+  <button type="button" onclick="closeAdminLogin()" style="
+    background:#333;color:#fff;border:0;border-radius:8px;
+    padding:10px 15px;margin-left:6px;cursor:pointer
+  ">Cancel</button>
+
+  <div id="adminStatus" style="min-height:20px;margin-top:10px;color:#ffd76a;font-size:13px"></div>
+</div>
+
+
 
 <div class="wrap">
 
@@ -419,7 +477,7 @@ body:not(.admin-mode) #editArtistPanel{
 
 
 
-<div class="panel" id="newArtistPanel">
+<div class="admin-only panel" id="newArtistPanel">
   <h2>🎤 Create Artist Profile</h2>
 
   <input
@@ -468,7 +526,7 @@ body:not(.admin-mode) #editArtistPanel{
 </div>
 
 
-<div class="panel" id="editArtistPanel" style="display:none">
+<div class="admin-only panel" id="editArtistPanel" style="display:none">
   <h2>✏️ Edit Artist Profile</h2>
 
   <input
@@ -527,7 +585,7 @@ body:not(.admin-mode) #editArtistPanel{
   ></div>
 </div>
 
-<div class="panel">
+<div class="admin-only panel">
   <h2>♫ Add New Song</h2>
 
   <input id="songTitle" type="text" placeholder="Song title">
@@ -969,21 +1027,21 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
-<button
+<button class="admin-only"
             onclick="addSongToAlbum(${song.id})"
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
             + Album
           </button>
 
-          <button
+          <button class="admin-only"
             onclick="setFeaturedSong(${song.id})"
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
             ⭐ Set Featured
           </button>
 
-          <button
+          <button class="admin-only"
             onclick="addSongToPlaylist(${song.id})"
             style="
               background:#111;
@@ -2410,6 +2468,11 @@ function openEditArtist(name){
 }
 
 async function saveArtistProfile(){
+  if(!currentUser){
+    alert("Please log in as admin to edit an artist.");
+    return;
+  }
+
   if(typeof currentUser==="undefined" || !currentUser){
     alert("Please log in as admin first.");
     return;
@@ -2584,6 +2647,11 @@ function cancelEditArtist(){
 
 async 
 async function createArtistProfile(){
+  if(!currentUser){
+    alert("Please log in as admin to create an artist.");
+    return;
+  }
+
   if(typeof currentUser==="undefined" || !currentUser){
     alert("Please log in as admin first.");
     return;
@@ -3031,6 +3099,11 @@ loadSongs();
 }
 
 async function uploadSong(){
+  if(!currentUser){
+    alert("Please log in as admin to upload a song.");
+    return;
+  }
+
   const title=
     document.getElementById("songTitle")
       .value.trim();
@@ -3132,6 +3205,11 @@ async function uploadSong(){
 }
 
 async function deleteSong(id){
+  if(!currentUser){
+    alert("Please log in as admin to delete a song.");
+    return;
+  }
+
   if(!confirm("Are you sure you want to delete this song?"))return;
 
   const {error}=await client
