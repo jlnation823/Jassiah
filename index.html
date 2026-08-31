@@ -369,6 +369,56 @@ body:not(.admin-mode) .admin-only{
 @media(max-width:650px){
   #authBar{justify-content:center}
 }
+
+/* ONE SAFE CHANGE: gold microphone-style bottom Play/Pause button */
+#playButton.player-play{
+  position:relative !important;
+  width:56px !important;
+  height:56px !important;
+  min-width:56px !important;
+  min-height:56px !important;
+  padding:0 !important;
+  border-radius:50% !important;
+  border:3px solid #9a7118 !important;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,.16) 0 1px,
+      rgba(0,0,0,.03) 1px 4px
+    ),
+    radial-gradient(
+      circle at 50% 45%,
+      #ffed9d 0%,
+      #ffd76a 38%,
+      #d6a12a 68%,
+      #8c6412 100%
+    ) !important;
+  box-shadow:
+    inset 0 0 0 2px rgba(80,55,5,.72),
+    inset 0 4px 10px rgba(255,255,255,.32),
+    0 3px 10px rgba(0,0,0,.5) !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+
+#playButton.player-play::before{
+  content:"" !important;
+  position:absolute !important;
+  inset:7px !important;
+  border-radius:50% !important;
+  border:1px solid rgba(255,255,255,.34) !important;
+  pointer-events:none !important;
+}
+
+#playButton.player-play svg{
+  position:relative !important;
+  z-index:2 !important;
+  width:23px !important;
+  height:23px !important;
+  fill:#17120a !important;
+  stroke:none !important;
+}
 </style>
 </head>
 
