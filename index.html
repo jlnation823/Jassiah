@@ -492,6 +492,39 @@ body:not(.admin-mode) .admin-only{
     transform:none !important;
   }
 }
+
+/* STEP 4 ONLY: position the small Play button inside each song row */
+#songs .song,
+#songs .song-card{
+  position:relative !important;
+}
+
+#songs .song .play-btn,
+#songs .song-card .play-btn{
+  margin-left:auto !important;
+  flex:0 0 auto !important;
+  position:relative !important;
+  z-index:2 !important;
+}
+
+#songs .song-info,
+#songs .song-card .song-info{
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+/* Keep the row button from covering the title or artwork. */
+#songs .song .play-btn,
+#songs .song-card .play-btn{
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+  min-height:36px !important;
+  border-radius:50% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
 </style>
 </head>
 
