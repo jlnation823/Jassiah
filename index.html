@@ -4318,5 +4318,83 @@ initializeAuth();
   }
 })();
 </script>
+
+<script id="jassiah-login-only-fix">
+(function(){
+  /* Keep the Admin Hub as its own page (index 7). */
+  const oldJcGo=window.jcGo;
+  window.jcGo=function(n){
+    const pageNumber=Number(n);
+
+    /* Allow the Admin Hub to be page 7. */
+    if(pageNumber===7){
+      const track=document.getElementById("jcTrack");
+      if(track)track.style.transform="translateX(-700%)";
+
+      /* Don't mark a normal navigation button active for Admin Hub. */
+      document.querySelectorAll(".jc-nav").forEach(b=>b.classList.remove("active"));
+
+      if(typeof jcPrepareAdmin==="function"){
+        jcPrepareAdmin();
+      }
+
+      return;
+    }
+
+    oldJcGo(pageNumber);
+  };
+
+  function bindLoginButton(){
+    const button=document.getElementById("jcAdminButton");
+    if(!button)return;
+
+    /* Remove any inline handler that could trigger a slide. */
+    button.removeAttribute("onclick");
+
+    button.onclick=function(event){
+      event.preventDefault();
+      event.stopPropagation();
+
+      if(typeof currentUser!=="undefined" && currentUser){
+        /* Already logged in: go directly to the Admin Hub. */
+        jcGo(7);
+      }else{
+        /* Logged out: ONLY open the login box. */
+        jcOpenLogin();
+      }
+
+      return false;
+    };
+
+    /* A pointerdown guard prevents a nearby/underlying slider from receiving
+       the same click in browsers that retarget layered elements. */
+    button.onpointerdown=function(event){
+      event.stopPropagation();
+    };
+  }
+
+  /* After successful login, send the user to Admin Hub page 7, not page 6. */
+  if(typeof window.jcLogin==="function"){
+    const originalLogin=window.jcLogin;
+    window.jcLogin=async function(){
+      const result=await originalLogin.apply(this,arguments);
+
+      if(typeof currentUser!=="undefined" && currentUser){
+        const b=document.getElementById("jcAdminButton");
+        if(b)b.textContent="⚙ Admin Hub";
+        jcGo(7);
+      }
+
+      return result;
+    };
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    bindLoginButton();
+    setTimeout(bindLoginButton,300);
+    setTimeout(bindLoginButton,1200);
+  });
+})();
+</script>
 </body>
 </html>
