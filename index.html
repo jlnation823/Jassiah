@@ -242,9 +242,9 @@ audio{width:100%;height:40px}
   .player-progress{display:none}
   .player-volume{display:none}
   .player-buttons{gap:3px}
-  .player-icon{width:32px;height:32px}
+  .player-icon{width:31px;height:31px}
   .player-play{width:40px;height:40px}
-  .player-icon svg{width:16px;height:16px}
+  .player-icon svg{width:15px;height:15px}
   .player-play svg{width:19px;height:19px}
 }
 
@@ -326,7 +326,16 @@ audio{width:100%;height:40px}
        oninput="filterSongs()">
 
 <div class="panel">
-  <h2>Your Songs</h2>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+  <h2 style="margin-bottom:0">Your Songs</h2>
+  <button
+    id="favoritesFilter"
+    onclick="toggleFavoritesOnly()"
+    style="background:#111;color:#ffd76a;border:1px solid #9f741c;border-radius:8px;padding:9px 14px;font-weight:bold;cursor:pointer"
+  >
+    ♡ Favorites
+  </button>
+</div>
   <div id="songs"><div class="empty">Loading your music...</div></div>
 </div>
 
@@ -343,6 +352,17 @@ audio{width:100%;height:40px}
   </div>
 
   <div class="player-buttons">
+
+    <button
+      id="favoritePlayerBtn"
+      class="player-icon"
+      title="Favorite current song"
+      aria-label="Favorite current song"
+      onclick="toggleCurrentFavorite()">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 20s-7-4.6-9-8.7C1.2 7.7 3.3 5 6.3 5c1.9 0 3.3 1 4.1 2.3C11.2 6 12.7 5 14.6 5c3 0 5.1 2.7 3.3 6.3C19 15.4 12 20 12 20z"></path>
+      </svg>
+    </button>
 
     <button
       id="shuffleBtn"
@@ -453,6 +473,8 @@ let songs=[];
 let currentIndex=-1;
 let shuffle=false;
 let repeat=false;
+let favorites=JSON.parse(localStorage.getItem("jassiahFavorites")||"[]").map(Number);
+let favoritesOnly=false;
 
 const player=document.getElementById("playerAudio");
 const playButton=document.getElementById("playButton");
@@ -558,6 +580,14 @@ function renderSongs(list){
 
         <div class="actions">
 
+          <button
+            class="favoriteSongBtn"
+            onclick="toggleFavorite(${song.id})"
+            style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
+          >
+            ${favorites.includes(Number(song.id)) ? "♥ Favorited" : "♡ Favorite"}
+          </button>
+
           <button class="edit"
                   onclick="showEdit(${song.id})">
             ✏️ Edit
@@ -641,6 +671,27 @@ function setNowPlaying(song){
     coverUrl(song);
 
   updatePlayerButton(true);
+  updateCurrentFavoriteButton();
+}
+
+function toggleCurrentFavorite(){
+  if(currentIndex<0 || !songs[currentIndex])return;
+  toggleFavorite(songs[currentIndex].id);
+}
+
+function updateCurrentFavoriteButton(){
+  const btn=document.getElementById("favoritePlayerBtn");
+  if(!btn || currentIndex<0 || !songs[currentIndex])return;
+
+  const isFavorite=favorites.includes(
+    Number(songs[currentIndex].id)
+  );
+
+  btn.classList.toggle("active",isFavorite);
+  btn.setAttribute("aria-pressed",String(isFavorite));
+  btn.title=isFavorite
+    ? "Remove from Favorites"
+    : "Add to Favorites";
 }
 
 function playSong(index){
@@ -810,22 +861,65 @@ function formatTime(value){
 }
 
 function filterSongs(){
-  const q=document.getElementById("search")
-    .value
-    .toLowerCase()
-    .trim();
+  const q=document.getElementById("search").value.toLowerCase().trim();
 
-  renderSongs(
-    songs.filter(song=>
-      String(song.title||"")
-        .toLowerCase()
-        .includes(q) ||
-      String(song.artist||"")
-        .toLowerCase()
-        .includes(q)
-    )
-  );
+  const filtered=songs.filter(song=>{
+    const matchesSearch =
+      String(song.title||"").toLowerCase().includes(q) ||
+      String(song.artist||"").toLowerCase().includes(q);
+
+    const matchesFavorites =
+      !favoritesOnly ||
+      favorites.includes(Number(song.id));
+
+    return matchesSearch && matchesFavorites;
+  });
+
+  renderSongs(filtered);
 }
+
+function toggleFavorite(id){
+  id=Number(id);
+
+  if(favorites.includes(id)){
+    favorites=favorites.filter(x=>x!==id);
+  }else{
+    favorites.push(id);
+  }
+
+  localStorage.setItem(
+    "jassiahFavorites",
+    JSON.stringify(favorites)
+  );
+
+  filterSongs();
+  updateFavoritesButton();
+  updateCurrentFavoriteButton();
+}
+
+function toggleFavoritesOnly(){
+  favoritesOnly=!favoritesOnly;
+  filterSongs();
+  updateFavoritesButton();
+}
+
+function updateFavoritesButton(){
+  const btn=document.getElementById("favoritesFilter");
+  if(!btn)return;
+
+  if(favoritesOnly){
+    btn.textContent="♥ Showing Favorites";
+    btn.style.background="#3b2c09";
+    btn.style.borderColor="#ffd76a";
+    btn.style.color="#ffe89c";
+  }else{
+    btn.textContent="♡ Favorites";
+    btn.style.background="#111";
+    btn.style.borderColor="#9f741c";
+    btn.style.color="#ffd76a";
+  }
+}
+
 
 function showEdit(id){
   const area=document.getElementById("edit-"+id);
@@ -888,7 +982,8 @@ async function saveEdit(id){
     return;
   }
 
-  await loadSongs();
+  await updateFavoritesButton();
+loadSongs();
 }
 
 async function uploadSong(){
