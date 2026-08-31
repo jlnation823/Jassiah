@@ -357,7 +357,49 @@ audio{width:100%;height:40px}
   .site-nav{overflow-x:auto;flex-wrap:nowrap}
 }
 
-.admin-only{display:none !important}
+/* PUBLIC SITE: VIEW/LISTEN ONLY */
+#newArtistPanel,
+#editArtistPanel,
+.panel:has(#musicFile){
+  display:none !important;
+}
+
+/* Hide management buttons while keeping visitor playback/favorites. */
+.actions button:not(.favoriteSongBtn){
+  display:none !important;
+}
+
+/* Playlist management is hidden; playback remains available. */
+#playlistPanel button[onclick^="createPlaylist"]{
+  display:none !important;
+}
+#playlistPanel button[onclick^="deletePlaylist"],
+#playlistPanel button[onclick^="removeFromPlaylist"],
+#playlistPanel button[onclick^="addSongToPlaylist"]{
+  display:none !important;
+}
+
+/* Album management is hidden; playback remains available. */
+#albumPanel button[onclick^="createAlbum"],
+#albumPanel button[onclick^="deleteAlbum"],
+#albumPanel button[onclick^="removeSongFromAlbum"],
+#albumPanel button[onclick^="addSongToAlbum"]{
+  display:none !important;
+}
+
+/* Artist management is hidden; viewing remains available. */
+#artistsPanel button[onclick^="openEditArtist"],
+#artistPage button[onclick^="openEditArtist"],
+#artistsPanel button[onclick^="deleteArtistProfile"],
+#artistPage button[onclick^="deleteArtistProfile"],
+#artistsPanel button[onclick^="selectArtistForSong"]{
+  display:none !important;
+}
+
+/* Featured-song management is hidden; play remains available. */
+button[onclick^="setFeaturedSong"]{
+  display:none !important;
+}
 </style>
 </head>
 
@@ -414,7 +456,42 @@ audio{width:100%;height:40px}
 
 
 
+<div class="panel" id="newArtistPanel">
+  <h2>🎤 Create Artist Profile</h2>
 
+  <input
+    id="newArtistName"
+    type="text"
+    placeholder="Artist name"
+  >
+
+  <label>Artist profile picture:</label>
+
+  <input
+    id="newArtistImage"
+    type="file"
+    accept="image/*"
+  >
+
+  <button
+    onclick="createArtistProfile()"
+    style="
+      background:linear-gradient(135deg,#f0c653,#9d7014);
+      color:#111;
+      border:0;
+      border-radius:8px;
+      padding:11px 16px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    Create Artist Profile
+  </button>
+
+  <div style="color:#777;font-size:11px;margin-top:4px">
+    Primary artist rule: “Jamil Landin ft. Other Artist” stays exactly as credited,
+    but the song belongs under Jamil Landin’s artist page.
+  </div>
 
   <div
     id="artistUploadMessage"
@@ -428,10 +505,83 @@ audio{width:100%;height:40px}
 </div>
 
 
+<div class="panel" id="editArtistPanel" style="display:none">
+  <h2>✏️ Edit Artist Profile</h2>
 
+  <input
+    id="editArtistName"
+    type="text"
+    placeholder="Artist name"
+  >
+
+  <label>New artist profile picture (optional):</label>
+
+  <input
+    id="editArtistImage"
+    type="file"
+    accept="image/*"
+  >
+
+  <button
+    onclick="saveArtistProfile()"
+    style="
+      background:linear-gradient(135deg,#f0c653,#9d7014);
+      color:#111;
+      border:0;
+      border-radius:8px;
+      padding:11px 16px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    Save Artist
+  </button>
+
+  <button
+    onclick="cancelEditArtist()"
+    style="
+      background:#333;
+      color:#fff;
+      border:1px solid #555;
+      border-radius:8px;
+      padding:11px 16px;
+      font-weight:bold;
+      cursor:pointer;
+      margin-left:6px;
+    "
+  >
+    Cancel
+  </button>
+
+  <div
+    id="editArtistMessage"
+    style="
+      margin-top:10px;
+      color:#ffd76a;
+      font-weight:bold;
+      min-height:20px;
+    "
+  ></div>
 </div>
 
+<div class="panel">
+  <h2>♫ Add New Song</h2>
 
+  <input id="songTitle" type="text" placeholder="Song title">
+  <input id="artist" type="text" placeholder="Artist" list="artistNames">
+<datalist id="artistNames"></datalist>
+
+  <label>Music file:</label>
+  <input id="musicFile" type="file" accept="audio/*">
+
+  <label>Cover image:</label>
+  <input id="coverFile" type="file" accept="image/*">
+
+  <button class="upload" id="uploadBtn" onclick="uploadSong()">
+    Upload Song
+  </button>
+
+  <div id="msg"></div>
 </div>
 
 
@@ -848,6 +998,34 @@ function renderSongs(list){
         </audio>
 
         <div class="actions">
+<button
+            onclick="addSongToAlbum(${song.id})"
+            style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
+          >
+            + Album
+          </button>
+
+          <button
+            onclick="setFeaturedSong(${song.id})"
+            style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
+          >
+            ⭐ Set Featured
+          </button>
+
+          <button
+            onclick="addSongToPlaylist(${song.id})"
+            style="
+              background:#111;
+              color:#ffd76a;
+              border:1px solid #9f741c;
+              padding:9px 14px;
+              border-radius:7px;
+              cursor:pointer;
+              font-weight:bold;
+            "
+          >
+            + Playlist
+          </button>
 
           <button
             class="favoriteSongBtn"
@@ -855,6 +1033,16 @@ function renderSongs(list){
             style="background:#111;color:#ffd76a;border:1px solid #9f741c;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:bold"
           >
             ${favorites.includes(Number(song.id)) ? "♥ Favorited" : "♡ Favorite"}
+          </button>
+
+          <button class="edit"
+                  onclick="showEdit(${song.id})">
+            ✏️ Edit
+          </button>
+
+          <button class="delete"
+                  onclick="deleteSong(${song.id})">
+            🗑 Delete
           </button>
 
         </div>
@@ -2286,6 +2474,148 @@ function songsForArtist(artistName){
   });
 }
 
+function saveArtistProfiles(){
+  localStorage.setItem(
+    "jassiahArtistProfiles",
+    JSON.stringify(artistProfiles)
+  );
+}
+
+
+let artistBeingEdited="";
+
+function openEditArtist(name){
+  const profile=artistProfiles[name]||{};
+  artistBeingEdited=name;
+
+  const panel=document.getElementById("editArtistPanel");
+  const nameInput=document.getElementById("editArtistName");
+  const imageInput=document.getElementById("editArtistImage");
+  const message=document.getElementById("editArtistMessage");
+
+  if(!panel||!nameInput||!imageInput)return;
+
+  nameInput.value=name;
+  imageInput.value="";
+  message.textContent="";
+
+  panel.style.display="block";
+
+  panel.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+
+  nameInput.focus();
+}
+
+function saveArtistProfile(){
+  const oldName=artistBeingEdited;
+
+  const nameInput=document.getElementById("editArtistName");
+  const imageInput=document.getElementById("editArtistImage");
+  const message=document.getElementById("editArtistMessage");
+
+  const newName=nameInput.value.trim();
+
+  if(!oldName){
+    message.textContent="Select an artist to edit.";
+    return;
+  }
+
+  if(!newName){
+    message.textContent="Please enter the artist name.";
+    return;
+  }
+
+  const oldProfile=artistProfiles[oldName]||{};
+
+  const applySave=(image)=>{
+    /*
+      Move the profile to the new artist name so the
+      picture stays attached even when the name changes.
+    */
+    delete artistProfiles[oldName];
+
+    artistProfiles[newName]={
+      image:image || oldProfile.image || ""
+    };
+
+    saveArtistProfiles();
+
+    /*
+      Update existing songs when the artist name itself changes.
+      This keeps the artist's songs connected to the new profile.
+    */
+    if(oldName!==newName){
+      const ids=songs
+        .filter(song =>
+          String(song.artist||"").trim().toLowerCase()===
+          oldName.trim().toLowerCase()
+        )
+        .map(song=>song.id);
+
+      if(ids.length){
+        Promise.all(
+          ids.map(id =>
+            client
+              .from("songs")
+              .update({artist:newName})
+              .eq("id",id)
+          )
+        ).then(async()=>{
+          artistBeingEdited=newName;
+          message.textContent=
+            "Artist profile updated successfully! 🎤";
+
+          await loadSongs();
+          renderArtists();
+          renderHomeDashboard();
+        }).catch(error=>{
+          console.error(error);
+          message.textContent=
+            "The profile saved, but some song names may need updating.";
+          renderArtists();
+        });
+
+        return;
+      }
+    }
+
+    artistBeingEdited=newName;
+
+    nameInput.value="";
+    imageInput.value="";
+    message.textContent=
+      "Artist profile updated successfully! 🎤";
+
+    renderArtists();
+    renderHomeDashboard();
+
+    const page=document.getElementById("artistPage");
+    if(page && page.style.display!=="none"){
+      openArtistPage(newName);
+    }
+  };
+
+  if(imageInput.files.length){
+    const reader=new FileReader();
+
+    reader.onload=function(){
+      applySave(reader.result);
+    };
+
+    reader.onerror=function(){
+      message.textContent=
+        "Could not read that picture.";
+    };
+
+    reader.readAsDataURL(imageInput.files[0]);
+  }else{
+    applySave("");
+  }
+}
+
 function cancelEditArtist(){
   const panel=document.getElementById("editArtistPanel");
 
@@ -2295,6 +2625,52 @@ function cancelEditArtist(){
 
   artistBeingEdited="";
 }
+
+function createArtistProfile(){
+  const nameInput=document.getElementById("newArtistName");
+  const imageInput=document.getElementById("newArtistImage");
+  const message=document.getElementById("artistUploadMessage");
+
+  const name=nameInput.value.trim();
+
+  if(!name){
+    message.textContent="Please enter the artist name.";
+    return;
+  }
+
+  if(!imageInput.files.length){
+    message.textContent="Please choose the artist's picture.";
+    return;
+  }
+
+  const reader=new FileReader();
+
+  reader.onload=function(){
+    artistProfiles[name]={
+      image:reader.result
+    };
+
+    saveArtistProfiles();
+    renderArtists();
+    renderHomeDashboard();
+
+    nameInput.value="";
+    imageInput.value="";
+    message.textContent=
+      "Artist profile created successfully! 🎤";
+  };
+
+  reader.onerror=function(){
+    message.textContent=
+      "Could not read that picture.";
+  };
+
+  reader.readAsDataURL(imageInput.files[0]);
+}
+
+
+
+
 
 function renderArtists(){
   const grid=document.getElementById("artistsGrid");
@@ -2600,7 +2976,125 @@ async function saveEdit(id){
 loadSongs();
 }
 
-async 
+async function uploadSong(){
+  const title=
+    document.getElementById("songTitle")
+      .value.trim();
+
+  const artist=
+    document.getElementById("artist")
+      .value.trim();
+
+  const musicInput=
+    document.getElementById("musicFile");
+
+  const coverInput=
+    document.getElementById("coverFile");
+
+  const msg=
+    document.getElementById("msg");
+
+  if(!title||!artist||!musicInput.files.length){
+    msg.textContent=
+      "Enter the title, artist, and music file.";
+    return;
+  }
+
+  msg.textContent="Uploading...";
+
+  try{
+    const musicFile=musicInput.files[0];
+
+    const musicPath=
+      "songs/"+Date.now()+"_"+cleanName(musicFile.name);
+
+    const {error:musicError}=await client.storage
+      .from(BUCKET)
+      .upload(
+        musicPath,
+        musicFile,
+        {
+          upsert:false,
+          contentType:musicFile.type
+        }
+      );
+
+    if(musicError)throw musicError;
+
+    let cover=null;
+
+    if(coverInput.files.length){
+      const coverFile=coverInput.files[0];
+
+      const coverPath=
+        "covers/"+Date.now()+"_"+cleanName(coverFile.name);
+
+      const {error:coverError}=await client.storage
+        .from(BUCKET)
+        .upload(
+          coverPath,
+          coverFile,
+          {
+            upsert:false,
+            contentType:coverFile.type
+          }
+        );
+
+      if(coverError)throw coverError;
+
+      cover=
+        client.storage
+          .from(BUCKET)
+          .getPublicUrl(coverPath)
+          .data.publicUrl;
+    }
+
+    const {error:dbError}=await client
+      .from("songs")
+      .insert({
+        title:title,
+        artist:artist,
+        file_path:musicPath,
+        cover_url:cover
+      });
+
+    if(dbError)throw dbError;
+
+    document.getElementById("songTitle").value="";
+    document.getElementById("artist").value="";
+    musicInput.value="";
+    coverInput.value="";
+
+    msg.textContent=
+      "Song uploaded successfully! 🎵";
+
+    await loadSongs();
+
+  }catch(error){
+    console.error(error);
+    msg.textContent=
+      "Upload failed: "+error.message;
+  }
+}
+
+async function deleteSong(id){
+  if(!confirm("Are you sure you want to delete this song?"))return;
+
+  const {error}=await client
+    .from("songs")
+    .delete()
+    .eq("id",id);
+
+  if(error){
+    alert("Could not delete song: "+error.message);
+    return;
+  }
+
+  await loadSongs();
+}
+
+loadSongs();
+
 </script>
 
 </body>
