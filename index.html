@@ -6704,5 +6704,179 @@ initializeAuth();
 })();
 </script>
 
+
+
+<script id="jassiah-artist-click-final-fix">
+(function(){
+  /* FINAL ARTIST CLICK FIX
+     Do not use the older openArtistPage() renderer. It writes to a
+     different artist-page container, which is why clicks were showing
+     an empty artist page. Everything below uses the visible slide #7. */
+
+  function getSongs(){
+    return (typeof songs !== "undefined" && Array.isArray(songs)) ? songs : [];
+  }
+
+  function getProfiles(){
+    return (typeof artistProfiles !== "undefined" && artistProfiles && typeof artistProfiles === "object")
+      ? artistProfiles : {};
+  }
+
+  function esc(v){
+    return typeof escapeHtml === "function"
+      ? escapeHtml(v)
+      : String(v ?? "").replace(/[&<>"']/g,c=>({
+          "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"
+        }[c]));
+  }
+
+  function jesc(v){
+    return typeof escapeJs === "function"
+      ? escapeJs(v)
+      : String(v ?? "").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+  }
+
+  function findProfile(name){
+    const profiles=getProfiles();
+    const key=Object.keys(profiles).find(k=>String(k).trim().toLowerCase()===String(name).trim().toLowerCase());
+    return key ? profiles[key] : {};
+  }
+
+  function primaryArtist(credit){
+    const value=String(credit||"").trim();
+    const lower=value.toLowerCase();
+    const profileNames=Object.keys(getProfiles()).sort((a,b)=>String(b).length-String(a).length);
+    const match=profileNames.find(n=>{
+      const x=String(n).trim().toLowerCase();
+      return lower===x || lower.startsWith(x+" ft") || lower.startsWith(x+" feat") || lower.startsWith(x+" featuring");
+    });
+    if(match)return match;
+    return value.split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+  }
+
+  function cover(song){
+    try{
+      if(typeof coverUrl === "function") return coverUrl(song)||"";
+      if(typeof getCoverUrl === "function") return getCoverUrl(song)||"";
+    }catch(_){ }
+    return song?.cover_url || "";
+  }
+
+  function orderedSongs(name){
+    if(typeof songsForArtist === "function"){
+      try{
+        const list=songsForArtist(name);
+        if(Array.isArray(list))return list;
+      }catch(_){ }
+    }
+
+    const needle=String(name||"").trim().toLowerCase();
+    return getSongs().filter(song=>{
+      const a=String(song.artist||"").trim().toLowerCase();
+      return a===needle || a.startsWith(needle+" ft") || a.startsWith(needle+" feat") || a.startsWith(needle+" featuring");
+    });
+  }
+
+  function songTable(list){
+    if(typeof table === "function"){
+      try{return table(list);}catch(_){ }
+    }
+    if(typeof songRows === "function"){
+      try{return songRows(list);}catch(_){ }
+    }
+    if(!list.length)return '<div class="jc-muted">No songs for this artist yet.</div>';
+    return list.map((song,i)=>{
+      const index=getSongs().findIndex(s=>Number(s.id)===Number(song.id));
+      return `<div class="song" onclick="playSong(${index})">
+        <img class="cover" src="${esc(cover(song))}" alt="">
+        <div class="info">
+          <div class="title">${esc(song.title||"Untitled")}</div>
+          <div class="artist">${esc(song.artist||name)}</div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  window.jcFinalOpenArtist=function(name){
+    const clean=String(name||"").trim();
+    if(!clean)return;
+
+    const list=orderedSongs(clean);
+    const profile=findProfile(clean);
+    const image=profile.image || (list[0] ? cover(list[0]) : "");
+    const box=document.getElementById("jcArtistPage");
+    const track=document.getElementById("jcTrack");
+
+    if(!box || !track)return;
+
+    window.currentArtistName=clean;
+    window.currentArtistSongs=list;
+
+    box.innerHTML=`
+      <div class="jc-detail">
+        <img src="${esc(image)}" alt="${esc(clean)}" onerror="this.style.visibility='hidden'">
+        <div style="min-width:0">
+          <div class="jc-kicker">ARTIST PROFILE</div>
+          <div class="jc-detail-name">${esc(clean)}</div>
+          <div class="jc-muted" style="margin-top:7px">
+            ${list.length} song${list.length===1?"":"s"}
+          </div>
+        </div>
+      </div>
+      <div class="jc-section">Songs by ${esc(clean)}</div>
+      ${songTable(list)}
+    `;
+
+    /* Slide 7 is the actual visible Artist Detail slide. */
+    try{ if(typeof page !== "undefined") page=7; }catch(_){ }
+    track.style.transform="translateX(-700%)";
+
+    document.querySelectorAll(".jc-nav").forEach(btn=>btn.classList.remove("active"));
+  };
+
+  /* Every artist click now uses the same visible artist-detail renderer. */
+  window.jcOpenArtist=window.jcFinalOpenArtist;
+
+  /* This is what the home artist cards call. */
+  window.openArtistPage=window.jcFinalOpenArtist;
+
+  /* Rebind any artist-name cells/cards already rendered on the page. */
+  function repairArtistClicks(){
+    document.querySelectorAll(".jc-artist-cell").forEach(el=>{
+      if(el.dataset.artistFixed==="1")return;
+      const text=String(el.textContent||"").trim();
+      if(!text)return;
+      const primary=primaryArtist(text);
+      el.dataset.artistFixed="1";
+      el.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        window.jcFinalOpenArtist(primary);
+      };
+    });
+
+    document.querySelectorAll(".jc-artist-card").forEach(el=>{
+      const nameEl=el.querySelector(".jc-artist-name");
+      if(!nameEl)return;
+      const name=String(nameEl.textContent||"").trim();
+      if(!name)return;
+      el.onclick=function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        window.jcFinalOpenArtist(name);
+      };
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    repairArtistClicks();
+    setTimeout(repairArtistClicks,700);
+    setTimeout(repairArtistClicks,1600);
+  });
+
+  const observer=new MutationObserver(()=>repairArtistClicks());
+  document.addEventListener("DOMContentLoaded",()=>observer.observe(document.body,{childList:true,subtree:true}));
+})();
+</script>
 </body>
 </html>
