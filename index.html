@@ -7143,23 +7143,23 @@ initializeAuth();
     ?escapeJs(v)
     :String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
 
-  function songs(){
-    return typeof window.songs!=="undefined" && Array.isArray(window.songs)
-      ?window.songs:[];
+  function getAllSongsFinal(){
+    return typeof songs!=="undefined" && Array.isArray(songs)
+      ?songs:[];
   }
 
-  function profiles(){
-    return typeof window.artistProfiles!=="undefined" && window.artistProfiles
-      ?window.artistProfiles:{};
+  function getAllProfilesFinal(){
+    return typeof artistProfiles!=="undefined" && artistProfiles
+      ?artistProfiles:{};
   }
 
   function cover(song){
-    try{return typeof window.coverUrl==="function"?window.coverUrl(song):""}
+    try{return typeof coverUrl==="function"?coverUrl(song):""}
     catch(_){return""}
   }
 
   function orderedSongs(name){
-    const list=songs().filter(song=>
+    const list=getAllSongsFinal().filter(song=>
       String(song.artist||"").toLowerCase().includes(String(name||"").toLowerCase())
     );
 
@@ -7197,7 +7197,7 @@ initializeAuth();
     const track=document.getElementById("jcTrack");
     if(!box||!track)return;
 
-    const profile=profiles()[clean]||{};
+    const profile=getAllProfilesFinal()[clean]||{};
     const list=orderedSongs(clean);
     const image=profile.image||profile.image_url||(list[0]?cover(list[0]):"");
 
@@ -7221,7 +7221,7 @@ initializeAuth();
         </div>
 
         ${list.length?list.map((song,i)=>{
-          const index=songs().findIndex(
+          const index=getAllSongsFinal().findIndex(
             s=>Number(s.id)===Number(song.id)
           );
 
