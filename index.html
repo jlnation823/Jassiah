@@ -6566,63 +6566,250 @@ initializeAuth();
 })();
 </script>
 
-<script id="jassiah-final-cross-device-artists-and-player">
+<script id="jassiah-final-cross-device-home-player-fix">
 (function(){
-
-  /* =========================================================
-     1) ARTIST PROFILES BELONG IN SUPABASE, NOT localStorage.
-        localStorage is only a cache for the current browser.
-     ========================================================= */
 
   const ARTIST_TABLE="artist_profiles";
   const ARTIST_BUCKET="artist-images";
   const ARTIST_FOLDER="artists";
-  const PLAYER_KEY="jassiahPlayerPersistentFinalV2";
+  const PLAYER_KEY="jassiahPlayerStateFinalV3";
+
+  /* This is the exact Jamil Landin artist image URL you previously provided. */
+  const KNOWN_JAMIL_IMAGE=
+    "https://axkdbcyvuezawgbqjtyq.supabase.co/storage/v1/object/public/artist-images/artists/1788164701812_IMG_0200.png";
+
+  const esc=v=>typeof escapeHtml==="function"
+    ?escapeHtml(v)
+    :String(v??"").replace(/[&<>"']/g,c=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+
+  const jsesc=v=>typeof escapeJs==="function"
+    ?escapeJs(v)
+    :String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+
+  function getSongs(){
+    return typeof songs!=="undefined"&&Array.isArray(songs)?songs:[];
+  }
 
   function getProfiles(){
-    return (
-      typeof artistProfiles!=="undefined" &&
-      artistProfiles &&
-      typeof artistProfiles==="object"
-    ) ? artistProfiles : {};
+    return typeof artistProfiles!=="undefined"&&artistProfiles?artistProfiles:{};
   }
 
-  function setLocalProfiles(p){
+  function songCover(song){
     try{
-      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p||{}));
+      return typeof coverUrl==="function"?coverUrl(song):"";
+    }catch(_){return""}
+  }
+
+  function primaryArtist(credit){
+    const text=String(credit||"").trim();
+    if(!text)return"";
+    const names=Object.keys(getProfiles());
+
+    /* Prefer a known profile name at the start of the credit. */
+    const hit=names
+      .sort((a,b)=>b.length-a.length)
+      .find(name=>{
+        const n=name.toLowerCase();
+        const c=text.toLowerCase();
+        return c===n ||
+          c.startsWith(n+" ft") ||
+          c.startsWith(n+" feat") ||
+          c.startsWith(n+" featuring");
+      });
+
+    if(hit)return hit;
+
+    return text.split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+  }
+
+  function artistNamesFromSongs(){
+    const set=new Set();
+
+    getSongs().forEach(song=>{
+      const name=primaryArtist(song.artist);
+      if(name)set.add(name);
+    });
+
+    return [...set];
+  }
+
+  function canonicalImage(name,localImage,remoteImage){
+    const lower=String(name||"").trim().toLowerCase();
+
+    /* Restore the exact Jamil picture instead of the wrong replacement. */
+    if(lower==="jamil landin")return KNOWN_JAMIL_IMAGE;
+
+    return remoteImage||localImage||"";
+  }
+
+  async function ensureArtistRow(name,imageUrl){
+    if(!name)return;
+
+    try{
+      const {data,error}=await client
+        .from(ARTIST_TABLE)
+        .select("id,name,image_url")
+        .ilike("name",name);
+
+      if(error){
+        console.warn("Artist lookup:",name,error.message);
+        return;
+      }
+
+      const row=(data||[])[0];
+
+      if(row?.id){
+        if(imageUrl && row.image_url!==imageUrl){
+          const updated=await client
+            .from(ARTIST_TABLE)
+            .update({image_url:imageUrl})
+            .eq("id",row.id);
+
+          if(updated.error){
+            console.warn("Artist image update:",name,updated.error.message);
+          }
+        }
+      }else{
+        const inserted=await client
+          .from(ARTIST_TABLE)
+          .insert({name,image_url:imageUrl||""});
+
+        if(inserted.error){
+          console.warn("Artist insert:",name,inserted.error.message);
+        }
+      }
+    }catch(error){
+      console.warn("Artist sync:",name,error);
+    }
+  }
+
+  async function migrateCurrentBrowserProfiles(){
+    if(!(typeof currentUser!=="undefined"&&currentUser))return;
+
+    const local=getProfiles();
+    const names=Object.keys(local);
+
+    for(const name of names){
+      const profile=local[name]||{};
+      let image=profile.image||"";
+
+      /* A data URL only exists in this browser. Try to keep it by uploading it. */
+      if(String(image).startsWith("data:")){
+        try{
+          const match=image.match(/^data:([^;]+);base64,(.+)$/);
+          if(match){
+            const binary=atob(match[2]);
+            const bytes=new Uint8Array(binary.length);
+            for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+
+            const blob=new Blob([bytes],{type:match[1]});
+            const safe=String(name).replace(/[^a-zA-Z0-9._-]/g,"_");
+            const path=ARTIST_FOLDER+"/"+safe+"_"+Date.now()+".jpg";
+
+            const upload=await client.storage
+              .from(ARTIST_BUCKET)
+              .upload(path,blob,{
+                upsert:false,
+                contentType:match[1]
+              });
+
+            if(!upload.error){
+              image=client.storage
+                .from(ARTIST_BUCKET)
+                .getPublicUrl(path).data.publicUrl;
+            }
+          }
+        }catch(error){
+          console.warn("Artist image migration:",name,error);
+        }
+      }
+
+      image=canonicalImage(name,image,"");
+      await ensureArtistRow(name,image);
+
+      local[name]={...profile,image};
+    }
+
+    try{
+      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(local));
     }catch(_){}
   }
 
-  function allSongData(){
-    return (
-      typeof songs!=="undefined" &&
-      Array.isArray(songs)
-    ) ? songs : [];
-  }
-
-  function safeCover(song){
+  async function loadRemoteArtists(){
     try{
-      if(typeof coverUrl==="function")return coverUrl(song)||"";
-      if(typeof getCoverUrl==="function")return getCoverUrl(song)||"";
-    }catch(_){}
-    return song?.cover_url||"";
+      const {data,error}=await client
+        .from(ARTIST_TABLE)
+        .select("id,name,image_url")
+        .order("name",{ascending:true});
+
+      if(error){
+        console.warn("Artist profile load:",error.message);
+        renderHomeArtistsFinal();
+        return;
+      }
+
+      const remote={};
+
+      (data||[]).forEach(row=>{
+        const name=String(row?.name||"").trim();
+        if(!name)return;
+
+        remote[name]={
+          id:row.id,
+          image_url:row.image_url||""
+        };
+      });
+
+      const local=getProfiles();
+      const combined={...local};
+
+      Object.keys(remote).forEach(name=>{
+        combined[name]={
+          ...(combined[name]||{}),
+          image:canonicalImage(
+            name,
+            combined[name]?.image||"",
+            remote[name].image_url||""
+          ),
+          id:remote[name].id
+        };
+      });
+
+      /* Any artist who has songs should appear even if a profile row was
+         never created. This restores missing artists on phones/other browsers. */
+      artistNamesFromSongs().forEach(name=>{
+        if(!combined[name]){
+          const match=getSongs().find(
+            song=>primaryArtist(song.artist).toLowerCase()===name.toLowerCase()
+          );
+
+          combined[name]={
+            image: name.toLowerCase()==="jamil landin"
+              ?KNOWN_JAMIL_IMAGE
+              :(match?songCover(match):"")
+          };
+        }
+      });
+
+      try{artistProfiles=combined}catch(_){}
+      try{
+        localStorage.setItem(
+          "jassiahArtistProfiles",
+          JSON.stringify(combined)
+        );
+      }catch(_){}
+
+      renderHomeArtistsFinal();
+
+    }catch(error){
+      console.warn("Remote artists:",error);
+      renderHomeArtistsFinal();
+    }
   }
 
-  function escapeHtmlFinal(v){
-    return typeof escapeHtml==="function"
-      ?escapeHtml(v)
-      :String(v??"").replace(/[&<>"']/g,c=>({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[c]));
-  }
-
-  function escapeJsFinal(v){
-    return typeof escapeJs==="function"
-      ?escapeJs(v)
-      :String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
-  }
-
-  function renderPublicArtistCards(){
+  function renderHomeArtistsFinal(){
     const box=document.getElementById("jcHomeArtists");
     if(!box)return;
 
@@ -6638,385 +6825,42 @@ initializeAuth();
 
     box.innerHTML=names.map(name=>{
       const p=profiles[name]||{};
-      const matching=allSongData().filter(song=>
-        String(song.artist||"").toLowerCase().includes(name.toLowerCase())
+      const match=getSongs().find(
+        song=>primaryArtist(song.artist).toLowerCase()===name.toLowerCase()
       );
-      const image=p.image || (matching[0]?safeCover(matching[0]):"");
+
+      const image=canonicalImage(
+        name,
+        p.image||"",
+        p.image_url||""
+      ) || (match?songCover(match):"");
 
       return `
         <div class="jc-artist-card"
-             onclick="openArtistPage('${escapeJsFinal(name)}')">
-          <img src="${escapeHtmlFinal(image)}" alt="${escapeHtmlFinal(name)}"
-               onerror="this.style.opacity='.18'">
-          <div class="jc-artist-name">${escapeHtmlFinal(name)}</div>
+             onclick="openArtistPage('${jsesc(name)}')">
+          <img src="${esc(image)}"
+               alt="${esc(name)}"
+               onerror="this.style.opacity='.15'">
+          <div class="jc-artist-name">${esc(name)}</div>
         </div>
       `;
     }).join("");
-
-    if(typeof renderArtists==="function"){
-      try{renderArtists()}catch(_){}
-    }
   }
 
-  function dataUrlToBlob(dataUrl){
+  /* ---------- Player persistence ---------- */
+  function playerEl(){
+    return typeof player!=="undefined"&&player
+      ?player
+      :document.getElementById("playerAudio");
+  }
+
+  function savePlayerFinal(){
     try{
-      const match=String(dataUrl).match(/^data:([^;]+);base64,(.+)$/);
-      if(!match)return null;
-
-      const binary=atob(match[2]);
-      const bytes=new Uint8Array(binary.length);
-      for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
-
-      return new Blob([bytes],{type:match[1]});
-    }catch(_){
-      return null;
-    }
-  }
-
-  async function uploadArtistImage(image,name){
-    if(!image)return "";
-
-    if(/^https?:\/\//i.test(image)){
-      return image;
-    }
-
-    if(!String(image).startsWith("data:")){
-      return image;
-    }
-
-    const blob=dataUrlToBlob(image);
-    if(!blob)return "";
-
-    const safeName=String(name).replace(/[^a-zA-Z0-9._-]/g,"_");
-    const path=ARTIST_FOLDER+"/"+safeName+"_"+Date.now()+".jpg";
-
-    const result=await client.storage.from(ARTIST_BUCKET).upload(
-      path,blob,{upsert:false,contentType:blob.type}
-    );
-
-    if(result.error)throw result.error;
-
-    return client.storage.from(ARTIST_BUCKET).getPublicUrl(path).data.publicUrl;
-  }
-
-  async function loadArtistProfilesFromSupabase(){
-    try{
-      const {data,error}=await client
-        .from(ARTIST_TABLE)
-        .select("id,name,image_url")
-        .order("name",{ascending:true});
-
-      if(error){
-        console.warn("Artist profile read:",error.message);
-        renderPublicArtistCards();
-        return;
-      }
-
-      const next={};
-
-      (data||[]).forEach(row=>{
-        const name=String(row?.name||"").trim();
-        if(!name)return;
-
-        next[name]={
-          id:row.id,
-          image:row.image_url||""
-        };
-      });
-
-      if(Object.keys(next).length){
-        try{
-          artistProfiles=next;
-        }catch(_){}
-        setLocalProfiles(next);
-      }
-
-      renderPublicArtistCards();
-
-    }catch(error){
-      console.warn("Artist profile load:",error);
-      renderPublicArtistCards();
-    }
-  }
-
-  /* Migrate the artist profiles that already exist in your admin browser
-     into the Supabase table so phones/other browsers can see them. */
-  async function syncLocalArtistProfilesToSupabase(){
-    if(!(typeof currentUser!=="undefined"&&currentUser))return;
-
-    const local=getProfiles();
-    const names=Object.keys(local);
-
-    for(const name of names){
-      try{
-        const profile=local[name]||{};
-        const imageUrl=await uploadArtistImage(profile.image||"",name);
-
-        const payload={
-          name,
-          image_url:imageUrl||profile.image||""
-        };
-
-        const result=await client
-          .from(ARTIST_TABLE)
-          .upsert(payload,{onConflict:"name"});
-
-        if(result.error){
-          console.warn("Artist profile sync:",name,result.error.message);
-        }else if(imageUrl && profile.image!==imageUrl){
-          local[name]={...profile,image:imageUrl};
-          setLocalProfiles(local);
-        }
-      }catch(error){
-        console.warn("Artist profile sync:",name,error);
-      }
-    }
-
-    await loadArtistProfilesFromSupabase();
-  }
-
-  /* ---------- Create Artist: Supabase-backed ---------- */
-  window.createArtistProfile=async function(){
-    if(!(typeof currentUser!=="undefined"&&currentUser)){
-      alert("Please log in as admin first.");
-      return;
-    }
-
-    const nameInput=document.getElementById("newArtistName");
-    const imageInput=document.getElementById("newArtistImage");
-    const message=document.getElementById("artistUploadMessage");
-
-    const name=(nameInput?.value||"").trim();
-
-    if(!name){
-      if(message)message.textContent="Please enter the artist name.";
-      return;
-    }
-
-    const file=imageInput?.files?.[0];
-    if(!file){
-      if(message)message.textContent="Please choose the artist's picture.";
-      return;
-    }
-
-    if(message)message.textContent="Saving artist profile...";
-
-    try{
-      const path=ARTIST_FOLDER+"/"+String(name).replace(/[^a-zA-Z0-9._-]/g,"_")+"_"+Date.now();
-      const upload=await client.storage.from(ARTIST_BUCKET).upload(
-        path,file,{upsert:false,contentType:file.type}
-      );
-
-      if(upload.error)throw upload.error;
-
-      const imageUrl=client.storage
-        .from(ARTIST_BUCKET)
-        .getPublicUrl(path).data.publicUrl;
-
-      const insert=await client
-        .from(ARTIST_TABLE)
-        .upsert(
-          {name,image_url:imageUrl},
-          {onConflict:"name"}
-        );
-
-      if(insert.error)throw insert.error;
-
-      artistProfiles[name]={image:imageUrl};
-      setLocalProfiles(artistProfiles);
-
-      if(nameInput)nameInput.value="";
-      if(imageInput)imageInput.value="";
-      if(message)message.textContent="Artist profile created successfully! 🎤";
-
-      await loadArtistProfilesFromSupabase();
-
-    }catch(error){
-      console.error(error);
-      if(message)message.textContent=
-        "Artist profile could not be saved: "+(error?.message||"Unknown error");
-    }
-  };
-
-  /* ---------- Edit Artist: Supabase-backed ---------- */
-  window.saveArtistProfile=async function(){
-    const oldName=(
-      typeof artistBeingEdited!=="undefined"
-        ?String(artistBeingEdited||"").trim()
-        :""
-    );
-
-    const nameInput=document.getElementById("editArtistName");
-    const imageInput=document.getElementById("editArtistImage");
-    const message=document.getElementById("editArtistMessage");
-
-    const newName=(nameInput?.value||"").trim();
-
-    if(!oldName){
-      if(message)message.textContent="Select an artist to edit.";
-      return;
-    }
-
-    if(!newName){
-      if(message)message.textContent="Please enter the artist name.";
-      return;
-    }
-
-    if(!(typeof currentUser!=="undefined"&&currentUser)){
-      if(message)message.textContent="Please log in as admin first.";
-      return;
-    }
-
-    if(message)message.textContent="Saving artist profile...";
-
-    try{
-      const oldProfile=getProfiles()[oldName]||{};
-      let imageUrl=oldProfile.image||"";
-
-      const file=imageInput?.files?.[0];
-      if(file){
-        const path=ARTIST_FOLDER+"/"+String(newName).replace(/[^a-zA-Z0-9._-]/g,"_")+"_"+Date.now();
-        const upload=await client.storage.from(ARTIST_BUCKET).upload(
-          path,file,{upsert:false,contentType:file.type}
-        );
-        if(upload.error)throw upload.error;
-
-        imageUrl=client.storage
-          .from(ARTIST_BUCKET)
-          .getPublicUrl(path).data.publicUrl;
-      }else if(String(imageUrl).startsWith("data:")){
-        imageUrl=await uploadArtistImage(imageUrl,newName);
-      }
-
-      /* If the name changes, move the DB profile row and update song credits. */
-      if(oldName.toLowerCase()!==newName.toLowerCase()){
-        const oldRow=await client
-          .from(ARTIST_TABLE)
-          .delete()
-          .eq("name",oldName);
-
-        if(oldRow.error)throw oldRow.error;
-
-        const songsToUpdate=allSongData().filter(song=>
-          String(song.artist||"").trim().toLowerCase()===oldName.toLowerCase()
-        );
-
-        for(const song of songsToUpdate){
-          const updated=await client
-            .from("songs")
-            .update({artist:newName})
-            .eq("id",song.id);
-
-          if(updated.error)throw updated.error;
-        }
-      }else{
-        const updated=await client
-          .from(ARTIST_TABLE)
-          .delete()
-          .eq("name",oldName);
-
-        if(updated.error)throw updated.error;
-      }
-
-      const upsert=await client
-        .from(ARTIST_TABLE)
-        .upsert(
-          {name:newName,image_url:imageUrl},
-          {onConflict:"name"}
-        );
-
-      if(upsert.error)throw upsert.error;
-
-      const next={...getProfiles()};
-      delete next[oldName];
-      next[newName]={image:imageUrl};
-      artistProfiles=next;
-      setLocalProfiles(next);
-
-      if(nameInput)nameInput.value="";
-      if(imageInput)imageInput.value="";
-      if(typeof artistBeingEdited!=="undefined")artistBeingEdited=newName;
-
-      if(message)message.textContent="Artist profile updated successfully! 🎤";
-
-      if(typeof loadSongs==="function"){
-        try{await loadSongs()}catch(_){}
-      }
-
-      await loadArtistProfilesFromSupabase();
-
-    }catch(error){
-      console.error(error);
-      if(message)message.textContent=
-        "Artist profile could not be updated: "+(error?.message||"Unknown error");
-    }
-  };
-
-  /* ---------- Delete Artist: Supabase-backed ---------- */
-  window.deleteArtistProfile=async function(name){
-    name=String(name||"").trim();
-
-    if(!(typeof currentUser!=="undefined"&&currentUser)){
-      alert("Please log in as admin first.");
-      return;
-    }
-
-    if(!name)return;
-
-    if(!confirm('Delete artist "'+name+'"?\n\nThe songs will remain on the site.'))return;
-
-    try{
-      const result=await client
-        .from(ARTIST_TABLE)
-        .delete()
-        .eq("name",name);
-
-      if(result.error)throw result.error;
-
-      const next={...getProfiles()};
-      delete next[name];
-      artistProfiles=next;
-      setLocalProfiles(next);
-
-      await loadArtistProfilesFromSupabase();
-
-      if(typeof renderArtists==="function")renderArtists();
-
-      alert("Artist profile deleted. The songs were not deleted.");
-
-    }catch(error){
-      console.error(error);
-      alert("Artist profile could not be deleted: "+(error?.message||"Unknown error"));
-    }
-  };
-
-  /* =========================================================
-     2) PLAYER: ONE persistent state in the current browser.
-        Other browsers cannot share a user's playback position,
-        but refreshes in the SAME browser will keep it.
-     ========================================================= */
-
-  let restoreDone=false;
-
-  function playerSongs(){
-    return (
-      typeof songs!=="undefined" &&
-      Array.isArray(songs)
-    ) ? songs : [];
-  }
-
-  function playerObject(){
-    if(typeof player!=="undefined"&&player)return player;
-    return document.getElementById("playerAudio");
-  }
-
-  function saveFinalPlayerState(){
-    try{
-      const audio=playerObject();
-      const list=playerSongs();
-
-      if(!audio||!list.length) return;
-      if(typeof currentIndex!=="number"||currentIndex<0||!list[currentIndex])return;
+      const audio=playerEl();
+      const list=getSongs();
+
+      if(!audio||!list.length||typeof currentIndex!=="number")return;
+      if(currentIndex<0||!list[currentIndex])return;
 
       const song=list[currentIndex];
 
@@ -7031,7 +6875,7 @@ initializeAuth();
     }catch(_){}
   }
 
-  function readFinalPlayerState(){
+  function getSavedPlayer(){
     try{
       return JSON.parse(localStorage.getItem(PLAYER_KEY)||"null");
     }catch(_){
@@ -7039,15 +6883,12 @@ initializeAuth();
     }
   }
 
-  function restoreFinalPlayerState(){
-    if(restoreDone && !readFinalPlayerState())return;
-
-    const state=readFinalPlayerState();
+  function restorePlayerFinal(){
+    const state=getSavedPlayer();
     if(!state)return;
 
-    const audio=playerObject();
-    const list=playerSongs();
-
+    const audio=playerEl();
+    const list=getSongs();
     if(!audio||!list.length)return;
 
     let index=list.findIndex(
@@ -7066,14 +6907,18 @@ initializeAuth();
     const url=typeof musicUrl==="function"?musicUrl(song):"";
     if(!url)return;
 
-    /* Do not call playSong() here: that would reset the position and may
-       trigger autoplay. Set the source directly, then seek to the saved time. */
     currentIndex=index;
+
+    /* Never call playSong() here; it would reset the track to 0. */
     audio.src=url;
 
-    if(typeof setNowPlaying==="function"){
-      try{setNowPlaying(song)}catch(_){}
-    }
+    try{
+      audio.volume=Number.isFinite(Number(state.volume))
+        ?Math.max(0,Math.min(1,Number(state.volume)))
+        :audio.volume;
+
+      audio.muted=!!state.muted;
+    }catch(_){}
 
     const apply=()=>{
       try{
@@ -7084,25 +6929,14 @@ initializeAuth();
         }else{
           audio.currentTime=wanted;
         }
-
-        if(Number.isFinite(Number(state.volume))){
-          audio.volume=Math.max(0,Math.min(1,Number(state.volume)));
-        }
-
-        audio.muted=!!state.muted;
-
-        /* Keep it paused after refresh; the browser controls can resume it
-           from the saved position with one click. */
-        if(!state.paused && !audio.paused){
-          audio.pause();
-        }
       }catch(_){}
 
-      if(typeof updatePlayerButton==="function"){
-        try{updatePlayerButton(false)}catch(_){}
-      }
+      try{
+        if(typeof setNowPlaying==="function")setNowPlaying(song);
+      }catch(_){}
 
-      restoreDone=true;
+      /* Refreshes never autoplay music. The controls are restored to this track. */
+      try{audio.pause()}catch(_){}
     };
 
     audio.addEventListener("loadedmetadata",apply,{once:true});
@@ -7110,59 +6944,48 @@ initializeAuth();
     setTimeout(apply,500);
   }
 
-  function installFinalPlayerSave(){
-    const audio=playerObject();
+  function installPlayerPersistence(){
+    const audio=playerEl();
     if(!audio)return;
 
-    if(audio.dataset.jassiahFinalState==="1")return;
-    audio.dataset.jassiahFinalState="1";
+    if(audio.dataset.jassiahFinalPersistence==="1")return;
+    audio.dataset.jassiahFinalPersistence="1";
 
-    audio.addEventListener("timeupdate",saveFinalPlayerState);
-    audio.addEventListener("pause",saveFinalPlayerState);
-    audio.addEventListener("volumechange",saveFinalPlayerState);
-    audio.addEventListener("loadedmetadata",()=>setTimeout(saveFinalPlayerState,50));
+    audio.addEventListener("timeupdate",savePlayerFinal);
+    audio.addEventListener("pause",savePlayerFinal);
+    audio.addEventListener("volumechange",savePlayerFinal);
+    audio.addEventListener("ended",savePlayerFinal);
 
-    /* Save frequently while playing, so a fast refresh still has a recent
-       position even if the browser doesn't fire another event. */
     setInterval(()=>{
-      if(!audio.paused)saveFinalPlayerState();
+      if(!audio.paused)savePlayerFinal();
     },500);
   }
 
-  /* =========================================================
-     3) STARTUP
-     ========================================================= */
-
+  /* The original page loads songs asynchronously. Run our artist/player
+     restoration after that load has had time to finish. */
   document.addEventListener("DOMContentLoaded",async()=>{
-    /* Public profile data must come from Supabase first. */
-    await loadArtistProfilesFromSupabase();
-    renderPublicArtistCards();
+    installPlayerPersistence();
 
-    /* An already logged-in admin gets their local profiles migrated once. */
-    if(typeof currentUser!=="undefined"&&currentUser){
-      await syncLocalArtistProfilesToSupabase();
-    }
+    setTimeout(async()=>{
+      await migrateCurrentBrowserProfiles();
+      await loadRemoteArtists();
 
-    installFinalPlayerSave();
+      renderHomeArtistsFinal();
 
-    /* Wait for songs from Supabase, then restore the exact last track/time.
-       These retries handle the async song load on slower phones. */
-    setTimeout(()=>{
-      installFinalPlayerSave();
-      restoreFinalPlayerState();
-      renderPublicArtistCards();
-    },1500);
+      installPlayerPersistence();
+      restorePlayerFinal();
+    },1200);
 
-    setTimeout(restoreFinalPlayerState,3500);
-    setTimeout(restoreFinalPlayerState,7000);
+    setTimeout(restorePlayerFinal,3000);
+    setTimeout(restorePlayerFinal,6000);
   });
 
-  window.addEventListener("beforeunload",saveFinalPlayerState);
-  window.addEventListener("pagehide",saveFinalPlayerState);
+  window.addEventListener("beforeunload",savePlayerFinal);
+  window.addEventListener("pagehide",savePlayerFinal);
 
   document.addEventListener("visibilitychange",()=>{
     if(document.visibilityState==="hidden"){
-      saveFinalPlayerState();
+      savePlayerFinal();
     }
   });
 
