@@ -1784,7 +1784,13 @@ function renderSongs(list){
           ${escapeHtml(song.title||"Untitled")}
         </div>
 
-        <div class="artist">
+        <div class="artist"
+             role="button"
+             tabindex="0"
+             title="Open artist music"
+             onclick="event.stopPropagation();openArtistPage('${escapeJs(song.artist||"Unknown Artist")}')"
+             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();openArtistPage('${escapeJs(song.artist||"Unknown Artist")}')}"
+             style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
           ${escapeHtml(song.artist||"Unknown Artist")}
         </div>
 
@@ -2939,7 +2945,13 @@ function renderHomeDashboard(){
               <div class="home-recent-title">
                 ${escapeHtml(song.title||"Untitled")}
               </div>
-              <div class="home-recent-artist">
+              <div class="home-recent-artist"
+                   role="button"
+                   tabindex="0"
+                   title="Open artist music"
+                   onclick="event.stopPropagation();openArtistPage('${escapeJs(song.artist||"Unknown Artist")}')"
+                   onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();openArtistPage('${escapeJs(song.artist||"Unknown Artist")}')}"
+                   style="cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
                 ${escapeHtml(song.artist||"Unknown Artist")}
               </div>
             </div>
@@ -2963,22 +2975,45 @@ window.currentArtistSongs=[];
 
 
 function getArtistProfileNames(){
-  return Object.keys(artistProfiles)
-    .filter(name=>String(name).trim())
-    .sort((a,b)=>a.localeCompare(b));
+  /* Include artists from BOTH artist profiles and the songs table.
+     This lets a song's artist name open an artist music page even when
+     an artist profile has not been created yet. */
+  const names=new Map();
+
+  Object.keys(artistProfiles||{}).forEach(name=>{
+    const clean=String(name||"").trim();
+    if(clean)names.set(clean.toLowerCase(),clean);
+  });
+
+  if(Array.isArray(songs)){
+    songs.forEach(song=>{
+      const clean=String(song.artist||"").trim();
+      if(clean && !names.has(clean.toLowerCase())){
+        names.set(clean.toLowerCase(),clean);
+      }
+    });
+  }
+
+  return Array.from(names.values()).sort((a,b)=>a.localeCompare(b));
 }
 
 function openArtistPage(artistName){
-  const name=String(artistName||"").trim();
+  const requested=String(artistName||"").trim();
+  if(!requested)return;
 
-  if(!artistProfiles[name]){
-    alert("Create this artist profile first.");
+  const names=getArtistProfileNames();
+  const matched=names.find(
+    item=>item.toLowerCase()===requested.toLowerCase()
+  );
+
+  if(!matched){
+    alert("No songs found for this artist.");
     return;
   }
 
-  artistPageNames=getArtistProfileNames();
+  artistPageNames=names;
   artistPageIndex=artistPageNames.findIndex(
-    item=>item.toLowerCase()===name.toLowerCase()
+    item=>item.toLowerCase()===matched.toLowerCase()
   );
 
   renderCurrentArtistPage();
@@ -6653,7 +6688,7 @@ initializeAuth();
     }catch(e){ console.warn(e); }
   };
   function setHomeIcons(){
-    var icons={jcHomeNav:"⌂",jcSongsNav:"♫",jcArtistsNav:"✎",jcLikedNav:"♡",jcPlaylistsNav:"☷",jcAlbumsNav:"?",jcPhotosNav:"P"};
+    var icons={jcHomeNav:"⌂",jcSongsNav:"♫",jcArtistsNav:"🎤",jcLikedNav:"♡",jcPlaylistsNav:"☷",jcAlbumsNav:"💿",jcPhotosNav:"P"};
     Object.keys(icons).forEach(function(id){var b=document.getElementById(id);if(b)b.textContent=icons[id];});
   }
   function refreshHomeLayout(){
