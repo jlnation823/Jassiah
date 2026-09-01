@@ -6373,5 +6373,197 @@ initializeAuth();
 
 })();
 </script>
+
+<script id="jassiah-final-home-auth-repair">
+(function(){
+
+  /* ---------- HOME ARTISTS: render directly from artistProfiles ---------- */
+  function esc(v){
+    return typeof escapeHtml==="function"
+      ? escapeHtml(v)
+      : String(v??"").replace(/[&<>"']/g,c=>({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+        }[c]));
+  }
+
+  function jesc(v){
+    return typeof escapeJs==="function"
+      ? escapeJs(v)
+      : String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+  }
+
+  function getProfiles(){
+    return (
+      typeof artistProfiles!=="undefined" &&
+      artistProfiles &&
+      typeof artistProfiles==="object"
+    ) ? artistProfiles : {};
+  }
+
+  function getSongs(){
+    return (
+      typeof songs!=="undefined" &&
+      Array.isArray(songs)
+    ) ? songs : [];
+  }
+
+  function coverFor(song){
+    try{
+      if(typeof coverUrl==="function")return coverUrl(song)||"";
+      if(typeof getCoverUrl==="function")return getCoverUrl(song)||"";
+    }catch(_){}
+    return song?.cover_url||"";
+  }
+
+  function renderHomeArtistsFinal(){
+    const box=document.getElementById("jcHomeArtists");
+    if(!box)return;
+
+    const profiles=getProfiles();
+    const names=Object.keys(profiles)
+      .filter(n=>String(n).trim())
+      .sort((a,b)=>a.localeCompare(b));
+
+    if(!names.length){
+      box.innerHTML='<div class="jc-muted">No artist profiles yet.</div>';
+      return;
+    }
+
+    box.innerHTML=names.map(name=>{
+      const profile=profiles[name]||{};
+      const nameLower=name.toLowerCase();
+
+      const songsForArtist=getSongs().filter(song=>
+        String(song.artist||"").toLowerCase().includes(nameLower)
+      );
+
+      const image=profile.image ||
+        (songsForArtist[0] ? coverFor(songsForArtist[0]) : "");
+
+      return `
+        <div class="jc-artist-card"
+             onclick="jcFinalOpenArtist('${jesc(name)}')">
+          <img src="${esc(image)}" alt="${esc(name)}"
+               onerror="this.style.visibility='hidden'">
+          <div class="jc-artist-name">${esc(name)}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.jcFinalOpenArtist=function(name){
+    /* Use the original artist-page system when available. */
+    if(typeof openArtistPage==="function"){
+      openArtistPage(name);
+      return;
+    }
+
+    if(typeof jcOpenArtist==="function"){
+      jcOpenArtist(name);
+    }
+  };
+
+  /* ---------- LOGOUT: do not throw after successful sign-out ---------- */
+  window.jcLogout=async function(){
+    try{
+      if(
+        typeof client!=="undefined" &&
+        client.auth &&
+        typeof client.auth.signOut==="function"
+      ){
+        const result=await client.auth.signOut();
+
+        /* Supabase can return a non-fatal response; do not turn a
+           successful UI logout into a false alert because another
+           optional refresh function is missing. */
+        if(result?.error){
+          console.warn("Supabase sign-out:",result.error.message);
+        }
+      }
+    }catch(error){
+      console.warn("Supabase sign-out warning:",error);
+    }
+
+    /* Always clear this page's admin state and admin UI locally. */
+    try{ currentUser=null; }catch(_){}
+
+    const modal=document.getElementById("jcLoginModal");
+    if(modal)modal.classList.remove("open");
+
+    const button=document.getElementById("jcAdminButton");
+    if(button)button.textContent="🔐 Admin Login";
+
+    /* Make sure an anonymous visitor cannot remain on the Admin Hub. */
+    try{
+      if(typeof jcGo==="function")jcGo(0);
+    }catch(error){
+      console.warn("Return home:",error);
+    }
+
+    renderHomeArtistsFinal();
+  };
+
+  /* ---------- AUTH STATE: public visitors are never treated as admin ---------- */
+  async function syncPublicAuthState(){
+    try{
+      if(typeof client==="undefined" || !client.auth)return;
+
+      const {data}=await client.auth.getSession();
+      currentUser=data?.session?.user||null;
+
+      const button=document.getElementById("jcAdminButton");
+      if(button){
+        button.textContent=currentUser
+          ?"⚙ Admin Hub"
+          :"🔐 Admin Login";
+      }
+    }catch(error){
+      console.warn("Auth state:",error);
+      try{currentUser=null}catch(_){}
+    }
+  }
+
+  /* ---------- Refresh-safe home render ---------- */
+  function refreshHome(){
+    renderHomeArtistsFinal();
+
+    /* Keep the page title/other original home information if the
+       original renderer exists, but never let it replace our artist cards. */
+    try{
+      if(typeof renderHomeDashboard==="function"){
+        renderHomeDashboard();
+      }
+    }catch(_){}
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    refreshHome();
+    syncPublicAuthState();
+
+    /* Supabase often fills artists/songs shortly after DOM ready. */
+    setTimeout(refreshHome,500);
+    setTimeout(refreshHome,1500);
+    setTimeout(syncPublicAuthState,1500);
+
+    if(typeof client!=="undefined" && client.auth){
+      client.auth.onAuthStateChange((_event,session)=>{
+        currentUser=session?.user||null;
+
+        const button=document.getElementById("jcAdminButton");
+        if(button){
+          button.textContent=currentUser
+            ?"⚙ Admin Hub"
+            :"🔐 Admin Login";
+        }
+
+        if(!currentUser){
+          refreshHome();
+        }
+      });
+    }
+  });
+
+})();
+</script>
 </body>
 </html>
