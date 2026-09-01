@@ -6302,5 +6302,76 @@ initializeAuth();
 
 })();
 </script>
+
+<script id="jassiah-final-logout-fix">
+(function(){
+
+  window.jcLogout=async function(){
+    const button=document.getElementById("jcAdminButton");
+
+    try{
+      if(typeof client==="undefined" || !client.auth){
+        currentUser=null;
+        if(button)button.textContent="🔐 Admin Login";
+        if(typeof jcGo==="function")jcGo(0);
+        return;
+      }
+
+      const result=await client.auth.signOut();
+
+      /* Supabase returns an error only when sign-out itself failed. */
+      if(result?.error){
+        throw result.error;
+      }
+
+      /* Verify the browser session is actually cleared. */
+      const check=await client.auth.getSession();
+      if(check?.data?.session){
+        throw new Error("The Supabase session is still active.");
+      }
+
+      currentUser=null;
+
+      if(button)button.textContent="🔐 Admin Login";
+
+      const modal=document.getElementById("jcLoginModal");
+      if(modal)modal.classList.remove("open");
+
+      /* Always return the visitor to Home after logout. */
+      if(typeof jcGo==="function")jcGo(0);
+
+      if(typeof refreshEditArtistList==="function"){
+        refreshEditArtistList();
+      }
+
+    }catch(error){
+      console.error("Logout failed:",error);
+      alert("Could not log out. Please try again.");
+    }
+  };
+
+  /* Keep the button label accurate after Supabase auth events. */
+  function syncLogoutState(){
+    const button=document.getElementById("jcAdminButton");
+    if(!button)return;
+
+    button.textContent=(
+      typeof currentUser!=="undefined" && currentUser
+    ) ? "⚙ Admin Hub" : "🔐 Admin Login";
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    syncLogoutState();
+
+    if(typeof client!=="undefined" && client.auth){
+      client.auth.onAuthStateChange((_event,session)=>{
+        currentUser=session?.user||null;
+        syncLogoutState();
+      });
+    }
+  });
+
+})();
+</script>
 </body>
 </html>
