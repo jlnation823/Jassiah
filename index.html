@@ -6574,10 +6574,6 @@ initializeAuth();
   const ARTIST_FOLDER="artists";
   const PLAYER_KEY="jassiahPlayerStateFinalV3";
 
-  /* This is the exact Jamil Landin artist image URL you previously provided. */
-  const KNOWN_JAMIL_IMAGE=
-    "https://axkdbcyvuezawgbqjtyq.supabase.co/storage/v1/object/public/artist-images/artists/1788164701812_IMG_0200.png";
-
   const esc=v=>typeof escapeHtml==="function"
     ?escapeHtml(v)
     :String(v??"").replace(/[&<>"']/g,c=>({
@@ -6636,12 +6632,7 @@ initializeAuth();
   }
 
   function canonicalImage(name,localImage,remoteImage){
-    const lower=String(name||"").trim().toLowerCase();
-
-    /* Restore the exact Jamil picture instead of the wrong replacement. */
-    if(lower==="jamil landin")return KNOWN_JAMIL_IMAGE;
-
-    return remoteImage||localImage||"";
+    return remoteImage || localImage || "";
   }
 
   async function ensureArtistRow(name,imageUrl){
@@ -6786,9 +6777,7 @@ initializeAuth();
           );
 
           combined[name]={
-            image: name.toLowerCase()==="jamil landin"
-              ?KNOWN_JAMIL_IMAGE
-              :(match?songCover(match):"")
+            image:match?songCover(match):""
           };
         }
       });
@@ -6829,11 +6818,8 @@ initializeAuth();
         song=>primaryArtist(song.artist).toLowerCase()===name.toLowerCase()
       );
 
-      const image=canonicalImage(
-        name,
-        p.image||"",
-        p.image_url||""
-      ) || (match?songCover(match):"");
+      const image=(p.image_url||p.image||"") ||
+        (match?songCover(match):"");
 
       return `
         <div class="jc-artist-card"
@@ -6986,6 +6972,332 @@ initializeAuth();
   document.addEventListener("visibilitychange",()=>{
     if(document.visibilityState==="hidden"){
       savePlayerFinal();
+    }
+  });
+
+})();
+</script>
+
+<script id="jassiah-final-artist-edit-persistence">
+(function(){
+
+  const ARTIST_TABLE="artist_profiles";
+  const ARTIST_BUCKET="artist-images";
+  const ARTIST_FOLDER="artists";
+
+  function profiles(){
+    return (
+      typeof artistProfiles!=="undefined" &&
+      artistProfiles
+    ) ? artistProfiles : {};
+  }
+
+  function escJs(v){
+    return typeof escapeJs==="function"
+      ?escapeJs(v)
+      :String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+  }
+
+  async function uploadArtistFile(file,name){
+    const safe=String(name).replace(/[^a-zA-Z0-9._-]/g,"_");
+    const path=ARTIST_FOLDER+"/"+safe+"_"+Date.now();
+    const result=await client.storage
+      .from(ARTIST_BUCKET)
+      .upload(path,file,{
+        upsert:false,
+        contentType:file.type
+      });
+
+    if(result.error)throw result.error;
+
+    return client.storage
+      .from(ARTIST_BUCKET)
+      .getPublicUrl(path).data.publicUrl;
+  }
+
+  window.saveArtistProfile=async function(){
+    const oldName=(
+      typeof artistBeingEdited!=="undefined"
+        ?String(artistBeingEdited||"").trim()
+        :""
+    );
+
+    const nameInput=document.getElementById("editArtistName");
+    const imageInput=document.getElementById("editArtistImage");
+    const message=document.getElementById("editArtistMessage");
+
+    const newName=(nameInput?.value||"").trim();
+
+    if(!oldName){
+      if(message)message.textContent="Select an artist to edit.";
+      return;
+    }
+
+    if(!newName){
+      if(message)message.textContent="Please enter the artist name.";
+      return;
+    }
+
+    if(!(typeof currentUser!=="undefined"&&currentUser)){
+      if(message)message.textContent="Please log in as admin first.";
+      return;
+    }
+
+    if(message)message.textContent="Saving artist profile...";
+
+    try{
+      const localOld=profiles()[oldName]||{};
+      let imageUrl=localOld.image_url||localOld.image||"";
+
+      const file=imageInput?.files?.[0];
+      if(file){
+        imageUrl=await uploadArtistFile(file,newName);
+      }
+
+      /* Update the shared Supabase row. */
+      if(oldName.toLowerCase()!==newName.toLowerCase()){
+        const moved=await client
+          .from(ARTIST_TABLE)
+          .delete()
+          .eq("name",oldName);
+
+        if(moved.error)throw moved.error;
+
+        /* Keep songs attached to the renamed artist. */
+        const matching=(typeof songs!=="undefined"&&Array.isArray(songs))
+          ?songs.filter(song=>
+              String(song.artist||"").trim().toLowerCase()===oldName.toLowerCase()
+            )
+          :[];
+
+        for(const song of matching){
+          const updated=await client
+            .from("songs")
+            .update({artist:newName})
+            .eq("id",song.id);
+
+          if(updated.error)throw updated.error;
+        }
+      }
+
+      const saved=await client
+        .from(ARTIST_TABLE)
+        .upsert(
+          {name:newName,image_url:imageUrl},
+          {onConflict:"name"}
+        );
+
+      if(saved.error)throw saved.error;
+
+      const next={...profiles()};
+      delete next[oldName];
+      next[newName]={
+        ...(next[newName]||{}),
+        image:imageUrl,
+        image_url:imageUrl
+      };
+
+      artistProfiles=next;
+      localStorage.setItem(
+        "jassiahArtistProfiles",
+        JSON.stringify(next)
+      );
+
+      if(typeof artistBeingEdited!=="undefined"){
+        artistBeingEdited=newName;
+      }
+
+      if(nameInput)nameInput.value="";
+      if(imageInput)imageInput.value="";
+      if(message)message.textContent="Artist profile updated successfully! 🎤";
+
+      if(typeof loadSongs==="function"){
+        try{await loadSongs()}catch(_){}
+      }
+
+      if(typeof renderArtists==="function"){
+        try{renderArtists()}catch(_){}
+      }
+
+      if(typeof renderHome==="function"){
+        try{renderHome()}catch(_){}
+      }
+
+    }catch(error){
+      console.error("Artist profile save:",error);
+      if(message)message.textContent=
+        "Artist profile could not be saved: "+(error?.message||"Unknown error");
+    }
+  };
+
+})();
+</script>
+
+<script id="jassiah-final-artist-click-fix">
+(function(){
+
+  const esc=v=>typeof escapeHtml==="function"
+    ?escapeHtml(v)
+    :String(v??"");
+  const jesc=v=>typeof escapeJs==="function"
+    ?escapeJs(v)
+    :String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+
+  function songs(){
+    return typeof window.songs!=="undefined" && Array.isArray(window.songs)
+      ?window.songs:[];
+  }
+
+  function profiles(){
+    return typeof window.artistProfiles!=="undefined" && window.artistProfiles
+      ?window.artistProfiles:{};
+  }
+
+  function cover(song){
+    try{return typeof window.coverUrl==="function"?window.coverUrl(song):""}
+    catch(_){return""}
+  }
+
+  function orderedSongs(name){
+    const list=songs().filter(song=>
+      String(song.artist||"").toLowerCase().includes(String(name||"").toLowerCase())
+    );
+
+    try{
+      const saved=JSON.parse(
+        localStorage.getItem("jassiahArtistSongOrderV1")||"{}"
+      );
+
+      const key=Object.keys(saved).find(
+        k=>String(k).toLowerCase()===String(name).toLowerCase()
+      );
+
+      const ids=key&&Array.isArray(saved[key])?saved[key].map(Number):[];
+
+      if(ids.length){
+        const rank=new Map(ids.map((id,i)=>[id,i]));
+        return list.slice().sort((a,b)=>{
+          const ar=rank.has(Number(a.id))
+            ?rank.get(Number(a.id))
+            :100000000+(Number(a.id)||0);
+          const br=rank.has(Number(b.id))
+            ?rank.get(Number(b.id))
+            :100000000+(Number(b.id)||0);
+          return ar-br;
+        });
+      }
+    }catch(_){}
+
+    return list;
+  }
+
+  function renderArtistPage(name){
+    const clean=String(name||"").trim();
+    const box=document.getElementById("jcArtistPage");
+    const track=document.getElementById("jcTrack");
+    if(!box||!track)return;
+
+    const profile=profiles()[clean]||{};
+    const list=orderedSongs(clean);
+    const image=profile.image||profile.image_url||(list[0]?cover(list[0]):"");
+
+    box.innerHTML=`
+      <div class="jc-detail">
+        <img src="${esc(image)}" alt="${esc(clean)}">
+        <div style="min-width:0">
+          <div class="jc-kicker">ARTIST PROFILE</div>
+          <div class="jc-detail-name">${esc(clean)}</div>
+          <div class="jc-muted" style="margin-top:7px">
+            ${list.length} song${list.length===1?"":"s"}
+          </div>
+        </div>
+      </div>
+
+      <div class="jc-section">Songs by ${esc(clean)}</div>
+
+      <div class="jc-table">
+        <div class="jc-head">
+          <div>#</div><div>Title</div><div>Artist</div><div>Date added</div><div>✓</div>
+        </div>
+
+        ${list.length?list.map((song,i)=>{
+          const index=songs().findIndex(
+            s=>Number(s.id)===Number(song.id)
+          );
+
+          const liked=(
+            typeof favorites!=="undefined" &&
+            Array.isArray(favorites) &&
+            favorites.map(Number).includes(Number(song.id))
+          );
+
+          return `
+            <div class="jc-row" onclick="playSong(${index})">
+              <div style="text-align:center;color:#888">${i+1}</div>
+
+              <div class="jc-song-cell">
+                <img class="jc-cover" src="${esc(cover(song))}" alt="">
+                <div class="jc-song-main">
+                  <div class="jc-song-title">${esc(song.title||"Untitled")}</div>
+                  <div class="jc-song-credit">${esc(song.artist||"")}</div>
+                </div>
+              </div>
+
+              <div class="jc-artist-cell">${esc(song.artist||"")}</div>
+
+              <div class="jc-date">
+                ${esc(new Date(song.created_at||song.date_added||Date.now()).toLocaleDateString())}
+              </div>
+
+              <div class="jc-last">
+                <button class="jc-list-like ${liked?"liked":""}" type="button"
+                  onclick="event.stopPropagation();jcToggleLikeFinal(${Number(song.id)})">
+                  ${liked?"✓":"+"}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join(""):'<div class="jc-muted" style="padding:15px">No songs for this artist yet.</div>'}
+      </div>
+    `;
+
+    /* page 7 is the Artist Details slide; page 6 is Fan Photos */
+    track.style.transform="translateX(-700%)";
+    document.querySelectorAll(".jc-nav").forEach(btn=>btn.classList.remove("active"));
+  }
+
+  /* IMPORTANT: clicking an artist must never call the old hidden legacy
+     artist page. Route it to the visible Artist Details slide. */
+  window.openArtistPage=function(name){
+    renderArtistPage(name);
+  };
+
+  window.jcOpenArtist=function(name){
+    renderArtistPage(name);
+  };
+
+  /* Make every visible Home artist card route to the same page. */
+  window.jcFinalOpenArtist=function(name){
+    renderArtistPage(name);
+  };
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    const home=document.getElementById("jcHomeArtists");
+    if(home){
+      home.addEventListener("click",function(e){
+        const card=e.target.closest(".jc-artist-card");
+        if(!card)return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const handler=card.getAttribute("onclick");
+        const match=handler&&handler.match(/(?:jcFinalOpenArtist|jcOpenArtist|openArtistPage)\('([^']+)'\)/);
+
+        if(match){
+          renderArtistPage(match[1]);
+        }
+      },true);
     }
   });
 
