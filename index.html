@@ -775,6 +775,10 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 }
 .jc-order-btn:not(:disabled):hover{background:#292929!important}
 .jc-order-btn:disabled{opacity:.25!important;cursor:default!important}
+
+.jc-admin-logout{
+  float:right;
+}
 </style>
 </head>
 
@@ -1339,6 +1343,8 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
         <div class="jc-kicker">ADMIN ONLY</div>
         <div class="jc-brand" style="font-size:37px">Jassiah Admin Hub</div>
         <div class="jc-muted" style="margin:5px 0 18px">Manage songs, artist profiles, albums, song order, and fan photos.</div>
+        <button type="button" class="jc-admin-btn jc-admin-muted" onclick="jcLogout()">Log Out</button>
+
 
         <div class="jc-admin-grid">
           <div class="jc-admin-card">
@@ -1367,6 +1373,23 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
             <div id="jcAlbumSongs" class="jc-admin-song-checks"></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="jcCreateAlbum()">Create Album</button>
             <div id="jcAlbumStatus" class="jc-admin-status"></div>
+          </div>
+
+
+          <div class="jc-admin-card">
+            <h3>✏️ Edit Artist Profile</h3>
+            <label>Artist name</label>
+            <input id="jcEditArtistName" list="jcEditArtistList"
+              placeholder="Type artist name...">
+            <datalist id="jcEditArtistList"></datalist>
+
+            <label>New artist picture (optional)</label>
+            <input id="jcEditArtistImage" type="file" accept="image/*">
+
+            <button class="jc-admin-btn jc-admin-primary" onclick="jcEditArtist()">
+              Save Artist Profile
+            </button>
+            <div id="jcEditArtistStatus" class="jc-admin-status"></div>
           </div>
 
           <div class="jc-admin-card">
@@ -6138,6 +6161,143 @@ initializeAuth();
         }
       }catch(_){}
     },1200);
+  });
+
+})();
+</script>
+
+<script id="jassiah-auth-edit-artist-final">
+(function(){
+
+  const esc=v=>typeof escapeHtml==="function"?escapeHtml(v):String(v??"");
+
+  function profiles(){
+    return (typeof artistProfiles!=="undefined"&&artistProfiles)?artistProfiles:{};
+  }
+
+  function refreshEditArtistList(){
+    const dl=document.getElementById("jcEditArtistList");
+    if(!dl)return;
+
+    const names=Object.keys(profiles())
+      .filter(n=>String(n).trim())
+      .sort((a,b)=>a.localeCompare(b));
+
+    dl.innerHTML=names.map(n=>
+      `<option value="${esc(n)}"></option>`
+    ).join("");
+  }
+
+  window.jcEditArtist=function(){
+    const input=document.getElementById("jcEditArtistName");
+    const image=document.getElementById("jcEditArtistImage");
+    const status=document.getElementById("jcEditArtistStatus");
+
+    if(!(typeof currentUser!=="undefined"&&currentUser)){
+      if(status)status.textContent="Please log in as admin first.";
+      return;
+    }
+
+    const typed=(input?.value||"").trim();
+
+    const exact=Object.keys(profiles()).find(
+      name=>name.toLowerCase()===typed.toLowerCase()
+    );
+
+    if(!exact){
+      if(status)status.textContent="Artist not found.";
+      return;
+    }
+
+    const oldProfile=profiles()[exact]||{};
+
+    const finish=(newImage)=>{
+      profiles()[exact]={
+        ...oldProfile,
+        image:newImage||oldProfile.image||""
+      };
+
+      localStorage.setItem(
+        "jassiahArtistProfiles",
+        JSON.stringify(profiles())
+      );
+
+      if(status)status.textContent="Artist profile updated.";
+      if(image)image.value="";
+
+      if(typeof renderHome==="function")renderHome();
+      if(typeof renderArtists==="function")renderArtists();
+      refreshEditArtistList();
+    };
+
+    if(image?.files?.length){
+      const reader=new FileReader();
+
+      reader.onload=()=>{
+        finish(String(reader.result||""));
+      };
+
+      reader.onerror=()=>{
+        if(status)status.textContent="Could not read that picture.";
+      };
+
+      reader.readAsDataURL(image.files[0]);
+    }else{
+      finish("");
+    }
+  };
+
+  window.jcLogout=async function(){
+    try{
+      if(typeof client!=="undefined"&&client.auth){
+        await client.auth.signOut();
+      }
+
+      currentUser=null;
+
+      const modal=document.getElementById("jcLoginModal");
+      if(modal)modal.classList.remove("open");
+
+      const button=document.getElementById("jcAdminButton");
+      if(button)button.textContent="🔐 Admin Login";
+
+      /* Return to the public Home page after logout. */
+      if(typeof jcGo==="function")jcGo(0);
+
+      refreshEditArtistList();
+    }catch(error){
+      console.error("Logout failed:",error);
+      alert("Could not log out. Please try again.");
+    }
+  };
+
+  /* Keep Login/Admin button state synchronized with the real Supabase session. */
+  async function syncSession(){
+    try{
+      if(typeof client==="undefined"||!client.auth)return;
+
+      const {data}=await client.auth.getSession();
+      currentUser=data?.session?.user||null;
+
+      const button=document.getElementById("jcAdminButton");
+      if(button){
+        button.textContent=currentUser
+          ?"⚙ Admin Hub"
+          :"🔐 Admin Login";
+      }
+
+      refreshEditArtistList();
+    }catch(_){}
+  }
+
+  document.addEventListener("DOMContentLoaded",()=>{
+    refreshEditArtistList();
+    syncSession();
+
+    setTimeout(()=>{
+      refreshEditArtistList();
+      syncSession();
+    },1000);
   });
 
 })();
