@@ -5832,8 +5832,20 @@ initializeAuth();
       if(error)return false;
 
       (data||[]).forEach(row=>{
-        if(row?.artist_name && Array.isArray(row.song_ids)){
-          orderMap[row.artist_name]=row.song_ids.map(Number);
+        if(!row?.artist_name || !Array.isArray(row.song_ids))return;
+
+        const remoteName=String(row.artist_name);
+        const remoteKey=remoteName.trim().toLowerCase();
+
+        /* Only use remote data when this artist has NO locally saved order.
+           Match names case-insensitively so an older remote row cannot
+           overwrite the order the admin just saved locally. */
+        const localKey=Object.keys(orderMap).find(
+          key=>String(key).trim().toLowerCase()===remoteKey
+        );
+
+        if(!localKey){
+          orderMap[remoteName]=row.song_ids.map(Number);
         }
       });
 
