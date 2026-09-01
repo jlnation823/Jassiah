@@ -6565,5 +6565,608 @@ initializeAuth();
 
 })();
 </script>
+
+<script id="jassiah-final-cross-device-artists-and-player">
+(function(){
+
+  /* =========================================================
+     1) ARTIST PROFILES BELONG IN SUPABASE, NOT localStorage.
+        localStorage is only a cache for the current browser.
+     ========================================================= */
+
+  const ARTIST_TABLE="artist_profiles";
+  const ARTIST_BUCKET="artist-images";
+  const ARTIST_FOLDER="artists";
+  const PLAYER_KEY="jassiahPlayerPersistentFinalV2";
+
+  function getProfiles(){
+    return (
+      typeof artistProfiles!=="undefined" &&
+      artistProfiles &&
+      typeof artistProfiles==="object"
+    ) ? artistProfiles : {};
+  }
+
+  function setLocalProfiles(p){
+    try{
+      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p||{}));
+    }catch(_){}
+  }
+
+  function allSongData(){
+    return (
+      typeof songs!=="undefined" &&
+      Array.isArray(songs)
+    ) ? songs : [];
+  }
+
+  function safeCover(song){
+    try{
+      if(typeof coverUrl==="function")return coverUrl(song)||"";
+      if(typeof getCoverUrl==="function")return getCoverUrl(song)||"";
+    }catch(_){}
+    return song?.cover_url||"";
+  }
+
+  function escapeHtmlFinal(v){
+    return typeof escapeHtml==="function"
+      ?escapeHtml(v)
+      :String(v??"").replace(/[&<>"']/g,c=>({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[c]));
+  }
+
+  function escapeJsFinal(v){
+    return typeof escapeJs==="function"
+      ?escapeJs(v)
+      :String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+  }
+
+  function renderPublicArtistCards(){
+    const box=document.getElementById("jcHomeArtists");
+    if(!box)return;
+
+    const profiles=getProfiles();
+    const names=Object.keys(profiles)
+      .filter(n=>String(n).trim())
+      .sort((a,b)=>a.localeCompare(b));
+
+    if(!names.length){
+      box.innerHTML='<div class="jc-muted">No artist profiles yet.</div>';
+      return;
+    }
+
+    box.innerHTML=names.map(name=>{
+      const p=profiles[name]||{};
+      const matching=allSongData().filter(song=>
+        String(song.artist||"").toLowerCase().includes(name.toLowerCase())
+      );
+      const image=p.image || (matching[0]?safeCover(matching[0]):"");
+
+      return `
+        <div class="jc-artist-card"
+             onclick="openArtistPage('${escapeJsFinal(name)}')">
+          <img src="${escapeHtmlFinal(image)}" alt="${escapeHtmlFinal(name)}"
+               onerror="this.style.opacity='.18'">
+          <div class="jc-artist-name">${escapeHtmlFinal(name)}</div>
+        </div>
+      `;
+    }).join("");
+
+    if(typeof renderArtists==="function"){
+      try{renderArtists()}catch(_){}
+    }
+  }
+
+  function dataUrlToBlob(dataUrl){
+    try{
+      const match=String(dataUrl).match(/^data:([^;]+);base64,(.+)$/);
+      if(!match)return null;
+
+      const binary=atob(match[2]);
+      const bytes=new Uint8Array(binary.length);
+      for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+
+      return new Blob([bytes],{type:match[1]});
+    }catch(_){
+      return null;
+    }
+  }
+
+  async function uploadArtistImage(image,name){
+    if(!image)return "";
+
+    if(/^https?:\/\//i.test(image)){
+      return image;
+    }
+
+    if(!String(image).startsWith("data:")){
+      return image;
+    }
+
+    const blob=dataUrlToBlob(image);
+    if(!blob)return "";
+
+    const safeName=String(name).replace(/[^a-zA-Z0-9._-]/g,"_");
+    const path=ARTIST_FOLDER+"/"+safeName+"_"+Date.now()+".jpg";
+
+    const result=await client.storage.from(ARTIST_BUCKET).upload(
+      path,blob,{upsert:false,contentType:blob.type}
+    );
+
+    if(result.error)throw result.error;
+
+    return client.storage.from(ARTIST_BUCKET).getPublicUrl(path).data.publicUrl;
+  }
+
+  async function loadArtistProfilesFromSupabase(){
+    try{
+      const {data,error}=await client
+        .from(ARTIST_TABLE)
+        .select("id,name,image_url")
+        .order("name",{ascending:true});
+
+      if(error){
+        console.warn("Artist profile read:",error.message);
+        renderPublicArtistCards();
+        return;
+      }
+
+      const next={};
+
+      (data||[]).forEach(row=>{
+        const name=String(row?.name||"").trim();
+        if(!name)return;
+
+        next[name]={
+          id:row.id,
+          image:row.image_url||""
+        };
+      });
+
+      if(Object.keys(next).length){
+        try{
+          artistProfiles=next;
+        }catch(_){}
+        setLocalProfiles(next);
+      }
+
+      renderPublicArtistCards();
+
+    }catch(error){
+      console.warn("Artist profile load:",error);
+      renderPublicArtistCards();
+    }
+  }
+
+  /* Migrate the artist profiles that already exist in your admin browser
+     into the Supabase table so phones/other browsers can see them. */
+  async function syncLocalArtistProfilesToSupabase(){
+    if(!(typeof currentUser!=="undefined"&&currentUser))return;
+
+    const local=getProfiles();
+    const names=Object.keys(local);
+
+    for(const name of names){
+      try{
+        const profile=local[name]||{};
+        const imageUrl=await uploadArtistImage(profile.image||"",name);
+
+        const payload={
+          name,
+          image_url:imageUrl||profile.image||""
+        };
+
+        const result=await client
+          .from(ARTIST_TABLE)
+          .upsert(payload,{onConflict:"name"});
+
+        if(result.error){
+          console.warn("Artist profile sync:",name,result.error.message);
+        }else if(imageUrl && profile.image!==imageUrl){
+          local[name]={...profile,image:imageUrl};
+          setLocalProfiles(local);
+        }
+      }catch(error){
+        console.warn("Artist profile sync:",name,error);
+      }
+    }
+
+    await loadArtistProfilesFromSupabase();
+  }
+
+  /* ---------- Create Artist: Supabase-backed ---------- */
+  window.createArtistProfile=async function(){
+    if(!(typeof currentUser!=="undefined"&&currentUser)){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    const nameInput=document.getElementById("newArtistName");
+    const imageInput=document.getElementById("newArtistImage");
+    const message=document.getElementById("artistUploadMessage");
+
+    const name=(nameInput?.value||"").trim();
+
+    if(!name){
+      if(message)message.textContent="Please enter the artist name.";
+      return;
+    }
+
+    const file=imageInput?.files?.[0];
+    if(!file){
+      if(message)message.textContent="Please choose the artist's picture.";
+      return;
+    }
+
+    if(message)message.textContent="Saving artist profile...";
+
+    try{
+      const path=ARTIST_FOLDER+"/"+String(name).replace(/[^a-zA-Z0-9._-]/g,"_")+"_"+Date.now();
+      const upload=await client.storage.from(ARTIST_BUCKET).upload(
+        path,file,{upsert:false,contentType:file.type}
+      );
+
+      if(upload.error)throw upload.error;
+
+      const imageUrl=client.storage
+        .from(ARTIST_BUCKET)
+        .getPublicUrl(path).data.publicUrl;
+
+      const insert=await client
+        .from(ARTIST_TABLE)
+        .upsert(
+          {name,image_url:imageUrl},
+          {onConflict:"name"}
+        );
+
+      if(insert.error)throw insert.error;
+
+      artistProfiles[name]={image:imageUrl};
+      setLocalProfiles(artistProfiles);
+
+      if(nameInput)nameInput.value="";
+      if(imageInput)imageInput.value="";
+      if(message)message.textContent="Artist profile created successfully! 🎤";
+
+      await loadArtistProfilesFromSupabase();
+
+    }catch(error){
+      console.error(error);
+      if(message)message.textContent=
+        "Artist profile could not be saved: "+(error?.message||"Unknown error");
+    }
+  };
+
+  /* ---------- Edit Artist: Supabase-backed ---------- */
+  window.saveArtistProfile=async function(){
+    const oldName=(
+      typeof artistBeingEdited!=="undefined"
+        ?String(artistBeingEdited||"").trim()
+        :""
+    );
+
+    const nameInput=document.getElementById("editArtistName");
+    const imageInput=document.getElementById("editArtistImage");
+    const message=document.getElementById("editArtistMessage");
+
+    const newName=(nameInput?.value||"").trim();
+
+    if(!oldName){
+      if(message)message.textContent="Select an artist to edit.";
+      return;
+    }
+
+    if(!newName){
+      if(message)message.textContent="Please enter the artist name.";
+      return;
+    }
+
+    if(!(typeof currentUser!=="undefined"&&currentUser)){
+      if(message)message.textContent="Please log in as admin first.";
+      return;
+    }
+
+    if(message)message.textContent="Saving artist profile...";
+
+    try{
+      const oldProfile=getProfiles()[oldName]||{};
+      let imageUrl=oldProfile.image||"";
+
+      const file=imageInput?.files?.[0];
+      if(file){
+        const path=ARTIST_FOLDER+"/"+String(newName).replace(/[^a-zA-Z0-9._-]/g,"_")+"_"+Date.now();
+        const upload=await client.storage.from(ARTIST_BUCKET).upload(
+          path,file,{upsert:false,contentType:file.type}
+        );
+        if(upload.error)throw upload.error;
+
+        imageUrl=client.storage
+          .from(ARTIST_BUCKET)
+          .getPublicUrl(path).data.publicUrl;
+      }else if(String(imageUrl).startsWith("data:")){
+        imageUrl=await uploadArtistImage(imageUrl,newName);
+      }
+
+      /* If the name changes, move the DB profile row and update song credits. */
+      if(oldName.toLowerCase()!==newName.toLowerCase()){
+        const oldRow=await client
+          .from(ARTIST_TABLE)
+          .delete()
+          .eq("name",oldName);
+
+        if(oldRow.error)throw oldRow.error;
+
+        const songsToUpdate=allSongData().filter(song=>
+          String(song.artist||"").trim().toLowerCase()===oldName.toLowerCase()
+        );
+
+        for(const song of songsToUpdate){
+          const updated=await client
+            .from("songs")
+            .update({artist:newName})
+            .eq("id",song.id);
+
+          if(updated.error)throw updated.error;
+        }
+      }else{
+        const updated=await client
+          .from(ARTIST_TABLE)
+          .delete()
+          .eq("name",oldName);
+
+        if(updated.error)throw updated.error;
+      }
+
+      const upsert=await client
+        .from(ARTIST_TABLE)
+        .upsert(
+          {name:newName,image_url:imageUrl},
+          {onConflict:"name"}
+        );
+
+      if(upsert.error)throw upsert.error;
+
+      const next={...getProfiles()};
+      delete next[oldName];
+      next[newName]={image:imageUrl};
+      artistProfiles=next;
+      setLocalProfiles(next);
+
+      if(nameInput)nameInput.value="";
+      if(imageInput)imageInput.value="";
+      if(typeof artistBeingEdited!=="undefined")artistBeingEdited=newName;
+
+      if(message)message.textContent="Artist profile updated successfully! 🎤";
+
+      if(typeof loadSongs==="function"){
+        try{await loadSongs()}catch(_){}
+      }
+
+      await loadArtistProfilesFromSupabase();
+
+    }catch(error){
+      console.error(error);
+      if(message)message.textContent=
+        "Artist profile could not be updated: "+(error?.message||"Unknown error");
+    }
+  };
+
+  /* ---------- Delete Artist: Supabase-backed ---------- */
+  window.deleteArtistProfile=async function(name){
+    name=String(name||"").trim();
+
+    if(!(typeof currentUser!=="undefined"&&currentUser)){
+      alert("Please log in as admin first.");
+      return;
+    }
+
+    if(!name)return;
+
+    if(!confirm('Delete artist "'+name+'"?\n\nThe songs will remain on the site.'))return;
+
+    try{
+      const result=await client
+        .from(ARTIST_TABLE)
+        .delete()
+        .eq("name",name);
+
+      if(result.error)throw result.error;
+
+      const next={...getProfiles()};
+      delete next[name];
+      artistProfiles=next;
+      setLocalProfiles(next);
+
+      await loadArtistProfilesFromSupabase();
+
+      if(typeof renderArtists==="function")renderArtists();
+
+      alert("Artist profile deleted. The songs were not deleted.");
+
+    }catch(error){
+      console.error(error);
+      alert("Artist profile could not be deleted: "+(error?.message||"Unknown error"));
+    }
+  };
+
+  /* =========================================================
+     2) PLAYER: ONE persistent state in the current browser.
+        Other browsers cannot share a user's playback position,
+        but refreshes in the SAME browser will keep it.
+     ========================================================= */
+
+  let restoreDone=false;
+
+  function playerSongs(){
+    return (
+      typeof songs!=="undefined" &&
+      Array.isArray(songs)
+    ) ? songs : [];
+  }
+
+  function playerObject(){
+    if(typeof player!=="undefined"&&player)return player;
+    return document.getElementById("playerAudio");
+  }
+
+  function saveFinalPlayerState(){
+    try{
+      const audio=playerObject();
+      const list=playerSongs();
+
+      if(!audio||!list.length) return;
+      if(typeof currentIndex!=="number"||currentIndex<0||!list[currentIndex])return;
+
+      const song=list[currentIndex];
+
+      localStorage.setItem(PLAYER_KEY,JSON.stringify({
+        songId:Number(song.id),
+        filePath:String(song.file_path||""),
+        time:Number(audio.currentTime)||0,
+        volume:Number(audio.volume),
+        muted:Boolean(audio.muted),
+        paused:Boolean(audio.paused)
+      }));
+    }catch(_){}
+  }
+
+  function readFinalPlayerState(){
+    try{
+      return JSON.parse(localStorage.getItem(PLAYER_KEY)||"null");
+    }catch(_){
+      return null;
+    }
+  }
+
+  function restoreFinalPlayerState(){
+    if(restoreDone && !readFinalPlayerState())return;
+
+    const state=readFinalPlayerState();
+    if(!state)return;
+
+    const audio=playerObject();
+    const list=playerSongs();
+
+    if(!audio||!list.length)return;
+
+    let index=list.findIndex(
+      song=>Number(song.id)===Number(state.songId)
+    );
+
+    if(index<0&&state.filePath){
+      index=list.findIndex(
+        song=>String(song.file_path||"")===String(state.filePath)
+      );
+    }
+
+    if(index<0)return;
+
+    const song=list[index];
+    const url=typeof musicUrl==="function"?musicUrl(song):"";
+    if(!url)return;
+
+    /* Do not call playSong() here: that would reset the position and may
+       trigger autoplay. Set the source directly, then seek to the saved time. */
+    currentIndex=index;
+    audio.src=url;
+
+    if(typeof setNowPlaying==="function"){
+      try{setNowPlaying(song)}catch(_){}
+    }
+
+    const apply=()=>{
+      try{
+        const wanted=Math.max(0,Number(state.time)||0);
+
+        if(Number.isFinite(audio.duration)&&audio.duration>0){
+          audio.currentTime=Math.min(wanted,audio.duration);
+        }else{
+          audio.currentTime=wanted;
+        }
+
+        if(Number.isFinite(Number(state.volume))){
+          audio.volume=Math.max(0,Math.min(1,Number(state.volume)));
+        }
+
+        audio.muted=!!state.muted;
+
+        /* Keep it paused after refresh; the browser controls can resume it
+           from the saved position with one click. */
+        if(!state.paused && !audio.paused){
+          audio.pause();
+        }
+      }catch(_){}
+
+      if(typeof updatePlayerButton==="function"){
+        try{updatePlayerButton(false)}catch(_){}
+      }
+
+      restoreDone=true;
+    };
+
+    audio.addEventListener("loadedmetadata",apply,{once:true});
+    audio.load();
+    setTimeout(apply,500);
+  }
+
+  function installFinalPlayerSave(){
+    const audio=playerObject();
+    if(!audio)return;
+
+    if(audio.dataset.jassiahFinalState==="1")return;
+    audio.dataset.jassiahFinalState="1";
+
+    audio.addEventListener("timeupdate",saveFinalPlayerState);
+    audio.addEventListener("pause",saveFinalPlayerState);
+    audio.addEventListener("volumechange",saveFinalPlayerState);
+    audio.addEventListener("loadedmetadata",()=>setTimeout(saveFinalPlayerState,50));
+
+    /* Save frequently while playing, so a fast refresh still has a recent
+       position even if the browser doesn't fire another event. */
+    setInterval(()=>{
+      if(!audio.paused)saveFinalPlayerState();
+    },500);
+  }
+
+  /* =========================================================
+     3) STARTUP
+     ========================================================= */
+
+  document.addEventListener("DOMContentLoaded",async()=>{
+    /* Public profile data must come from Supabase first. */
+    await loadArtistProfilesFromSupabase();
+    renderPublicArtistCards();
+
+    /* An already logged-in admin gets their local profiles migrated once. */
+    if(typeof currentUser!=="undefined"&&currentUser){
+      await syncLocalArtistProfilesToSupabase();
+    }
+
+    installFinalPlayerSave();
+
+    /* Wait for songs from Supabase, then restore the exact last track/time.
+       These retries handle the async song load on slower phones. */
+    setTimeout(()=>{
+      installFinalPlayerSave();
+      restoreFinalPlayerState();
+      renderPublicArtistCards();
+    },1500);
+
+    setTimeout(restoreFinalPlayerState,3500);
+    setTimeout(restoreFinalPlayerState,7000);
+  });
+
+  window.addEventListener("beforeunload",saveFinalPlayerState);
+  window.addEventListener("pagehide",saveFinalPlayerState);
+
+  document.addEventListener("visibilitychange",()=>{
+    if(document.visibilityState==="hidden"){
+      saveFinalPlayerState();
+    }
+  });
+
+})();
+</script>
 </body>
 </html>
