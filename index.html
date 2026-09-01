@@ -3253,27 +3253,56 @@ function closeArtistPage(){
 
 
 function songsForArtist(artistName){
-  const name=String(artistName||"").trim().toLowerCase();
+  const rawName=String(artistName||"").trim();
 
-  if(!name)return [];
+  if(!rawName)return [];
 
-  /*
-    One artist profile represents the artist's whole catalog.
+  const name=rawName.toLowerCase();
 
-    Example:
-      Jamil Landin
-      Jamil Landin ft Moneyman Keyz
-      Jamil Landin ft Charlie Woods
-      Jamil Landin ft Jessica Lane
-
-    All four belong to the single Jamil Landin profile.
-    The original artist credit on each song is NOT changed.
-  */
-  return songs.filter(song=>{
+  const artistSongs=songs.filter(song=>{
     const credited=String(song.artist||"").trim().toLowerCase();
-
     return credited.includes(name);
   });
+
+  /* IMPORTANT:
+     The reorder controls save this exact key in localStorage.
+     Re-read it here because renderCurrentArtistPage() calls this lexical
+     function after every refresh. */
+  try{
+    const saved=JSON.parse(
+      localStorage.getItem("jassiahArtistSongOrderV1")||"{}"
+    );
+
+    const key=Object.keys(saved).find(
+      k=>String(k).trim().toLowerCase()===name
+    );
+
+    const savedIds=key&&Array.isArray(saved[key])
+      ?saved[key].map(Number)
+      :[];
+
+    if(!savedIds.length){
+      return artistSongs;
+    }
+
+    const rank=new Map(savedIds.map((id,index)=>[Number(id),index]));
+
+    return artistSongs.slice().sort((a,b)=>{
+      const aRank=rank.has(Number(a.id))
+        ?rank.get(Number(a.id))
+        :100000000+(Number(a.id)||0);
+
+      const bRank=rank.has(Number(b.id))
+        ?rank.get(Number(b.id))
+        :100000000+(Number(b.id)||0);
+
+      return aRank-bRank;
+    });
+
+  }catch(error){
+    console.warn("Could not restore artist song order:",error);
+    return artistSongs;
+  }
 }
 
 function saveArtistProfiles(){
@@ -4858,10 +4887,14 @@ initializeAuth();
 
     const ids=list.map(s=>Number(s.id));
     orderMap[exact]=ids;
-
-    /* Persist the new order locally BEFORE trying Supabase.
-       The artist page reads this same saved order after a refresh. */
-    saveLocalOrder(orderMap);
+    try{
+      localStorage.setItem(
+        "jassiahArtistSongOrderV1",
+        JSON.stringify(orderMap)
+      );
+    }catch(error){
+      console.warn("Could not save artist order locally:",error);
+    }
 
     const status=document.getElementById("jcOrderStatus");
     if(status)status.textContent="Saving order...";
@@ -5799,11 +5832,7 @@ initializeAuth();
       if(error)return false;
 
       (data||[]).forEach(row=>{
-        if(
-          row?.artist_name &&
-          Array.isArray(row.song_ids) &&
-          !orderMap[row.artist_name]
-        ){
+        if(row?.artist_name && Array.isArray(row.song_ids)){
           orderMap[row.artist_name]=row.song_ids.map(Number);
         }
       });
@@ -5913,6 +5942,14 @@ initializeAuth();
     /* SAVE LOCALLY FIRST — the reorder works immediately even when the
        optional Supabase order table hasn't been created yet. */
     orderMap[exact]=ids;
+    try{
+      localStorage.setItem(
+        "jassiahArtistSongOrderV1",
+        JSON.stringify(orderMap)
+      );
+    }catch(error){
+      console.warn("Could not save artist order locally:",error);
+    }
     saveLocalOrder(orderMap);
 
     const status=document.getElementById("jcOrderStatus");
@@ -5975,6 +6012,120 @@ initializeAuth();
     await loadRemoteOrder();
     refreshOrderArtistList();
     jcRenderOrderList();
+  });
+
+})();
+</script>
+
+<script id="jassiah-reorder-final-override">
+(function(){
+
+  const ORDER_KEY="jassiahArtistSongOrderV1";
+
+  function getSongs(){
+    return (typeof songs!=="undefined" && Array.isArray(songs)) ? songs : [];
+  }
+
+  function readOrders(){
+    try{
+      const data=JSON.parse(localStorage.getItem(ORDER_KEY)||"{}");
+      return data && typeof data==="object" ? data : {};
+    }catch(_){
+      return {};
+    }
+  }
+
+  function findOrderKey(orders,name){
+    const target=String(name||"").trim().toLowerCase();
+    return Object.keys(orders).find(
+      key=>String(key).trim().toLowerCase()===target
+    );
+  }
+
+  /* FINAL definition used by every artist page after a refresh. */
+  window.songsForArtist=function(artistName){
+    const name=String(artistName||"").trim();
+    if(!name)return [];
+
+    const needle=name.toLowerCase();
+
+    const list=getSongs().filter(song=>{
+      return String(song.artist||"").trim().toLowerCase().includes(needle);
+    });
+
+    const orders=readOrders();
+    const key=findOrderKey(orders,name);
+    const ids=key && Array.isArray(orders[key])
+      ? orders[key].map(Number)
+      : [];
+
+    if(!ids.length)return list;
+
+    const rank=new Map(ids.map((id,index)=>[Number(id),index]));
+
+    return list.slice().sort((a,b)=>{
+      const aRank=rank.has(Number(a.id))
+        ?rank.get(Number(a.id))
+        :100000000+(Number(a.id)||0);
+
+      const bRank=rank.has(Number(b.id))
+        ?rank.get(Number(b.id))
+        :100000000+(Number(b.id)||0);
+
+      return aRank-bRank;
+    });
+  };
+
+  /* Also make Play All use the same persistent order. */
+  window.jassiahGetOrderedArtistSongs=function(name){
+    return window.songsForArtist(name);
+  };
+
+  if(typeof window.playArtistAll==="function"){
+    const oldPlayArtistAll=window.playArtistAll;
+    window.playArtistAll=function(){
+      const name=window.currentArtistName||"";
+      const ordered=window.jassiahGetOrderedArtistSongs(name);
+
+      if(!ordered.length){
+        oldPlayArtistAll.apply(this,arguments);
+        return;
+      }
+
+      if(typeof playlistQueue!=="undefined"){
+        playlistQueue={
+          name:"Artist: "+name,
+          songs:ordered
+        };
+      }
+
+      if(typeof albumQueue!=="undefined")albumQueue=null;
+
+      const first=ordered[0];
+      const index=getSongs().findIndex(
+        song=>Number(song.id)===Number(first.id)
+      );
+
+      if(index>=0 && typeof playSong==="function"){
+        playSong(index);
+      }
+    };
+  }
+
+  /* Repaint the currently open artist once on load so the refreshed view
+     reflects the stored order immediately. */
+  document.addEventListener("DOMContentLoaded",()=>{
+    setTimeout(()=>{
+      try{
+        if(
+          typeof window.currentArtistName==="string" &&
+          window.currentArtistName &&
+          typeof window.renderCurrentArtistPage==="function"
+        ){
+          window.renderCurrentArtistPage();
+        }
+      }catch(_){}
+    },1200);
   });
 
 })();
