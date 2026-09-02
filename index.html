@@ -923,7 +923,7 @@ body{padding-bottom:90px!important}
 .jc-related{background:#141316!important;border-radius:9px!important;margin-top:9px!important}
 /* Exact home composition from the approved reference */
 .jc-home-layout{position:relative!important;width:100%!important;height:100%!important;overflow:hidden!important;background:#000!important}
-.jc-home-layout:before{content:""!important;position:absolute!important;inset:0!important;background-image:linear-gradient(90deg,rgba(0,0,0,.97) 0%,rgba(0,0,0,.72) 28%,rgba(0,0,0,.16) 65%,rgba(0,0,0,.18) 100%),linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.18)),url("streamasiah-bg.webp")!important;background-repeat:no-repeat!important;background-position:center center!important;background-size:cover,cover,auto 112%!important;filter:none!important;z-index:0!important}
+.jc-home-layout:before{content:""!important;position:absolute!important;inset:0!important;background-image:linear-gradient(90deg,rgba(0,0,0,.90) 0%,rgba(0,0,0,.62) 28%,rgba(0,0,0,.16) 65%,rgba(0,0,0,.20) 100%),linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.18)),url("streamasiah-bg.webp")!important;background-repeat:no-repeat!important;background-position:center center!important;background-size:cover,cover,cover!important;filter:none!important;z-index:0!important}
 .jc-home-layout:after{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 58% 46%,rgba(161,0,255,.10),transparent 43%)!important;z-index:0!important;pointer-events:none!important}
 .jc-home-copy{position:relative!important;z-index:2!important;padding:108px 0 0 50px!important;width:62%!important;min-width:0!important}
 .jc-home-welcome{font-size:24px!important;letter-spacing:3px!important;text-transform:uppercase!important;color:#eee!important;margin-bottom:7px!important}
@@ -1434,7 +1434,7 @@ body{padding-bottom:90px!important}
 
 <div class="jc-app" id="jcApp">
   <aside class="jc-sidebar">
-    <div class="jc-logo"><img src="assets/40c4cfb4e3f6d97b397aa79ccf7264f7dad2d177.webp" alt="SM"></div>
+    <div class="jc-logo"><img src="assets/40c4cfb4e3f6d97b397aa79ccf7264f7dad2d177.webp" alt="SM logo"></div>
     <button class="jc-nav active" data-page="0" id="jcHomeNav" title="Home">⌂</button>
     <button class="jc-nav" data-page="1" id="jcSongsNav" title="Songs">♫</button>
     <button class="jc-nav" data-page="2" id="jcArtistsNav" title="Artists">🎤</button>
@@ -6992,3 +6992,11 @@ initializeAuth();
 </script>
 </body>
 </html>
+
+<style id="streamasiah-background-logo-fix">
+.jc-home-layout{background:#000!important}
+.jc-home-layout:before{background-image:linear-gradient(90deg,rgba(0,0,0,.90) 0%,rgba(0,0,0,.62) 28%,rgba(0,0,0,.14) 65%,rgba(0,0,0,.20) 100%),linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.18)),url("streamasiah-bg.webp")!important;background-repeat:no-repeat!important;background-position:center center!important;background-size:cover,cover,cover!important;filter:none!important}
+.jc-logo{display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+.jc-logo img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important;visibility:visible!important;opacity:1!important}
+</style>
+
