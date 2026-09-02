@@ -958,6 +958,89 @@ body{padding-bottom:90px!important}
 }
 </style>
 
+
+<style id="streamasiah-approved-reference-final">
+/* APPROVED REFERENCE LAYOUT — visual-only override */
+:root{--purple:#a100ff;--purple-bright:#d66cff;--purple-dark:#26003e}
+html,body{margin:0!important;background:#000!important;color:#fff!important;overflow:hidden!important}
+body{padding-bottom:92px!important}
+.jc-app{position:fixed!important;inset:0 0 92px 0!important;background:#000!important;overflow:hidden!important}
+
+/* LEFT SIDEBAR */
+.jc-sidebar{position:absolute!important;left:0!important;top:0!important;bottom:0!important;width:112px!important;background:#050505!important;border-right:1px solid #21172a!important;display:flex!important;flex-direction:column!important;align-items:center!important;padding-top:18px!important;z-index:50!important}
+.jc-logo{width:78px!important;height:78px!important;margin:0 0 24px!important;border:0!important;background:transparent!important;box-shadow:none!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.jc-logo img{width:78px!important;height:78px!important;display:block!important;object-fit:cover!important;border-radius:50%!important}
+.jc-nav{width:76px!important;height:58px!important;margin:5px 0!important;border:0!important;border-radius:11px!important;background:transparent!important;color:#f4eef8!important;font-size:28px!important;line-height:1!important;cursor:pointer!important}
+.jc-nav:hover{background:rgba(161,0,255,.13)!important;color:#fff!important}
+.jc-nav.active{background:linear-gradient(135deg,#4c0878,#26003e)!important;color:#fff!important;box-shadow:none!important}
+.jc-nav[data-page="6"]{color:#a100ff!important;font-weight:900!important}
+
+/* TOP BAR */
+.jc-top{position:absolute!important;left:112px!important;right:280px!important;top:0!important;height:72px!important;background:rgba(3,3,3,.88)!important;border-bottom:1px solid #21172a!important;z-index:45!important}
+.jc-arrows{left:18px!important;top:50%!important;transform:translateY(-50%)!important;display:flex!important;gap:9px!important}
+.jc-arrows button{width:40px!important;height:40px!important;border-radius:50%!important;background:#181818!important;border:1px solid #29212d!important;color:#eee!important;font-size:25px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.jc-search-wrap{width:min(525px,52%)!important}
+.jc-search{height:46px!important;border-radius:25px!important;background:#17151a!important;border:1px solid #29232d!important;color:#fff!important;padding:0 20px 0 48px!important;font-size:14px!important}
+.jc-actions{right:16px!important;gap:10px!important}
+.jc-actions button{height:42px!important;background:#070707!important;border:1px solid #8b12d6!important;color:#d66cff!important;border-radius:22px!important;font-size:12px!important}
+.jc-bell{width:44px!important;min-width:44px!important;padding:0!important}
+
+/* MAIN WINDOW */
+.jc-window{position:absolute!important;left:112px!important;right:280px!important;top:72px!important;bottom:0!important;overflow:hidden!important;background:#000!important}
+.jc-slide{padding:0!important;background:#000!important}
+.jc-slide>.jc-inner{width:100%!important;max-width:none!important;height:100%!important;margin:0!important;padding:0!important}
+
+/* HOME BACKGROUND: use the actual purple man + SM artwork already embedded in the file */
+.jc-home-layout{position:relative!important;width:100%!important;height:100%!important;overflow:hidden!important;background:#000!important}
+.jc-home-layout:before{content:""!important;position:absolute!important;inset:0!important;background-image:linear-gradient(90deg,rgba(0,0,0,.90) 0%,rgba(0,0,0,.55) 27%,rgba(0,0,0,.12) 60%,rgba(0,0,0,.18) 100%),linear-gradient(180deg,rgba(0,0,0,.03) 0%,rgba(0,0,0,.02) 65%,rgba(0,0,0,.35) 100%),var(--stream-bg)!important;background-repeat:no-repeat!important;background-position:center center!important;background-size:cover,cover,auto 100%!important;background-color:#000!important;filter:none!important;z-index:0!important}
+.jc-home-layout:after{content:""!important;position:absolute!important;inset:0!important;background:radial-gradient(circle at 68% 42%,rgba(161,0,255,.12),transparent 43%),linear-gradient(90deg,transparent 0%,rgba(161,0,255,.03) 100%)!important;z-index:1!important;pointer-events:none!important}
+
+/* HOME TEXT / CONTROLS */
+.jc-home-copy{position:relative!important;z-index:2!important;padding:112px 0 0 52px!important;width:64%!important;min-width:0!important}
+.jc-home-welcome{font-size:20px!important;letter-spacing:5px!important;text-transform:uppercase!important;color:#f0eaf4!important;margin:0 0 8px!important}
+.jc-home-name{font:800 42px/1 Arial,sans-serif!important;letter-spacing:-.5px!important;color:#a100ff!important;text-shadow:0 0 20px rgba(161,0,255,.28)!important;margin:0 0 12px!important;white-space:nowrap!important}
+.jc-home-tag{font-size:19px!important;color:#fff!important;margin:0 0 28px!important}
+.jc-home-actions{display:flex!important;gap:14px!important;margin:0 0 58px!important}
+.jc-home-action{height:50px!important;padding:0 26px!important;border-radius:26px!important;border:1px solid #a100ff!important;background:#09020d!important;color:#d66cff!important;font-size:15px!important;font-weight:800!important;cursor:pointer!important}
+.jc-home-action.primary{background:linear-gradient(135deg,#a100ff,#6d00ff)!important;color:#fff!important;border-color:#a100ff!important}
+.jc-home-featured-title{font-size:21px!important;font-weight:800!important;margin:0 0 18px!important;color:#fff!important}
+#jcHomeArtists{display:flex!important;gap:16px!important;align-items:flex-start!important;flex-wrap:nowrap!important}
+#jcHomeArtists .jc-artist-card{width:128px!important;background:transparent!important;border:0!important;padding:0!important;border-radius:0!important;text-align:center!important}
+#jcHomeArtists .jc-artist-card:hover{background:transparent!important;border:0!important}
+#jcHomeArtists .jc-artist-card img{width:112px!important;height:112px!important;border-radius:50%!important;border:2px solid #a100ff!important;box-shadow:0 0 18px rgba(161,0,255,.32)!important;object-fit:cover!important;margin:auto!important}
+#jcHomeArtists .jc-artist-name{font-size:15px!important;font-weight:700!important;color:#fff!important;margin-top:9px!important}
+
+/* RIGHT NOW PLAYING */
+.jc-right{position:absolute!important;right:0!important;top:0!important;bottom:0!important;width:280px!important;background:#050505!important;border-left:1px solid #21172a!important;padding:20px 16px!important;z-index:40!important;overflow:hidden!important}
+.jc-now-title{font-size:18px!important;font-weight:800!important;margin:0 0 18px!important;color:#fff!important}
+.jc-now-art{width:100%!important;aspect-ratio:1/1!important;object-fit:cover!important;border-radius:7px!important}
+.jc-now-song{font-size:20px!important;font-weight:800!important;margin-top:18px!important;color:#fff!important}
+.jc-now-artist{font-size:14px!important;color:#d66cff!important;margin-top:5px!important}
+.jc-divider{background:#2a1b31!important;margin:18px 0!important}
+.jc-related-heading{font-size:14px!important;font-weight:800!important;color:#fff!important}
+.jc-related{background:#141316!important;border-radius:9px!important;margin-top:9px!important;padding:9px 10px!important}
+
+/* NO LARGE PLAY BUTTONS IN SONG LISTS */
+.jc-play-small,.home-recent-btn{display:none!important}
+
+/* BOTTOM PLAYER */
+.player{position:fixed!important;left:0!important;right:0!important;bottom:0!important;height:92px!important;background:rgba(4,2,7,.99)!important;border-top:1px solid #a100ff!important;z-index:99999!important;display:flex!important;align-items:center!important}
+.player-icon{border-color:#7d1ab2!important;color:#d66cff!important;background:#08030c!important}
+.player-play{border-color:#a100ff!important;background:linear-gradient(135deg,#a100ff,#6d00ff)!important;color:#fff!important}
+.player-progress input[type=range],.player-volume input[type=range]{accent-color:#a100ff!important}
+.player-artist{color:#d66cff!important}
+
+/* DESKTOP ONLY — keep mobile rules from turning the desktop layout into a bottom nav */
+@media(max-width:900px){
+  .jc-sidebar{width:72px!important}
+  .jc-logo,.jc-logo img{width:52px!important;height:52px!important}
+  .jc-nav{width:58px!important;height:50px!important;font-size:22px!important}
+  .jc-top{left:72px!important;right:0!important}
+  .jc-window{left:72px!important;right:0!important}
+  .jc-right{display:none!important}
+  .jc-home-copy{padding-left:28px!important;width:90%!important}
+}
+</style>
 </head>
 
 <body>
