@@ -2041,6 +2041,25 @@ body{padding-bottom:92px!important}
           </div>
 
           <div class="jc-admin-card">
+            <h3>🖼 Artist Border Picture</h3>
+            <div class="jc-admin-help">Choose one artist, upload a picture just for that artist, and position it inside the purple artist-profile border.</div>
+            <label>Artist</label>
+            <input id="jcBorderArtist" list="jcBorderArtistList" placeholder="Type artist name..." oninput="saLoadBorderEditor()">
+            <datalist id="jcBorderArtistList"></datalist>
+            <label>Picture for this artist</label>
+            <input id="jcBorderImage" type="file" accept="image/*" onchange="saPreviewBorderImage(event)">
+            <div id="saBorderPreview" class="sa-border-preview">Select an artist to preview the border picture.</div>
+            <div class="sa-position-grid">
+              <label>Left / Right <input id="saBorderX" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
+              <label>Up / Down <input id="saBorderY" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
+            </div>
+            <div class="sa-position-values"><span id="saBorderXValue">50%</span><span id="saBorderYValue">50%</span></div>
+            <button class="jc-admin-btn jc-admin-primary" onclick="saSaveBorderPicture()">Save Artist Border Picture</button>
+            <button class="jc-admin-btn jc-admin-muted" onclick="saRemoveBorderPicture()">Remove Border Picture</button>
+            <div id="saBorderStatus" class="jc-admin-status"></div>
+          </div>
+
+          <div class="jc-admin-card">
             <h3>🗑️ Delete Artist</h3>
             <label>Artist name</label>
             <input id="jcDeleteArtist" list="jcDeleteArtistList" placeholder="Type artist name...">
@@ -3656,7 +3675,14 @@ function renderCurrentArtistPage(){
   const fallback=document.querySelector(".logo")?.src || "";
   const image=profile.image || fallback;
 
+  const borderImage=profile.heroImage||"";
+  const borderX=Number.isFinite(Number(profile.heroX))?Number(profile.heroX):50;
+  const borderY=Number.isFinite(Number(profile.heroY))?Number(profile.heroY):50;
+
   hero.innerHTML=`
+    <div class="sa-artist-border-picture" aria-hidden="true" style="${borderImage?`background-image:url(${escapeHtml(borderImage)});background-position:${borderX}% ${borderY}%;`:``}"></div>
+    <div class="sa-artist-border-shade" aria-hidden="true"></div>
+    <div class="sa-artist-border-content">
     <img
       src="${escapeHtml(image)}"
       onerror="this.src='${escapeJs(fallback)}'"
@@ -3726,6 +3752,7 @@ function renderCurrentArtistPage(){
         </button>
 
       </div>
+    </div>
     </div>
   `;
 
@@ -7496,44 +7523,28 @@ initializeAuth();
 })();
 </script>
 
-
-<style id="streamasiah-final-dark-reference">
-/* Final visual correction: darker reference treatment without dulling the SM ring. */
-.sa-art-bg{filter:brightness(.48) contrast(1.06) saturate(.98)!important;}
-.sa-art-man{filter:brightness(.62) contrast(1.10) saturate(.92)!important;}
-.sa-art-logo{filter:brightness(1.00) contrast(1.14) saturate(1.12) drop-shadow(0 0 14px rgba(190,0,255,.55))!important;}
-/* Deep lower shadow over the man's wrist/lower body and bottom of the artwork. */
-.sa-art-layer:before{content:""!important;position:absolute!important;inset:0!important;z-index:4!important;pointer-events:none!important;background:
- radial-gradient(ellipse 52% 42% at 38% 100%,rgba(0,0,0,.78) 0%,rgba(0,0,0,.58) 38%,rgba(0,0,0,.20) 65%,transparent 82%),
- linear-gradient(180deg,transparent 55%,rgba(0,0,0,.10) 68%,rgba(0,0,0,.42) 88%,rgba(0,0,0,.72) 100%)!important;}
-/* Keep the reference's dark overall mood while preserving the bright purple ring. */
-.jc-home-layout>.jc-home-copy{filter:brightness(.94)!important;}
+<style>
+#artistHero{position:relative;overflow:hidden;}
+.sa-artist-border-picture{position:absolute;inset:0;background-repeat:no-repeat;background-size:cover;background-color:#160020;z-index:0;filter:saturate(.88) brightness(.72)}
+.sa-artist-border-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(16,0,28,.92) 0%,rgba(33,0,48,.58) 42%,rgba(23,0,35,.68) 100%),linear-gradient(180deg,rgba(102,0,153,.18),rgba(0,0,0,.58));box-shadow:inset 0 0 0 1px rgba(185,72,255,.38),inset 0 0 55px rgba(113,0,180,.24)}
+.sa-artist-border-content{position:relative;z-index:2;display:flex;align-items:center;gap:18px;width:100%}
+.sa-artist-border-content>div{position:relative;z-index:2}
+.sa-border-preview{height:150px;margin-top:10px;border:1px solid #7b2cc7;border-radius:12px;background:#120018 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px;text-align:center;overflow:hidden;box-shadow:inset 0 0 30px rgba(123,0,190,.25)}
+.sa-position-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.sa-position-grid label{color:#cfcfcf;font-size:12px}.sa-position-grid input{display:block;width:100%;margin-top:6px;accent-color:#a100ff}.sa-position-values{display:flex;justify-content:space-between;color:#c56cff;font-size:11px;margin-top:3px}.jc-admin-help{color:#999;font-size:11px;line-height:1.45;margin:-3px 0 10px}
 </style>
-<script id="streamasiah-final-play-click-fix">
+<script>
 (function(){
-  function bindImmediatePlay(){
-    const b=document.getElementById('playButton');
-    if(!b || b.dataset.immediateBound==='1') return;
-    b.dataset.immediateBound='1';
-    b.addEventListener('click',function(e){
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      try{
-        if(typeof togglePlayer==='function') togglePlayer();
-      }catch(err){console.warn('Player:',err)}
-    },true);
-    b.disabled=false;
-    b.style.pointerEvents='auto';
-    b.style.visibility='visible';
-    b.style.opacity='1';
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindImmediatePlay,{once:true});
-  else bindImmediatePlay();
-  setTimeout(bindImmediatePlay,50);
-  setTimeout(bindImmediatePlay,250);
-  window.addEventListener('pageshow',bindImmediatePlay);
+  function saProfiles(){try{return JSON.parse(localStorage.getItem("jassiahArtistProfiles")||"{}")}catch(e){return {}}}
+  function saFindKey(name){const p=saProfiles(),target=String(name||"").trim().toLowerCase();return Object.keys(p).find(k=>String(k).trim().toLowerCase()===target)||String(name||"").trim()}
+  function saArtists(){const names=new Map();try{Object.keys(artistProfiles||{}).forEach(n=>{if(String(n).trim())names.set(String(n).trim().toLowerCase(),String(n).trim())})}catch(e){}try{(songs||[]).forEach(x=>{const n=String(x.artist||"").trim();if(n&&!names.has(n.toLowerCase()))names.set(n.toLowerCase(),n)})}catch(e){}return [...names.values()].sort((a,b)=>a.localeCompare(b))}
+  window.saPrepareBorderArtists=function(){const dl=document.getElementById("jcBorderArtistList");if(!dl)return;dl.innerHTML=saArtists().map(n=>`<option value="${String(n).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}"></option>`).join("")}
+  window.saLoadBorderEditor=function(){const input=document.getElementById("jcBorderArtist"),name=String(input?.value||"").trim(),p=saProfiles(),key=saFindKey(name),profile=p[key]||{},x=Number.isFinite(Number(profile.heroX))?Number(profile.heroX):50,y=Number.isFinite(Number(profile.heroY))?Number(profile.heroY):50;const xs=document.getElementById("saBorderX"),ys=document.getElementById("saBorderY");if(xs)xs.value=x;if(ys)ys.value=y;window.saBorderDraftImage="";saUpdateBorderPreview();const f=document.getElementById("jcBorderImage");if(f)f.value="";const status=document.getElementById("saBorderStatus");if(status)status.textContent=name?(profile.heroImage?"Saved border picture loaded. Move it or upload a new one.":"No border picture saved for this artist yet."):""}
+  window.saPreviewBorderImage=function(ev){const file=ev?.target?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const maxW=1400,maxH=800,scale=Math.min(1,maxW/img.width,maxH/img.height),c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext("2d");ctx.drawImage(img,0,0,c.width,c.height);window.saBorderDraftImage=c.toDataURL("image/jpeg",.82);saUpdateBorderPreview()};img.src=r.result};r.readAsDataURL(file)}
+  window.saUpdateBorderPreview=function(){const box=document.getElementById("saBorderPreview"),input=document.getElementById("jcBorderArtist"),name=String(input?.value||"").trim();if(!box)return;const p=saProfiles(),key=saFindKey(name),profile=p[key]||{},image=window.saBorderDraftImage||profile.heroImage||profile.image||"",x=document.getElementById("saBorderX")?.value||50,y=document.getElementById("saBorderY")?.value||50,xv=document.getElementById("saBorderXValue"),yv=document.getElementById("saBorderYValue");if(xv)xv.textContent=x+"%";if(yv)yv.textContent=y+"%";box.style.backgroundImage=image?`url("${image}")`:"none";box.style.backgroundPosition=`${x}% ${y}%`;box.innerHTML=image?"":"Select an artist to preview the border picture."}
+  window.saSaveBorderPicture=function(){if(typeof currentUser!=="undefined"&&!currentUser){alert("Please log in first.");return}const input=document.getElementById("jcBorderArtist"),name=String(input?.value||"").trim(),status=document.getElementById("saBorderStatus");if(!name){if(status)status.textContent="Choose an artist first.";return}const p=saProfiles(),key=saFindKey(name);p[key]=p[key]||{};p[key].heroX=Number(document.getElementById("saBorderX")?.value||50);p[key].heroY=Number(document.getElementById("saBorderY")?.value||50);if(window.saBorderDraftImage)p[key].heroImage=window.saBorderDraftImage;else if(!p[key].heroImage){if(status)status.textContent="Choose a picture first.";return}localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));try{artistProfiles=p}catch(e){}window.saBorderDraftImage="";if(status)status.textContent="Artist border picture saved for "+key+".";saLoadBorderEditor();try{renderCurrentArtistPage()}catch(e){}}
+  window.saRemoveBorderPicture=function(){if(typeof currentUser!=="undefined"&&!currentUser){alert("Please log in first.");return}const name=String(document.getElementById("jcBorderArtist")?.value||"").trim(),status=document.getElementById("saBorderStatus");if(!name)return;const p=saProfiles(),key=saFindKey(name);if(!p[key])return;delete p[key].heroImage;p[key].heroX=50;p[key].heroY=50;localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));try{artistProfiles=p}catch(e){}window.saBorderDraftImage="";if(status)status.textContent="Border picture removed for "+key+".";saLoadBorderEditor();try{renderCurrentArtistPage()}catch(e){}}
+  document.addEventListener("DOMContentLoaded",()=>setTimeout(()=>saPrepareBorderArtists(),300));
 })();
 </script>
-
 </body>
 </html>
