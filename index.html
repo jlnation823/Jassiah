@@ -1360,6 +1360,61 @@ body{padding-bottom:92px!important}
 @media(max-width:900px){.sa-art-logo{width:43%!important;left:51%!important}.sa-art-man{width:61%!important;left:14%!important}.jc-home-layout>.jc-home-copy{padding-top:135px!important;width:42%!important}}
 </style>
 
+
+<style id="streamasiah-final-reference-composition">
+/* FINAL REFERENCE COMPOSITION — use the separate wave, man and SM artwork exactly as layered pieces. */
+html,body{background:#000!important;overflow:hidden!important}
+body{padding-bottom:92px!important}
+.jc-app{position:fixed!important;inset:0 0 92px 0!important;overflow:hidden!important;background:#000!important}
+.jc-window{left:112px!important;right:280px!important;top:72px!important;bottom:0!important;overflow:hidden!important}
+.jc-slide,.jc-inner,.jc-home-layout{height:100%!important;min-height:100%!important;overflow:hidden!important}
+.jc-home-layout{position:relative!important;background:#000!important}
+
+/* Wave/background: full center panel, never cropped with cover. */
+.sa-art-layer{position:absolute!important;left:0!important;right:0!important;top:0!important;bottom:0!important;width:100%!important;height:100%!important;z-index:0!important;overflow:hidden!important;background:#000!important}
+.sa-art-bg{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;filter:brightness(.58) contrast(1.03) saturate(1.02)!important}
+
+/* Dark reference shadow belongs primarily on the wave field, not on the bright SM ring. */
+.sa-art-layer:after{content:""!important;position:absolute!important;inset:0!important;z-index:1!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(0,0,0,.30) 0%,rgba(0,0,0,.18) 34%,rgba(0,0,0,.035) 73%,rgba(0,0,0,.10) 100%),linear-gradient(180deg,rgba(0,0,0,.04) 0%,rgba(0,0,0,.05) 60%,rgba(0,0,0,.24) 100%)!important}
+
+/* SM emblem: smaller and farther right, with the outer purple shine preserved. */
+.sa-art-logo{position:absolute!important;width:38%!important;height:auto!important;left:59%!important;top:10px!important;z-index:2!important;filter:brightness(.96) contrast(1.10) saturate(1.10) drop-shadow(0 0 11px rgba(177,0,255,.42))!important}
+
+/* Man: full head visible, centered-left, large enough to reach the player without being cut at the top. */
+.sa-art-man{position:absolute!important;width:56%!important;height:auto!important;left:20%!important;top:0!important;z-index:3!important;filter:brightness(.73) contrast(1.07) saturate(.96)!important}
+
+/* Keep the hero copy in the open left area, exactly like the reference. */
+.jc-home-layout>.jc-home-copy{position:relative!important;z-index:20!important;padding:168px 0 0 32px!important;width:34%!important;max-width:410px!important;min-width:0!important}
+.jc-home-welcome{font-size:20px!important;letter-spacing:3px!important;margin-bottom:7px!important;color:#fff!important}
+.jc-home-name{font-size:38px!important;line-height:1.05!important;letter-spacing:-1.7px!important;margin-bottom:12px!important;white-space:nowrap!important;color:#a100ff!important}
+.jc-home-tag{font-size:18px!important;margin-bottom:27px!important;color:#fff!important}
+.jc-home-actions{margin-bottom:55px!important}
+.jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;color:#fff!important}
+#jcHomeArtists{position:relative!important;z-index:20!important}
+
+/* Reference chrome. */
+.jc-sidebar{width:112px!important}
+.jc-top{left:112px!important;right:280px!important;height:72px!important;z-index:500!important;background:rgba(5,4,8,.72)!important}
+.jc-right{width:280px!important;z-index:600!important}
+
+/* Purple What's New bell. */
+.jc-bell,.jc-bell svg,.jc-bell-svg{color:#d66cff!important;stroke:#d66cff!important;border-color:#a100ff!important}
+
+/* White plus/like controls. */
+.jc-list-like,.jc-like{border:1px solid #fff!important;background:transparent!important;color:#fff!important}
+.jc-list-like.liked,.jc-like.liked{background:#fff!important;color:#000!important;border-color:#fff!important}
+
+/* Bottom player: fixed, visible, and above every slide/art layer. */
+.player{position:fixed!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:92px!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:2147483647!important;transform:none!important;align-items:center!important;background:rgba(2,2,4,.99)!important;border-top:1px solid #a100ff!important}
+#playButton{position:relative!important;display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;z-index:2147483647!important;cursor:pointer!important;touch-action:manipulation!important}
+
+@media(max-width:900px){
+ .sa-art-logo{width:39%!important;left:57%!important;top:8px!important}
+ .sa-art-man{width:61%!important;left:15%!important;top:0!important}
+ .jc-home-layout>.jc-home-copy{padding-top:135px!important;width:42%!important}
+}
+</style>
+
 </head>
 
 <body>
@@ -5284,7 +5339,7 @@ initializeAuth();
 
     renderHome();renderSongs();renderArtists();renderPlaylists();renderAlbums();jcLoadGallery();jcGo(0);
     const d=document.getElementById("jcBellDot");if(d){const seen=Number(localStorage.getItem(NEWS_SEEN)||0);d.style.display=(newsStamp()>seen)?"block":"none"}
-    setTimeout(()=>{renderHome();renderSongs();renderArtists();renderPlaylists();renderAlbums();jcLoadGallery();restorePlayer();jcUpdateNow()},1500);
+    setTimeout(()=>{renderHome();renderSongs();renderArtists();renderPlaylists();renderAlbums();jcLoadGallery();jcUpdateNow()},1500);
 
     const audio=document.getElementById("playerAudio");
     if(audio){audio.addEventListener("timeupdate",savePlayer);audio.addEventListener("pause",savePlayer);audio.addEventListener("volumechange",savePlayer)}
@@ -6049,21 +6104,22 @@ initializeAuth();
 
   /* Watch for the player element even when the page initializes slowly. */
   function startPlayerPersistence(){
-    if(hookPlayerPersistence()){
+    if(!hookPlayerPersistence())return;
+    if(currentSongList().length){
       restorePersistentPlayer();
+      return;
     }
-
     let attempts=0;
     const timer=setInterval(()=>{
       attempts++;
       hookPlayerPersistence();
-
       if(currentSongList().length){
+        clearInterval(timer);
         restorePersistentPlayer();
+      }else if(attempts>=12){
+        clearInterval(timer);
       }
-
-      if(attempts>=12)clearInterval(timer);
-    },700);
+    },500);
   }
 
   /* Wrap the existing playSong without replacing its actual audio behavior. */
@@ -6097,16 +6153,7 @@ initializeAuth();
     hookPlaySong();
     startPlayerPersistence();
 
-    /* Retry after the original Supabase load has populated songs. */
-    setTimeout(()=>{
-      bindPublicNav();
-      hookPlaySong();
-      restorePersistentPlayer();
-    },1200);
-
-    setTimeout(()=>{
-      restorePersistentPlayer();
-    },2600);
+    /* Do not repeatedly restore on a timer: repeated src/load calls were causing the refresh glitch. */
   });
 
 })();
@@ -7423,6 +7470,29 @@ initializeAuth();
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind,{once:true}); else bind();
   setTimeout(bind,50);
   setTimeout(bind,300);
+})();
+</script>
+
+
+<script id="streamasiah-final-player-guard">
+(function(){
+  function guard(){
+    const audio=document.getElementById('playerAudio');
+    const btn=document.getElementById('playButton');
+    if(!audio)return;
+    audio.autoplay=false;
+    if(btn){
+      btn.disabled=false;
+      btn.style.pointerEvents='auto';
+      btn.style.visibility='visible';
+      btn.style.opacity='1';
+    }
+    if(audio.paused && typeof updatePlayerButton==='function'){
+      updatePlayerButton(false);
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',guard,{once:true});else guard();
+  window.addEventListener('pageshow',guard);
 })();
 </script>
 
