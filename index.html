@@ -1328,6 +1328,38 @@ body{padding-bottom:92px!important}
 .jc-bell,.jc-bell svg,.jc-bell-svg{color:#d66cff!important;stroke:#d66cff!important;border-color:#a100ff!important}
 </style>
 
+
+<style id="streamasiah-exact-reference-authoritative">
+/* Exact reference composition: artwork starts behind the top bar and continues to the player. */
+.jc-window{top:72px!important;bottom:0!important;overflow:visible!important;}
+.jc-home-layout{position:relative!important;height:100%!important;min-height:100%!important;overflow:hidden!important;background:#000!important;}
+.sa-art-layer{position:absolute!important;left:0!important;right:0!important;top:-72px!important;bottom:0!important;height:calc(100% + 72px)!important;z-index:0!important;overflow:hidden!important;background:#000!important;}
+.sa-art-bg{position:absolute!important;left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;filter:brightness(.68) contrast(1.02) saturate(1.02)!important;}
+/* Logo: preserve the bright outer shine while keeping its center visually deeper like the reference. */
+.sa-art-logo{position:absolute!important;width:43%!important;height:auto!important;left:52%!important;top:0!important;z-index:2!important;filter:brightness(.91) contrast(1.16) saturate(1.08) drop-shadow(0 0 8px rgba(178,0,255,.28))!important;}
+/* Man: visible face/highlights, dark suit and strong reference shadow. */
+.sa-art-man{position:absolute!important;width:58%!important;height:auto!important;left:18%!important;top:0!important;z-index:3!important;filter:brightness(.70) contrast(1.08) saturate(.96)!important;}
+.sa-art-layer:after{content:""!important;position:absolute!important;inset:0!important;z-index:5!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(0,0,0,.27) 0%,rgba(0,0,0,.16) 34%,rgba(0,0,0,.035) 72%,rgba(0,0,0,.08) 100%),linear-gradient(180deg,rgba(0,0,0,.02) 0%,rgba(0,0,0,.06) 62%,rgba(0,0,0,.24) 100%)!important;}
+/* Reference spacing for copy/artists. */
+.jc-home-layout>.jc-home-copy{position:relative!important;z-index:20!important;padding:168px 0 0 32px!important;width:34%!important;max-width:410px!important;min-width:0!important;}
+.jc-home-welcome{font-size:20px!important;letter-spacing:3px!important;margin-bottom:7px!important;}
+.jc-home-name{font-size:38px!important;letter-spacing:-1.7px!important;margin-bottom:12px!important;white-space:nowrap!important;}
+.jc-home-tag{font-size:18px!important;margin-bottom:27px!important;}
+.jc-home-actions{margin-bottom:55px!important;}
+.jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;}
+#jcHomeArtists{position:relative!important;z-index:20!important;}
+/* Exact chrome and persistent player. */
+.jc-sidebar{width:112px!important;}
+.jc-top{left:112px!important;right:280px!important;height:72px!important;z-index:500!important;background:rgba(5,4,8,.72)!important;}
+.jc-right{width:280px!important;z-index:600!important;}
+.player{position:fixed!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:92px!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:2147483647!important;transform:none!important;background:rgba(2,2,4,.99)!important;border-top:1px solid #a100ff!important;}
+#playButton{pointer-events:auto!important;visibility:visible!important;opacity:1!important;z-index:2147483647!important;cursor:pointer!important;}
+.jc-list-like,.jc-like{border:1px solid #fff!important;background:transparent!important;color:#fff!important;}
+.jc-list-like.liked,.jc-like.liked{background:#fff!important;color:#000!important;border-color:#fff!important;}
+.jc-bell,.jc-bell svg,.jc-bell-svg{color:#d66cff!important;stroke:#d66cff!important;border-color:#a100ff!important;}
+@media(max-width:900px){.sa-art-logo{width:43%!important;left:51%!important}.sa-art-man{width:61%!important;left:14%!important}.jc-home-layout>.jc-home-copy{padding-top:135px!important;width:42%!important}}
+</style>
+
 </head>
 
 <body>
@@ -7371,27 +7403,26 @@ initializeAuth();
 })();
 </script>
 
-<script id="streamasiah-player-ready">
+
+
+
+<script id="streamasiah-player-single-bind">
 (function(){
-  function readyPlayerButton(){
-    var b=document.getElementById('playButton');
-    if(!b || b.dataset.readyBound==='1') return;
-    b.dataset.readyBound='1';
-    b.addEventListener('click',function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      try{
-        if(typeof window.togglePlayer==='function'){
-          window.togglePlayer();
-        }
-      }catch(err){ console.warn('Player click:',err); }
-    },true);
+  function bind(){
+    const b=document.getElementById('playButton');
+    if(!b || b.dataset.singleBound==='1') return;
+    b.dataset.singleBound='1';
+    b.removeAttribute('onclick');
+    b.addEventListener('click',function(){
+      try{ if(typeof togglePlayer==='function') togglePlayer(); }catch(e){ console.warn('Player toggle:',e); }
+    });
+    try{
+      if(typeof updatePlayerButton==='function') updatePlayerButton(false);
+    }catch(e){}
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',readyPlayerButton,{once:true});
-  else readyPlayerButton();
-  setTimeout(readyPlayerButton,50);
-  setTimeout(readyPlayerButton,250);
-  setTimeout(readyPlayerButton,750);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',bind,{once:true}); else bind();
+  setTimeout(bind,50);
+  setTimeout(bind,300);
 })();
 </script>
 
