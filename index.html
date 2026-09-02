@@ -1248,6 +1248,86 @@ body{padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="streamasiah-reference-final-correction">
+/* FINAL REFERENCE MATCH — separate artwork pieces, no crop, full height to player */
+html,body{background:#000!important;overflow:hidden!important}
+body{padding-bottom:92px!important}
+.jc-app{position:fixed!important;inset:0 0 92px 0!important;overflow:hidden!important;background:#000!important}
+.jc-window{left:112px!important;right:280px!important;top:72px!important;bottom:0!important;overflow:hidden!important}
+.jc-slide{height:100%!important;min-height:100%!important;overflow:hidden!important}
+.jc-home-layout{height:100%!important;min-height:100%!important;overflow:hidden!important;background:#000!important}
+
+/* Base wave image: dark enough to match the reference, while retaining the purple detail. */
+.sa-art-bg{
+  position:absolute!important;left:0!important;top:0!important;
+  width:100%!important;height:100%!important;
+  object-fit:fill!important;object-position:center!important;
+  filter:brightness(.52) contrast(1.03) saturate(.98)!important;
+}
+
+/* Large SM emblem: moved left and down into the same visual pocket as the reference. */
+.sa-art-logo{
+  position:absolute!important;width:44%!important;height:auto!important;
+  left:52%!important;top:-1%!important;
+  z-index:2!important;
+  filter:brightness(.82) contrast(1.10) saturate(1.02)!important;
+}
+
+/* Man: larger, farther left, and darkened like the reference. */
+.sa-art-man{
+  position:absolute!important;width:58%!important;height:auto!important;
+  left:18%!important;top:-1%!important;
+  z-index:3!important;
+  filter:brightness(.60) contrast(1.04) saturate(.92)!important;
+}
+
+/* Reference-style shadow: strongest along the left/bottom, but keep the logo ring readable. */
+.sa-art-layer:after{
+  content:""!important;position:absolute!important;inset:0!important;
+  z-index:5!important;pointer-events:none!important;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.34) 0%,rgba(0,0,0,.22) 30%,rgba(0,0,0,.06) 68%,rgba(0,0,0,.10) 100%),
+    linear-gradient(180deg,rgba(0,0,0,.02) 0%,rgba(0,0,0,.04) 58%,rgba(0,0,0,.30) 100%)!important;
+}
+
+/* Keep the title completely in the open left area. */
+.jc-home-layout>.jc-home-copy{
+  position:relative!important;z-index:20!important;
+  padding:108px 0 0 32px!important;
+  width:31%!important;max-width:390px!important;min-width:0!important;
+}
+.jc-home-welcome{font-size:20px!important;letter-spacing:3px!important;margin-bottom:7px!important}
+.jc-home-name{font-size:38px!important;letter-spacing:-1.7px!important;margin-bottom:12px!important;white-space:nowrap!important}
+.jc-home-tag{font-size:18px!important;margin-bottom:27px!important}
+.jc-home-actions{margin-bottom:55px!important}
+.jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important}
+#jcHomeArtists{position:relative!important;z-index:20!important}
+
+/* Exact desktop chrome */
+.jc-sidebar{width:112px!important}
+.jc-top{left:112px!important;right:280px!important;height:72px!important}
+.jc-right{width:280px!important}
+
+/* Bottom player always present and clickable immediately. */
+.player{
+  position:fixed!important;left:0!important;right:0!important;bottom:0!important;
+  width:100%!important;height:92px!important;display:flex!important;
+  visibility:visible!important;opacity:1!important;z-index:2147483647!important;
+  align-items:center!important;background:rgba(2,2,4,.99)!important;
+  border-top:1px solid #a100ff!important;
+  transform:none!important;
+}
+#playButton{pointer-events:auto!important;visibility:visible!important;opacity:1!important;z-index:2147483647!important;cursor:pointer!important}
+
+/* White like/plus controls */
+.jc-list-like,.jc-like{border:1px solid #fff!important;background:transparent!important;color:#fff!important}
+.jc-list-like.liked,.jc-like.liked{background:#fff!important;color:#000!important;border-color:#fff!important}
+
+/* Purple What's New bell */
+.jc-bell,.jc-bell svg,.jc-bell-svg{color:#d66cff!important;stroke:#d66cff!important;border-color:#a100ff!important}
+</style>
+
 </head>
 
 <body>
@@ -6255,13 +6335,17 @@ initializeAuth();
         }
         player.muted=Boolean(state.muted);
 
-        if(typeof setNowPlaying==="function"){
-          setNowPlaying(song);
-        }
-
-        if(typeof updatePlayerButton==="function"){
-          updatePlayerButton(false);
-        }
+        /* Restore the player UI without briefly showing the playing icon. */
+        try{
+          const titleEl=document.getElementById("playerTitle");
+          const artistEl=document.getElementById("playerArtist");
+          const coverEl=document.getElementById("playerCover");
+          if(titleEl) titleEl.textContent=song.title||"Untitled";
+          if(artistEl) artistEl.textContent=song.artist||"Unknown Artist";
+          if(coverEl) coverEl.src=coverUrl(song);
+        }catch(_){ }
+        if(typeof updateCurrentFavoriteButton==="function") updateCurrentFavoriteButton();
+        if(typeof updatePlayerButton==="function") updatePlayerButton(false);
       };
 
       player.addEventListener("loadedmetadata",apply,{once:true});
