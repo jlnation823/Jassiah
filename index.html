@@ -1200,6 +1200,54 @@ background-repeat:no-repeat!important;background-position:center center!importan
 .player *{pointer-events:auto}
 </style>
 
+
+<style id="streamasiah-user-final-visual-fix">
+/* FINAL MATCH TO THE USER'S REFERENCE IMAGE */
+html,body{background:#000!important;overflow:hidden!important}
+body{padding-bottom:92px!important}
+.jc-app{position:fixed!important;inset:0 0 92px 0!important;overflow:hidden!important;background:#000!important}
+
+/* Keep the exact three-piece artwork composition, but darker like the reference. */
+.sa-art-layer{position:absolute!important;inset:0!important;z-index:0!important;overflow:hidden!important;background:#000!important;}
+.sa-art-bg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;filter:brightness(.78)!important;}
+.sa-art-logo{position:absolute!important;width:42%!important;left:55%!important;top:-1%!important;height:auto!important;z-index:2!important;filter:brightness(.88) saturate(.96)!important;}
+.sa-art-man{position:absolute!important;width:52%!important;left:23%!important;top:-2%!important;height:auto!important;z-index:3!important;filter:brightness(.72) saturate(.94)!important;}
+
+/* Darken the artwork without covering the UI. */
+.sa-art-layer:after{content:""!important;position:absolute!important;inset:0!important;z-index:5!important;pointer-events:none!important;background:linear-gradient(90deg,rgba(0,0,0,.30) 0%,rgba(0,0,0,.18) 35%,rgba(0,0,0,.05) 72%,rgba(0,0,0,.10) 100%),linear-gradient(180deg,rgba(0,0,0,.03) 0%,rgba(0,0,0,.03) 65%,rgba(0,0,0,.20) 100%)!important;}
+
+/* Put the title farther left/smaller so it never touches the man's face. */
+.jc-home-layout>.jc-home-copy{position:relative!important;z-index:20!important;padding:108px 0 0 32px!important;width:48%!important;}
+.jc-home-welcome{font-size:20px!important;letter-spacing:4px!important;margin-bottom:7px!important;}
+.jc-home-name{font-size:39px!important;letter-spacing:-1.2px!important;margin-bottom:12px!important;}
+.jc-home-tag{font-size:18px!important;margin-bottom:27px!important;}
+.jc-home-actions{margin-bottom:56px!important;}
+.jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;}
+
+/* Exact desktop chrome dimensions. */
+.jc-sidebar{width:112px!important;}
+.jc-top{left:112px!important;right:280px!important;height:72px!important;}
+.jc-window{left:112px!important;right:280px!important;top:72px!important;bottom:92px!important;}
+.jc-right{width:280px!important;}
+
+/* The bottom player must remain fixed and visible immediately after refresh. */
+.player{position:fixed!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:92px!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:999999!important;align-items:center!important;background:rgba(4,2,7,.99)!important;border-top:1px solid #a100ff!important;}
+#playButton{position:relative!important;z-index:1000000!important;pointer-events:auto!important;visibility:visible!important;opacity:1!important;cursor:pointer!important;}
+
+/* White like / plus controls — never yellow or purple. */
+.jc-list-like,.jc-like{border:1px solid #fff!important;background:transparent!important;color:#fff!important;}
+.jc-list-like.liked,.jc-like.liked{background:#fff!important;color:#000!important;border-color:#fff!important;}
+.jc-list-like:hover,.jc-like:hover{border-color:#fff!important;color:#fff!important;}
+
+/* Purple What's New bell. */
+.jc-bell,.jc-bell svg,.jc-bell-svg{color:#d66cff!important;stroke:#d66cff!important;border-color:#a100ff!important;}
+
+@media(max-width:900px){
+  .sa-art-logo{width:42%!important;left:54%!important;}
+  .sa-art-man{width:58%!important;left:18%!important;}
+}
+</style>
+
 </head>
 
 <body>
