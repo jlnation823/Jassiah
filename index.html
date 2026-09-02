@@ -7496,5 +7496,44 @@ initializeAuth();
 })();
 </script>
 
+
+<style id="streamasiah-final-dark-reference">
+/* Final visual correction: darker reference treatment without dulling the SM ring. */
+.sa-art-bg{filter:brightness(.48) contrast(1.06) saturate(.98)!important;}
+.sa-art-man{filter:brightness(.62) contrast(1.10) saturate(.92)!important;}
+.sa-art-logo{filter:brightness(1.00) contrast(1.14) saturate(1.12) drop-shadow(0 0 14px rgba(190,0,255,.55))!important;}
+/* Deep lower shadow over the man's wrist/lower body and bottom of the artwork. */
+.sa-art-layer:before{content:""!important;position:absolute!important;inset:0!important;z-index:4!important;pointer-events:none!important;background:
+ radial-gradient(ellipse 52% 42% at 38% 100%,rgba(0,0,0,.78) 0%,rgba(0,0,0,.58) 38%,rgba(0,0,0,.20) 65%,transparent 82%),
+ linear-gradient(180deg,transparent 55%,rgba(0,0,0,.10) 68%,rgba(0,0,0,.42) 88%,rgba(0,0,0,.72) 100%)!important;}
+/* Keep the reference's dark overall mood while preserving the bright purple ring. */
+.jc-home-layout>.jc-home-copy{filter:brightness(.94)!important;}
+</style>
+<script id="streamasiah-final-play-click-fix">
+(function(){
+  function bindImmediatePlay(){
+    const b=document.getElementById('playButton');
+    if(!b || b.dataset.immediateBound==='1') return;
+    b.dataset.immediateBound='1';
+    b.addEventListener('click',function(e){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      try{
+        if(typeof togglePlayer==='function') togglePlayer();
+      }catch(err){console.warn('Player:',err)}
+    },true);
+    b.disabled=false;
+    b.style.pointerEvents='auto';
+    b.style.visibility='visible';
+    b.style.opacity='1';
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bindImmediatePlay,{once:true});
+  else bindImmediatePlay();
+  setTimeout(bindImmediatePlay,50);
+  setTimeout(bindImmediatePlay,250);
+  window.addEventListener('pageshow',bindImmediatePlay);
+})();
+</script>
+
 </body>
 </html>
