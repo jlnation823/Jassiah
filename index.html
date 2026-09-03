@@ -8689,43 +8689,63 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <style id="streamasiah-final-shadow-scroll-fix">
 /* FINAL FIX: restore the dark reference shading and make every slide scrollable. */
 html,body{
+  margin:0!important;
+  width:100%!important;
+  height:100%!important;
   background:#000!important;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
 }
-body{padding-bottom:92px!important;}
+body{padding-bottom:0!important;}
 
-/* The app/chrome stays fixed, while each content slide gets its own vertical scroll. */
+/* FINAL SCROLL MODEL: the site chrome never scrolls. Only the active content slide scrolls. */
 .jc-app{
   position:fixed!important;
-  inset:0 0 92px 0!important;
+  left:0!important;
+  top:0!important;
+  right:0!important;
+  bottom:92px!important;
+  width:100%!important;
+  height:auto!important;
   overflow:hidden!important;
   background:#000!important;
+  overscroll-behavior:none!important;
 }
 .jc-window{
+  position:absolute!important;
   left:112px!important;
   right:280px!important;
   top:72px!important;
   bottom:0!important;
+  height:auto!important;
   overflow:hidden!important;
+  min-height:0!important;
 }
 .jc-track{
   height:100%!important;
-  min-height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
 }
 .jc-slide{
   height:100%!important;
-  min-height:100%!important;
+  min-height:0!important;
+  max-height:100%!important;
+  box-sizing:border-box!important;
   overflow-x:hidden!important;
   overflow-y:auto!important;
   scrollbar-width:auto!important;
   -webkit-overflow-scrolling:touch!important;
-  padding-bottom:115px!important;
+  overscroll-behavior:contain!important;
+  padding-bottom:24px!important;
 }
 .jc-slide>.jc-inner{
   height:auto!important;
-  min-height:100%!important;
+  min-height:0!important;
 }
+
+/* The list is clipped by the content window, which ends exactly above the fixed player. */
+.jc-window .jc-slide::-webkit-scrollbar{width:10px!important;}
+.jc-window .jc-slide{scrollbar-gutter:stable!important;}
 
 /* HOME ARTWORK — keep the exact three-piece composition, but restore the deep reference shadow. */
 .jc-home-layout{
@@ -8847,152 +8867,3 @@ body{padding-bottom:92px!important;}
   .jc-home-layout>.jc-home-copy{padding-top:135px!important;width:42%!important;}
 }
 </style>
-
-
-<!-- STREAMASIAH: AUTHORITATIVE ARTIST BORDER PICTURE FIX -->
-<style id="streamasiah-authoritative-border-fix">
-  .sa-detail-border-wrap{position:absolute;inset:0;overflow:hidden;border-radius:14px;z-index:0;pointer-events:none}
-  .sa-detail-border-image{position:absolute;inset:0;width:100%;height:100%;background-repeat:no-repeat;background-color:#120018;background-position:50% 50%;background-size:100% auto;filter:saturate(.82) brightness(.48) contrast(1.04)}
-  .sa-detail-border-tint{position:absolute;inset:0;background:linear-gradient(90deg,rgba(66,0,92,.34),rgba(91,0,126,.20) 48%,rgba(28,0,42,.42)),linear-gradient(180deg,rgba(161,0,255,.10),rgba(0,0,0,.48));box-shadow:inset 0 0 0 1px rgba(188,71,255,.36),inset 0 -70px 90px rgba(0,0,0,.42)}
-  #jcArtistPage .jc-detail{position:relative;overflow:hidden;isolation:isolate}
-  #jcArtistPage .jc-detail>*:not(.sa-detail-border-wrap){position:relative;z-index:2}
-  #jcArtistPage .sa-detail-border-wrap + img{position:relative;z-index:3}
-</style>
-<script id="streamasiah-authoritative-border-fix-js">
-(function(){
-  'use strict';
-  const BORDER_KEY='jassiahArtistBorderPictures';
-  const PROFILE_KEY='jassiahArtistProfiles';
-  const text=v=>String(v==null?'':v);
-  const same=(a,b)=>text(a).trim().toLowerCase()===text(b).trim().toLowerCase();
-  function read(key,fb){try{const raw=localStorage.getItem(key);if(!raw)return fb;const v=JSON.parse(raw);return v&&typeof v==='object'?v:fb}catch(e){return fb}}
-  function write(key,v){try{localStorage.setItem(key,JSON.stringify(v));return true}catch(e){console.error('STREAMASIAH border save:',e);return false}}
-  function borderStore(){return read(BORDER_KEY,{})}
-  function profilesStore(){return read(PROFILE_KEY,{})}
-  function borderKey(name){const n=text(name).trim();const b=borderStore();return Object.keys(b).find(k=>same(k,n))||n}
-  function profileKey(name){const n=text(name).trim();const p=profilesStore();return Object.keys(p).find(k=>same(k,n))||n}
-  function cfg(name){
-    const n=text(name).trim(), b=borderStore(), bk=borderKey(n), v=b[bk]||{};
-    const p=profilesStore(), pk=profileKey(n), pr=p[pk]||{};
-    return {
-      image:v.image||v.heroImage||pr.heroImage||'',
-      x:Number.isFinite(Number(v.x))?Number(v.x):(Number.isFinite(Number(pr.heroX))?Number(pr.heroX):50),
-      y:Number.isFinite(Number(v.y))?Number(v.y):(Number.isFinite(Number(pr.heroY))?Number(pr.heroY):50),
-      zoom:Number.isFinite(Number(v.zoom))?Number(v.zoom):(Number.isFinite(Number(pr.heroZoom))?Number(pr.heroZoom):100)
-    };
-  }
-  window.saGetBorderConfig=cfg;
-
-  function currentName(){return text(document.getElementById('jcBorderArtist')?.value).trim()}
-  function status(msg){const el=document.getElementById('saBorderStatus');if(el)el.textContent=msg||''}
-
-  window.saUpdateBorderPreview=function(){
-    const box=document.getElementById('saBorderPreview');if(!box)return;
-    const name=currentName(), c=name?cfg(name):{image:'',x:50,y:50,zoom:100};
-    const image=window.saBorderDraftImage||c.image||'';
-    const x=Number(document.getElementById('saBorderX')?.value??c.x), y=Number(document.getElementById('saBorderY')?.value??c.y), z=Number(document.getElementById('saBorderZoom')?.value??c.zoom);
-    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');
-    if(xv)xv.textContent=x+'%'; if(yv)yv.textContent=y+'%';
-    let zv=document.getElementById('saBorderZoomValue');
-    if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';document.querySelector('.sa-position-values')?.appendChild(zv)}
-    zv.textContent='Zoom '+z+'%';
-    box.style.backgroundImage=image?`url("${image.replace(/"/g,'\\"')}")`:'none';
-    box.style.backgroundPosition=x+'% '+y+'%';
-    box.style.backgroundSize=z+'% auto';
-    box.innerHTML=image?'':'Select an artist to preview the border picture.';
-  };
-
-  window.saLoadBorderEditor=function(){
-    const name=currentName(), c=name?cfg(name):{image:'',x:50,y:50,zoom:100};
-    const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');
-    if(x)x.value=c.x;if(y)y.value=c.y;if(z)z.value=c.zoom;
-    window.saBorderDraftImage='';
-    const f=document.getElementById('jcBorderImage');if(f)f.value='';
-    window.saUpdateBorderPreview();
-    status(name?(c.image?'Saved border picture loaded. You can move and zoom it.':'No border picture saved for this artist yet.'):'');
-  };
-
-  window.saPreviewBorderImage=function(ev){
-    const file=ev?.target?.files?.[0];if(!file)return;
-    if(!file.type||!file.type.startsWith('image/')){status('Please choose an image file.');return}
-    const reader=new FileReader();
-    reader.onload=function(){
-      const img=new Image();
-      img.onload=function(){
-        const maxW=1200,maxH=900,scale=Math.min(1,maxW/img.width,maxH/img.height);
-        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
-        const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
-        try{window.saBorderDraftImage=c.toDataURL('image/jpeg',.82)}catch(e){window.saBorderDraftImage=reader.result}
-        window.saUpdateBorderPreview();status('Picture loaded. Position and zoom it, then save.');
-      };
-      img.onerror=function(){status('Could not read that picture.');};
-      img.src=reader.result;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  window.saSaveBorderPicture=function(){
-    const name=currentName();if(!name){status('Choose an artist first.');return}
-    const old=cfg(name), image=window.saBorderDraftImage||old.image||'';
-    if(!image){status('Choose a picture first.');return}
-    const x=Number(document.getElementById('saBorderX')?.value||old.x||50);
-    const y=Number(document.getElementById('saBorderY')?.value||old.y||50);
-    const zoom=Number(document.getElementById('saBorderZoom')?.value||old.zoom||100);
-    const store=borderStore(),bk=borderKey(name);
-    store[bk]={image,x,y,zoom,updatedAt:Date.now()};
-    if(!write(BORDER_KEY,store)){status('The picture could not be saved. Browser storage is full.');return}
-    const p=profilesStore(),pk=profileKey(name);p[pk]=p[pk]||{};
-    p[pk].heroImage=image;p[pk].heroX=x;p[pk].heroY=y;p[pk].heroZoom=zoom;
-    if(!write(PROFILE_KEY,p)){status('The picture was saved, but the profile cache could not be updated.');return}
-    try{artistProfiles=p}catch(e){}
-    window.saBorderDraftImage='';
-    status('Artist border picture saved for '+pk+'.');
-    window.saLoadBorderEditor();
-    // Re-render the currently visible artist page using the same saved config.
-    if(window.currentArtistName) authoritativeRenderArtist(window.currentArtistName);
-  };
-
-  window.saRemoveBorderPicture=function(){
-    const name=currentName();if(!name){status('Choose an artist first.');return}
-    const store=borderStore(),bk=borderKey(name);delete store[bk];write(BORDER_KEY,store);
-    const p=profilesStore(),pk=profileKey(name);if(p[pk]){delete p[pk].heroImage;delete p[pk].heroX;delete p[pk].heroY;delete p[pk].heroZoom;write(PROFILE_KEY,p)}
-    try{artistProfiles=p}catch(e){}
-    window.saBorderDraftImage='';window.saLoadBorderEditor();status('Border picture removed for '+pk+'.');
-    if(window.currentArtistName) authoritativeRenderArtist(window.currentArtistName);
-  };
-
-  function getSongs(){return (typeof songs!=='undefined'&&Array.isArray(songs))?songs:[]}
-  function esc(v){try{if(typeof escapeHtml==='function')return escapeHtml(v)}catch(e){}return text(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-  function cover(s){try{if(typeof coverUrl==='function')return coverUrl(s)||''}catch(e){}return s?.cover_url||s?.cover||s?.image_url||''}
-  function profile(name){const p=profilesStore(),k=Object.keys(p).find(x=>same(x,name));return k?p[k]:{}}
-  function artistSongs(name){
-    try{if(typeof songsForArtist==='function'){const a=songsForArtist(name);if(Array.isArray(a))return a}}catch(e){}
-    const n=text(name).trim().toLowerCase();return getSongs().filter(s=>{const a=text(s.artist).trim().toLowerCase();return a===n||a.startsWith(n+' ft')||a.startsWith(n+' feat')||a.startsWith(n+' featuring')})
-  }
-  function songRows(list,name){
-    if(!list.length)return '<div class="jc-muted">No songs for this artist yet.</div>';
-    return list.map(s=>{const i=getSongs().findIndex(x=>text(x.id)===text(s.id));return `<div class="song" onclick="playSong(${i})"><img class="cover" src="${esc(cover(s))}" alt=""><div class="info"><div class="title">${esc(s.title||'Untitled')}</div><div class="artist">${esc(s.artist||name)}</div></div></div>`}).join('')
-  }
-
-  function authoritativeRenderArtist(name){
-    const clean=text(name).trim();if(!clean)return;
-    const box=document.getElementById('jcArtistPage'),track=document.getElementById('jcTrack');if(!box)return;
-    const list=artistSongs(clean),pr=profile(clean),border=cfg(clean);
-    const image=pr.image||pr.image_url||(list[0]?cover(list[0]):'');
-    window.currentArtistName=clean;window.currentArtistSongs=list;
-    const borderHtml=border.image?`<div class="sa-detail-border-wrap" aria-hidden="true"><div class="sa-detail-border-image" style="background-image:url(&quot;${esc(border.image)}&quot;);background-position:${border.x}% ${border.y}%;background-size:${border.zoom}% auto"></div><div class="sa-detail-border-tint"></div></div>`:'';
-    box.innerHTML=`<div class="jc-detail">${borderHtml}<img src="${esc(image)}" alt="${esc(clean)}" onerror="this.style.visibility='hidden'"><div style="min-width:0"><div class="jc-kicker">ARTIST PROFILE</div><div class="jc-detail-name">${esc(clean)}</div><div class="jc-muted" style="margin-top:7px">${list.length} song${list.length===1?'':'s'}</div></div></div><div class="jc-section">Songs by ${esc(clean)}</div>${songRows(list,clean)}`;
-    try{if(typeof page!=='undefined')page=7}catch(e){}
-    if(track)track.style.transform='translateX(-700%)';
-    document.querySelectorAll('.jc-nav').forEach(btn=>btn.classList.remove('active'));
-  }
-  window.authoritativeRenderArtist=authoritativeRenderArtist;
-  window.jcFinalOpenArtist=authoritativeRenderArtist;
-  window.jcOpenArtist=authoritativeRenderArtist;
-  window.openArtistPage=authoritativeRenderArtist;
-
-  // Re-apply the saved border after any other renderer runs.
-  function reapply(){if(window.currentArtistName)authoritativeRenderArtist(window.currentArtistName)}
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(reapply,250);setTimeout(reapply,900);setTimeout(reapply,1800)});
-})();
-</script>
