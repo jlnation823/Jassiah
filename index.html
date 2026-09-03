@@ -4904,10 +4904,7 @@ async function deleteSong(id){
   await loadSongs();
 }
 
-(async function(){
-  await loadArtistProfilesFromSupabase();
-  await loadSongs();
-})();
+loadSongs();
 
 
 function updateAdminVisibility(){
@@ -5446,113 +5443,17 @@ initializeAuth();
     }catch(e){status.textContent="Upload failed: "+(e?.message||"Unknown error")}
   };
 
-  async function loadArtistProfilesFromSupabase(){
-    try{
-      const {data,error}=await client.from("artist_profiles").select("name,image_url,created_at").order("name",{ascending:true});
-      if(error){console.warn("Artist profile load failed:",error.message||error);return}
-      if(!Array.isArray(data))return;
-      const p=profiles();
-      data.forEach(row=>{
-        const name=String(row?.name||"").trim();
-        if(!name)return;
-        const key=Object.keys(p).find(k=>k.toLowerCase()===name.toLowerCase())||name;
-        p[key]={...(p[key]||{}),image:row.image_url||p[key]?.image||"",created_at:row.created_at||p[key]?.created_at||""};
-      });
-      artistProfiles=p;
-      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
-    }catch(e){console.warn("Artist profile load failed:",e)}
-  }
-
-  window.jcCreateArtist=async function(){
+  window.jcCreateArtist=function(){
     if(!currentUser){alert("Please log in first.");return}
-
-    const nameInput=document.getElementById("jcArtistName");
-    const imageInput=document.getElementById("jcArtistImage");
-    const status=document.getElementById("jcArtistStatus");
-    const name=nameInput?.value.trim()||"";
-    const file=imageInput?.files?.[0]||null;
-
-    if(!name||!file){
-      if(status)status.textContent="Enter artist name and choose a picture.";
-      return;
-    }
-
-    if(status)status.textContent="Checking artist profile...";
-
-    let uploadedPath="";
-
-    try{
-      /* Supabase is the source of truth. Do not reject a new artist because
-         an old/stale browser localStorage entry has the same name. */
-      const existing=await client.from("artist_profiles")
-        .select("id,name")
-        .ilike("name",name)
-        .limit(1);
-
-      if(existing.error)throw existing.error;
-
-      if(Array.isArray(existing.data)&&existing.data.length){
-        if(status)status.textContent="That artist profile already exists.";
-        return;
-      }
-
-      if(status)status.textContent="Uploading artist picture...";
-
-      const safeFile=cleanName(file.name||"artist-image");
-      uploadedPath="artists/"+Date.now()+"_"+safeFile;
-
-      const upload=await client.storage.from("artist-images").upload(
-        uploadedPath,
-        file,
-        {upsert:false,contentType:file.type||"image/jpeg"}
-      );
-      if(upload.error)throw upload.error;
-
-      const imageUrl=client.storage.from("artist-images")
-        .getPublicUrl(uploadedPath).data.publicUrl;
-
-      if(status)status.textContent="Saving artist profile...";
-
-      const row=await client.from("artist_profiles")
-        .insert({
-          name:name,
-          image_url:imageUrl,
-          created_at:new Date().toISOString()
-        })
-        .select("id,name,image_url,created_at")
-        .single();
-
-      if(row.error)throw row.error;
-
-      /* Update the browser cache only after Supabase successfully saved it. */
-      const p=profiles();
-      p[name]={
-        ...(p[name]||{}),
-        image:row.data?.image_url||imageUrl,
-        created_at:row.data?.created_at||new Date().toISOString()
-      };
-      artistProfiles=p;
+    const name=document.getElementById("jcArtistName").value.trim(),file=document.getElementById("jcArtistImage").files[0],status=document.getElementById("jcArtistStatus");
+    if(!name||!file){status.textContent="Enter artist name and choose a picture.";return}
+    imgRead(file).then(image=>{
+      const p=profiles();p[name]={image,created_at:new Date().toISOString()};
       localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
-
-      if(status)status.textContent="Artist profile created successfully.";
-      if(nameInput)nameInput.value="";
-      if(imageInput)imageInput.value="";
-
-      jcPrepareAdmin();
-      renderHome();
-      renderArtists();
-      renderNews();
-    }catch(e){
-      console.error("Artist profile save failed:",e);
-
-      /* If the database save failed after the image uploaded, remove the
-         orphaned image so the bucket does not fill with unused files. */
-      if(uploadedPath){
-        try{await client.storage.from("artist-images").remove([uploadedPath]);}catch(_){}
-      }
-
-      if(status)status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
-    }
+      status.textContent="Artist profile created.";
+      document.getElementById("jcArtistName").value="";document.getElementById("jcArtistImage").value="";
+      jcPrepareAdmin();renderHome();renderArtists();renderNews();
+    })
   };
 
   window.jcCreateAlbum=function(){
