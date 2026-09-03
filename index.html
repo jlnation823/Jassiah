@@ -2079,7 +2079,7 @@ body{padding-bottom:92px!important}
             <div class="sa-position-grid">
               <label>Left / Right <input id="saBorderX" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
               <label>Up / Down <input id="saBorderY" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
-              <label style="grid-column:1/-1">Zoom In / Out <input id="saBorderZoom" type="range" min="100" max="300" value="100" oninput="saUpdateBorderPreview()"></label>
+              <label style="grid-column:1/-1">Zoom In / Out <input id="saBorderZoom" type="range" min="60" max="180" value="100" oninput="saUpdateBorderPreview()"></label>
             </div>
             <div class="sa-position-values"><span id="saBorderXValue">50%</span><span id="saBorderYValue">50%</span></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="saSaveBorderPicture()">Save Artist Border Picture</button>
@@ -7523,6 +7523,14 @@ initializeAuth();
     const list=orderedSongs(clean);
     const profile=findProfile(clean);
     const image=profile.image || (list[0] ? cover(list[0]) : "");
+    const borderCfg=(typeof window.saGetBorderConfig==="function")
+      ? window.saGetBorderConfig(clean) : {image:"",x:50,y:50,zoom:100};
+    const borderImage=borderCfg.image || profile.heroImage || "";
+    const borderX=Number.isFinite(Number(borderCfg.x))?Number(borderCfg.x):50;
+    const borderY=Number.isFinite(Number(borderCfg.y))?Number(borderCfg.y):50;
+    const borderZoom=Math.max(60,Math.min(180,Number.isFinite(Number(borderCfg.zoom))?Number(borderCfg.zoom):100));
+    const borderOffsetX=((borderX-50)*0.45).toFixed(2)+"%";
+    const borderOffsetY=((borderY-50)*0.45).toFixed(2)+"%";
     const box=document.getElementById("jcArtistPage");
     const track=document.getElementById("jcTrack");
 
@@ -7534,7 +7542,9 @@ initializeAuth();
     box.innerHTML=`
       <div class="jc-artist-detail-shell">
         <div class="jc-artist-detail-head">
-          <div class="jc-detail">
+          <div class="jc-detail jc-artist-border-detail">
+            ${borderImage?`<div class="jc-artist-border-bg" aria-hidden="true" style="background-image:url(${esc(borderImage)});--border-offset-x:${borderOffsetX};--border-offset-y:${borderOffsetY};--border-zoom:${borderZoom/100};"></div><div class="jc-artist-border-tint" aria-hidden="true"></div>`:""}
+            <div class="jc-artist-border-content-final">
             <img src="${esc(image)}" alt="${esc(clean)}" onerror="this.style.visibility='hidden'">
             <div style="min-width:0">
               <div class="jc-kicker">ARTIST PROFILE</div>
@@ -7542,6 +7552,7 @@ initializeAuth();
               <div class="jc-muted" style="margin-top:7px">
                 ${list.length} song${list.length===1?"":"s"}
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -7655,6 +7666,14 @@ initializeAuth();
 .sa-artist-border-content{position:relative;z-index:2;display:flex;align-items:center;gap:18px;width:100%}
 .sa-artist-border-content>div{position:relative;z-index:2}
 .sa-border-preview{height:150px;margin-top:10px;border:1px solid #7b2cc7;border-radius:12px;background:#120018 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px;text-align:center;overflow:hidden;box-shadow:inset 0 0 30px rgba(123,0,190,.25)}
+.sa-border-preview{position:relative!important;}
+.sa-border-preview-img{position:absolute!important;left:50%;top:50%;width:110%!important;height:110%!important;object-fit:cover;transform-origin:center center;will-change:transform;max-width:none!important;pointer-events:none;}
+.sa-border-preview-tint{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(40,0,55,.22),rgba(140,0,210,.08),rgba(40,0,55,.22));box-shadow:inset 0 0 0 1px rgba(180,50,255,.22);}
+.jc-artist-border-detail{position:relative!important;overflow:hidden!important;isolation:isolate;}
+.jc-artist-border-detail>.jc-artist-border-bg{position:absolute!important;inset:-5%!important;z-index:0!important;background-repeat:no-repeat!important;background-size:cover!important;background-position:50% 50%!important;transform:translate(var(--border-offset-x),var(--border-offset-y)) scale(var(--border-zoom))!important;transform-origin:center center!important;filter:saturate(.88) brightness(.72)!important;pointer-events:none!important;}
+.jc-artist-border-detail>.jc-artist-border-tint{position:absolute!important;inset:0!important;z-index:1!important;background:linear-gradient(90deg,rgba(18,0,28,.48),rgba(65,0,90,.18),rgba(18,0,28,.42))!important;pointer-events:none!important;}
+.jc-artist-border-content-final{position:relative!important;z-index:2!important;display:flex!important;align-items:center!important;gap:20px!important;width:100%!important;min-width:0!important;}
+
 .sa-position-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.sa-position-grid label{color:#cfcfcf;font-size:12px}.sa-position-grid input{display:block;width:100%;margin-top:6px;accent-color:#a100ff}.sa-position-values{display:flex;justify-content:space-between;color:#c56cff;font-size:11px;margin-top:3px}.jc-admin-help{color:#999;font-size:11px;line-height:1.45;margin:-3px 0 10px}
 </style>
 <script>
@@ -8290,7 +8309,7 @@ initializeAuth();
     const box=document.getElementById(containerId); if(!box)return;
     const list=realSongs();
     const set=new Set((selected||[]).map(songId).filter(Boolean));
-    box.innerHTML=list.length ? list.map(s=>`<label class="jc-check-row"><input type="checkbox" value="${E(songId(s.id))}" ${set.has(songId(s.id))?'checked':''}>${E(s.title||'Untitled')} — ${E(s.artist||'')}</label>`).join('') : '<div style="color:#777;padding:7px">No songs yet.</div>';
+    box.innerHTML=list.length ? list.map((s,i)=>`<label class="jc-check-row jc-album-order-row"><input type="checkbox" value="${E(songId(s.id))}" ${set.has(songId(s.id))?'checked':''}><span class="jc-album-order-text">${E(s.title||'Untitled')} — ${E(s.artist||'')}</span>${containerId==='jcEditAlbumSongs'?`<span class="jc-album-order-buttons"><button type="button" class="jc-album-move" data-album-move="-1" title="Move up">↑</button><button type="button" class="jc-album-move" data-album-move="1" title="Move down">↓</button></span>`:''}</label>`).join('') : '<div style="color:#777;padding:7px">No songs yet.</div>';
   }
 
   window.jcLoadAlbumEditor=function(){
@@ -8393,6 +8412,19 @@ initializeAuth();
   };
 
   document.addEventListener('click',function(e){
+    const move=e.target.closest('#jcEditAlbumSongs [data-album-move]');
+    if(move){
+      e.preventDefault();e.stopPropagation();
+      const row=move.closest('.jc-album-order-row');
+      if(!row)return;
+      const dir=Number(move.getAttribute('data-album-move'))||0;
+      const box=document.getElementById('jcEditAlbumSongs');
+      const rows=box?[...box.querySelectorAll('.jc-album-order-row')]:[];
+      const idx=rows.indexOf(row),next=idx+dir;
+      if(idx<0||next<0||next>=rows.length)return;
+      if(dir<0)box.insertBefore(row,rows[next]);else box.insertBefore(row,rows[next].nextSibling);
+      return;
+    }
     const card=e.target.closest('[data-real-album]');
     if(card){e.preventDefault();e.stopImmediatePropagation();openAlbumFinal(card.getAttribute('data-real-album'));return}
     const pg=e.target.closest('[data-real-album-page]');
@@ -8503,18 +8535,19 @@ initializeAuth();
     const box=document.getElementById('saBorderPreview');if(!box)return;
     const name=currentName(),cfg=name?window.saGetBorderConfig(name):{image:'',x:50,y:50,zoom:100};
     const image=window.saBorderDraftImage||cfg.image||'';
-    const x=Number(document.getElementById('saBorderX')?.value||cfg.x||50);
-    const y=Number(document.getElementById('saBorderY')?.value||cfg.y||50);
-    const zoom=Number(document.getElementById('saBorderZoom')?.value||cfg.zoom||100);
+    const x=Math.max(0,Math.min(100,Number(document.getElementById('saBorderX')?.value??cfg.x??50)));
+    const y=Math.max(0,Math.min(100,Number(document.getElementById('saBorderY')?.value??cfg.y??50)));
+    const zoom=Math.max(60,Math.min(180,Number(document.getElementById('saBorderZoom')?.value??cfg.zoom??100)));
     const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');
-    if(xv)xv.textContent=x+'%';if(yv)yv.textContent=y+'%';
+    if(xv)xv.textContent=Math.round(x)+'%';if(yv)yv.textContent=Math.round(y)+'%';
     let zv=document.getElementById('saBorderZoomValue');
     if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';const vals=document.querySelector('.sa-position-values');if(vals)vals.appendChild(zv)}
-    zv.textContent='Zoom '+zoom+'%';
-    box.style.backgroundImage=image?`url("${image}")`:'none';
-    box.style.backgroundPosition=`${x}% ${y}%`;
-    box.style.backgroundSize=`${zoom}% auto`;
-    box.innerHTML=image?'':'Select an artist to preview the border picture.';
+    zv.textContent='Zoom '+Math.round(zoom)+'%';
+    box.innerHTML=image?`<img class="sa-border-preview-img" src="${String(image).replace(/"/g,'&quot;')}" alt=""><span class="sa-border-preview-tint"></span>`:'Select an artist to preview the border picture.';
+    if(image){
+      const im=box.querySelector('.sa-border-preview-img');
+      if(im){const ox=((x-50)*0.45); const oy=((y-50)*0.45); im.style.left='50%';im.style.top='50%';im.style.transform='translate(calc(-50% + '+ox+'%),calc(-50% + '+oy+'%)) scale('+zoom/100+')';}
+    }
   };
 
   window.saSaveBorderPicture=function(){
@@ -8571,6 +8604,13 @@ initializeAuth();
 </body>
 </html>
 
+<style id="streamasiah-album-reorder-css">
+.jc-album-order-row{display:flex!important;align-items:center!important;gap:8px!important;}
+.jc-album-order-text{flex:1;min-width:0;}
+.jc-album-order-buttons{margin-left:auto;display:flex;gap:4px;flex-shrink:0;}
+.jc-album-move{width:28px;height:28px;border:1px solid #7d1ab2;border-radius:6px;background:#16091c;color:#d06cff;font-weight:900;cursor:pointer;padding:0;}
+.jc-album-move:hover{background:#281032;border-color:#c56cff;}
+</style>
 <style id="streamasiah-final-data-render-fix">
 /* FINAL DATA RENDER FIX — does not replace the existing site layout */
 #jcAlbums{display:grid!important;grid-template-columns:repeat(5,150px)!important;justify-content:start!important;gap:28px!important;align-items:start!important;}
