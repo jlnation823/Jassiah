@@ -1348,6 +1348,16 @@ body{padding-bottom:92px!important}
 .jc-home-actions{margin-bottom:55px!important;}
 .jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;}
 #jcHomeArtists{position:relative!important;z-index:20!important;}
+
+/* ARTIST DETAIL: keep the profile header fixed; only the song list scrolls. */
+.jc-slide:has(#jcArtistPage){overflow:hidden!important;}
+.jc-slide:has(#jcArtistPage)>.jc-inner{height:100%!important;min-height:0!important;overflow:hidden!important;}
+#jcArtistPage{height:100%!important;min-height:0!important;overflow:hidden!important;}
+.jc-artist-detail-shell{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.jc-artist-detail-head{flex:0 0 auto!important;}
+.jc-artist-detail-label{flex:0 0 auto!important;}
+.jc-artist-detail-list{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-right:6px!important;padding-bottom:12px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;}
+.jc-artist-detail-list::-webkit-scrollbar{width:10px!important;}
 /* Exact chrome and persistent player. */
 .jc-sidebar{width:112px!important;}
 .jc-top{left:112px!important;right:280px!important;height:72px!important;z-index:500!important;background:rgba(5,4,8,.72)!important;}
@@ -7522,18 +7532,22 @@ initializeAuth();
     window.currentArtistSongs=list;
 
     box.innerHTML=`
-      <div class="jc-detail">
-        <img src="${esc(image)}" alt="${esc(clean)}" onerror="this.style.visibility='hidden'">
-        <div style="min-width:0">
-          <div class="jc-kicker">ARTIST PROFILE</div>
-          <div class="jc-detail-name">${esc(clean)}</div>
-          <div class="jc-muted" style="margin-top:7px">
-            ${list.length} song${list.length===1?"":"s"}
+      <div class="jc-artist-detail-shell">
+        <div class="jc-artist-detail-head">
+          <div class="jc-detail">
+            <img src="${esc(image)}" alt="${esc(clean)}" onerror="this.style.visibility='hidden'">
+            <div style="min-width:0">
+              <div class="jc-kicker">ARTIST PROFILE</div>
+              <div class="jc-detail-name">${esc(clean)}</div>
+              <div class="jc-muted" style="margin-top:7px">
+                ${list.length} song${list.length===1?"":"s"}
+              </div>
+            </div>
           </div>
         </div>
+        <div class="jc-section jc-artist-detail-label">Songs by ${esc(clean)}</div>
+        <div class="jc-artist-detail-list">${songTable(list)}</div>
       </div>
-      <div class="jc-section">Songs by ${esc(clean)}</div>
-      ${songTable(list)}
     `;
 
     /* Slide 7 is the actual visible Artist Detail slide. */
@@ -8689,63 +8703,43 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <style id="streamasiah-final-shadow-scroll-fix">
 /* FINAL FIX: restore the dark reference shading and make every slide scrollable. */
 html,body{
-  margin:0!important;
-  width:100%!important;
-  height:100%!important;
   background:#000!important;
-  overflow:hidden!important;
-  overscroll-behavior:none!important;
+  overflow-x:hidden!important;
+  overflow-y:hidden!important;
 }
-body{padding-bottom:0!important;}
+body{padding-bottom:92px!important;}
 
-/* FINAL SCROLL MODEL: the site chrome never scrolls. Only the active content slide scrolls. */
+/* The app/chrome stays fixed, while each content slide gets its own vertical scroll. */
 .jc-app{
   position:fixed!important;
-  left:0!important;
-  top:0!important;
-  right:0!important;
-  bottom:92px!important;
-  width:100%!important;
-  height:auto!important;
+  inset:0 0 92px 0!important;
   overflow:hidden!important;
   background:#000!important;
-  overscroll-behavior:none!important;
 }
 .jc-window{
-  position:absolute!important;
   left:112px!important;
   right:280px!important;
   top:72px!important;
   bottom:0!important;
-  height:auto!important;
   overflow:hidden!important;
-  min-height:0!important;
 }
 .jc-track{
   height:100%!important;
-  min-height:0!important;
-  overflow:hidden!important;
+  min-height:100%!important;
 }
 .jc-slide{
   height:100%!important;
-  min-height:0!important;
-  max-height:100%!important;
-  box-sizing:border-box!important;
+  min-height:100%!important;
   overflow-x:hidden!important;
   overflow-y:auto!important;
   scrollbar-width:auto!important;
   -webkit-overflow-scrolling:touch!important;
-  overscroll-behavior:contain!important;
-  padding-bottom:24px!important;
+  padding-bottom:115px!important;
 }
 .jc-slide>.jc-inner{
   height:auto!important;
-  min-height:0!important;
+  min-height:100%!important;
 }
-
-/* The list is clipped by the content window, which ends exactly above the fixed player. */
-.jc-window .jc-slide::-webkit-scrollbar{width:10px!important;}
-.jc-window .jc-slide{scrollbar-gutter:stable!important;}
 
 /* HOME ARTWORK — keep the exact three-piece composition, but restore the deep reference shadow. */
 .jc-home-layout{
