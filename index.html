@@ -5293,7 +5293,7 @@ initializeAuth();
     const sel=document.getElementById("jcDeleteArtist");
     if(sel)sel.innerHTML=names.length?names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join(""):'<option value="">No artists</option>';
     const checks=document.getElementById("jcAlbumSongs");
-    if(checks)checks.innerHTML=dataSongs().length?dataSongs().map(s=>`<label class="jc-check-row"><input type="checkbox" value="${Number(s.id)}">${esc(s.title||"Untitled")} — ${esc(s.artist||"")}</label>`).join(""):'<div style="color:#777;padding:7px">No songs yet.</div>';
+    if(checks)checks.innerHTML=dataSongs().length?dataSongs().map(s=>`<label class="jc-check-row"><input type="checkbox" value="${esc(String(s.id))}">${esc(s.title||"Untitled")} — ${esc(s.artist||"")}</label>`).join(""):'<div style="color:#777;padding:7px">No songs yet.</div>';
     const albumSel=document.getElementById("jcEditAlbumName");
     if(albumSel){
       const old=albumSel.value;
@@ -5341,7 +5341,7 @@ initializeAuth();
     if(!currentUser){alert("Please log in first.");return}
     const name=document.getElementById("jcAlbumName").value.trim(),file=document.getElementById("jcAlbumCover").files[0],status=document.getElementById("jcAlbumStatus");
     if(!name){status.textContent="Enter album name.";return}
-    const ids=[...document.querySelectorAll("#jcAlbumSongs input:checked")].map(x=>Number(x.value));
+    const ids=[...document.querySelectorAll("#jcAlbumSongs input:checked")].map(x=>String(x.value)).filter(Boolean);
     const save=coverUrlValue=>{
       const a=getAlbums();if(a[name]){status.textContent="Album already exists.";return}
       a[name]={cover:coverUrlValue||"",songs:ids};localStorage.setItem("jassiahAlbums",JSON.stringify(a));
@@ -5360,8 +5360,8 @@ initializeAuth();
     if(title)title.value=oldName||"";
     if(status)status.textContent="";
     if(checks){
-      const ids=new Set((a?.songs||[]).map(Number));
-      checks.innerHTML=dataSongs().length?dataSongs().map(s=>`<label class="jc-check-row"><input type="checkbox" value="${Number(s.id)}" ${ids.has(Number(s.id))?"checked":""}>${esc(s.title||"Untitled")} — ${esc(s.artist||"")}</label>`).join(""):'<div style="color:#777;padding:7px">No songs yet.</div>';
+      const ids=new Set((a?.songs||[]).map(x=>String(x)));
+      checks.innerHTML=dataSongs().length?dataSongs().map(s=>`<label class="jc-check-row"><input type="checkbox" value="${esc(String(s.id))}" ${ids.has(String(s.id))?"checked":""}>${esc(s.title||"Untitled")} — ${esc(s.artist||"")}</label>`).join(""):'<div style="color:#777;padding:7px">No songs yet.</div>';
     }
   };
 
@@ -5376,7 +5376,7 @@ initializeAuth();
     const as=getAlbums(),old=as[oldName];
     if(!old){if(status)status.textContent="Album not found.";return}
     if(title!==oldName && as[title]){if(status)status.textContent="That album name already exists.";return}
-    const ids=[...document.querySelectorAll("#jcEditAlbumSongs input:checked")].map(x=>Number(x.value));
+    const ids=[...document.querySelectorAll("#jcEditAlbumSongs input:checked")].map(x=>String(x.value)).filter(Boolean);
     const save=(newCover)=>{
       const next={cover:newCover||old.cover||"",songs:ids};
       delete as[oldName];as[title]=next;
@@ -8149,6 +8149,57 @@ initializeAuth();
   setTimeout(refresh,700);
 })();
 </script>
+<script id="streamasiah-album-song-id-final-fix">
+/* FINAL ALBUM SONG FIX
+   Supabase song IDs must be stored as strings. Older code used Number(id),
+   which turns UUID IDs into NaN and leaves albums showing 0 songs.
+*/
+(function(){
+  function sid(v){return v==null?'':String(v).trim()}
+  function getSongs(){
+    try{if(typeof dataSongs==='function'){const a=dataSongs();if(Array.isArray(a))return a}}catch(e){}
+    try{if(Array.isArray(window.songs))return window.songs}catch(e){}
+    return [];
+  }
+  function currentAlbumStore(){
+    try{return JSON.parse(localStorage.getItem('jassiahAlbums')||'{}')||{}}catch(e){return {}}
+  }
+  function selectedSongIds(containerId){
+    return Array.from(document.querySelectorAll('#'+containerId+' input[type="checkbox"]:checked')).map(x=>sid(x.value)).filter(Boolean)
+  }
+  window.jcAlbumGetSelectedSongIds=selectedSongIds;
+  window.jcAlbumNormalize=function(){
+    const as=currentAlbumStore(), ss=getSongs(), byId=new Map(ss.map(s=>[sid(s.id),s]));
+    let changed=false;
+    Object.keys(as).forEach(name=>{
+      const a=as[name]||{};
+      const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]);
+      const normalized=refs.map(r=>{
+        if(r&&typeof r==='object')return sid(r.id||r.song_id||r.songId);
+        return sid(r);
+      }).filter(id=>id&&byId.has(id));
+      if(JSON.stringify(refs)!==JSON.stringify(normalized)){a.songs=normalized;delete a.song_ids;changed=true;}
+    });
+    if(changed)localStorage.setItem('jassiahAlbums',JSON.stringify(as));
+    return as;
+  };
+  // Replace album checkbox values after every admin refresh so UUID IDs are preserved.
+  function fixCheckboxes(){
+    ['jcAlbumSongs','jcEditAlbumSongs'].forEach(id=>{
+      const box=document.getElementById(id);if(!box)return;
+      box.querySelectorAll('input[type="checkbox"]').forEach((x,i)=>{
+        const raw=sid(x.value);
+        if(raw==='NaN'||raw==='null'||raw==='undefined'){
+          const s=getSongs()[i];if(s)x.value=sid(s.id);
+        }else x.value=raw;
+      });
+    });
+  }
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.jcAlbumNormalize();fixCheckboxes()},250);setTimeout(fixCheckboxes,1000);setTimeout(fixCheckboxes,2000)});
+  const oldPrep=window.jcPrepareAdmin;
+  window.jcPrepareAdmin=function(){try{if(typeof oldPrep==='function')oldPrep()}catch(e){};setTimeout(fixCheckboxes,0);setTimeout(fixCheckboxes,300)};
+})();
+</script>
 </body>
 </html>
 
@@ -8189,12 +8240,18 @@ const songId=s=>s&&s.id!=null?text(s.id):'';
 const findSong=ref=>{
  const list=songs();
  if(ref&&typeof ref==='object'){
-   if(ref.id!=null){const exact=list.find(s=>text(s.id)===text(ref.id));if(exact)return exact}
-   const title=text(ref.title).trim().toLowerCase(), file=text(ref.file_path||ref.path).trim().toLowerCase();
-   return list.find(s=>(title&&text(s.title).trim().toLowerCase()===title)||(file&&text(s.file_path||s.path).trim().toLowerCase()===file))||null;
+   const rid=ref.id!=null?ref.id:(ref.song_id!=null?ref.song_id:ref.songId);
+   if(rid!=null){const exact=list.find(s=>text(s.id)===text(rid));if(exact)return exact}
+   const title=text(ref.title||ref.song_title).trim().toLowerCase();
+   const file=text(ref.file_path||ref.path||ref.file||ref.url).trim().toLowerCase();
+   return list.find(s=>
+     (title&&text(s.title).trim().toLowerCase()===title) ||
+     (file&&text(s.file_path||s.path||s.file||s.url).trim().toLowerCase()===file)
+   )||null;
  }
- const r=text(ref);
- return list.find(s=>text(s.id)===r)||list.find(s=>Number(s.id)===Number(ref))||null;
+ const r=text(ref).trim();
+ if(!r||r==='null'||r==='undefined'||r==='NaN')return null;
+ return list.find(s=>text(s.id).trim()===r)||list.find(s=>String(s.id).trim()===r)||null;
 };
 const songCover=s=>{try{if(typeof window.coverUrl==='function')return window.coverUrl(s)||''}catch(e){}return text(s&& (s.cover_url||s.cover||s.image_url||''))};
 const profileKey=(name)=>{const target=text(name).trim().toLowerCase();return Object.keys(profiles()).find(k=>text(k).trim().toLowerCase()===target)||text(name).trim()};
@@ -8217,7 +8274,7 @@ const artistNames=()=>{
 };
 const albumNames=()=>Object.keys(albums()).filter(n=>text(n).trim());
 const albumSongs=a=>{
- const refs=Array.isArray(a?.songs)?a.songs:(Array.isArray(a?.song_ids)?a.song_ids:[]);
+ const refs=Array.isArray(a?.songs)?a.songs:(Array.isArray(a?.song_ids)?a.song_ids:(Array.isArray(a?.songIds)?a.songIds:[]));
  return refs.map(findSong).filter(Boolean);
 };
 
