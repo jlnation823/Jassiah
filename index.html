@@ -2037,7 +2037,7 @@ body{padding-bottom:92px!important}
             <label>Songs in this album</label>
             <div id="jcEditAlbumSongs" class="jc-admin-song-checks"></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="jcSaveAlbumEdit()">Save Album Changes</button>
-            <button class="jc-admin-btn jc-admin-danger" id="jcDeleteAlbumBtn" onclick="jcDeleteAlbum()">Delete Album</button>
+            <button class="jc-admin-btn jc-admin-danger" id="jcDeleteAlbumBtn" onclick="streamasiahDeleteAlbum()">Delete Album</button>
             <div id="jcEditAlbumStatus" class="jc-admin-status"></div>
           </div>
 
@@ -2061,10 +2061,10 @@ body{padding-bottom:92px!important}
             <h3>🖼 Artist Border Picture</h3>
             <div class="jc-admin-help">Choose one artist, upload a picture just for that artist, and position it inside the purple artist-profile border.</div>
             <label>Artist</label>
-            <input id="jcBorderArtist" list="jcBorderArtistList" placeholder="Type artist name..." oninput="saLoadBorderEditor()">
+            <input id="jcBorderArtist" list="jcBorderArtistList" placeholder="Type artist name..." oninput="streamasiahLoadBorderEditor()">
             <datalist id="jcBorderArtistList"></datalist>
             <label>Picture for this artist</label>
-            <input id="jcBorderImage" type="file" accept="image/*" onchange="saPreviewBorderImage(event)">
+            <input id="jcBorderImage" type="file" accept="image/*" onchange="streamasiahPreviewBorder(event)">
             <div id="saBorderPreview" class="sa-border-preview">Select an artist to preview the border picture.</div>
             <div class="sa-position-grid">
               <label>Left / Right <input id="saBorderX" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
@@ -2072,8 +2072,8 @@ body{padding-bottom:92px!important}
               <label style="grid-column:1/-1">Zoom In / Out <input id="saBorderZoom" type="range" min="100" max="300" value="100" oninput="saUpdateBorderPreview()"></label>
             </div>
             <div class="sa-position-values"><span id="saBorderXValue">50%</span><span id="saBorderYValue">50%</span></div>
-            <button class="jc-admin-btn jc-admin-primary" onclick="saSaveBorderPicture()">Save Artist Border Picture</button>
-            <button class="jc-admin-btn jc-admin-muted" onclick="saRemoveBorderPicture()">Remove Border Picture</button>
+            <button class="jc-admin-btn jc-admin-primary" onclick="streamasiahSaveBorderPicture()">Save Artist Border Picture</button>
+            <button class="jc-admin-btn jc-admin-muted" onclick="streamasiahRemoveBorderPicture()">Remove Border Picture</button>
             <div id="saBorderStatus" class="jc-admin-status"></div>
           </div>
 
@@ -8551,6 +8551,266 @@ initializeAuth();
       try{if(typeof window.saPrepareBorderArtists==='function')window.saPrepareBorderArtists()}catch(e){}
     },300);
   });
+})();
+</script>
+
+
+<script id="streamasiah-final-album-border-controls">
+(function(){
+  'use strict';
+
+  const ALBUMS_KEY='jassiahAlbums';
+  const PROFILES_KEY='jassiahArtistProfiles';
+  const BORDER_KEY='jassiahArtistBorderPictures';
+
+  const S={draft:null};
+
+  function jsonGet(key,fallback){
+    try{
+      const raw=localStorage.getItem(key);
+      if(!raw)return fallback;
+      const v=JSON.parse(raw);
+      return v && typeof v==='object' ? v : fallback;
+    }catch(e){return fallback;}
+  }
+  function jsonSet(key,v){localStorage.setItem(key,JSON.stringify(v));}
+  function clean(v){return String(v==null?'':v).trim();}
+  function same(a,b){return clean(a).toLowerCase()===clean(b).toLowerCase();}
+  function keyFor(obj,name){
+    const n=clean(name);
+    return Object.keys(obj).find(k=>same(k,n))||n;
+  }
+  function status(msg){
+    const el=document.getElementById('saBorderStatus');
+    if(el)el.textContent=msg||'';
+  }
+  function currentArtist(){
+    return clean(document.getElementById('jcBorderArtist')?.value);
+  }
+  function profiles(){return jsonGet(PROFILES_KEY,{});}
+  function borders(){return jsonGet(BORDER_KEY,{});}
+
+  function getBorder(name){
+    const n=clean(name), b=borders(), bk=keyFor(b,n);
+    const bv=b[bk]||{};
+    const p=profiles(), pk=keyFor(p,n), pv=p[pk]||{};
+    return {
+      image:bv.image||bv.heroImage||pv.heroImage||'',
+      x:Number.isFinite(Number(bv.x))?Number(bv.x):(Number.isFinite(Number(pv.heroX))?Number(pv.heroX):50),
+      y:Number.isFinite(Number(bv.y))?Number(bv.y):(Number.isFinite(Number(pv.heroY))?Number(pv.heroY):50),
+      zoom:Number.isFinite(Number(bv.zoom))?Number(bv.zoom):(Number.isFinite(Number(pv.heroZoom))?Number(pv.heroZoom):100)
+    };
+  }
+
+  function updatePreview(){
+    const box=document.getElementById('saBorderPreview');
+    if(!box)return;
+    const name=currentArtist(), saved=name?getBorder(name):{image:'',x:50,y:50,zoom:100};
+    const image=S.draft||saved.image||'';
+    const x=Number(document.getElementById('saBorderX')?.value||saved.x||50);
+    const y=Number(document.getElementById('saBorderY')?.value||saved.y||50);
+    const z=Number(document.getElementById('saBorderZoom')?.value||saved.zoom||100);
+
+    const xv=document.getElementById('saBorderXValue');
+    const yv=document.getElementById('saBorderYValue');
+    const zv=document.getElementById('saBorderZoomValue');
+    if(xv)xv.textContent=x+'%';
+    if(yv)yv.textContent=y+'%';
+    if(zv)zv.textContent='Zoom '+z+'%';
+
+    box.style.backgroundImage=image?'url("'+image.replace(/"/g,'%22')+'")':'none';
+    box.style.backgroundRepeat='no-repeat';
+    box.style.backgroundPosition=x+'% '+y+'%';
+    box.style.backgroundSize=z+'% auto';
+    box.style.backgroundColor='#120018';
+    box.textContent=image?'':'Select an artist to preview the border picture.';
+  }
+
+  window.streamasiahLoadBorderEditor=function(){
+    const name=currentArtist();
+    const c=name?getBorder(name):{image:'',x:50,y:50,zoom:100};
+    const x=document.getElementById('saBorderX');
+    const y=document.getElementById('saBorderY');
+    const z=document.getElementById('saBorderZoom');
+    if(x)x.value=c.x;
+    if(y)y.value=c.y;
+    if(z)z.value=c.zoom;
+    S.draft=null;
+    const f=document.getElementById('jcBorderImage');
+    if(f)f.value='';
+    status(name?(c.image?'Saved border picture loaded. You can move and zoom it.':'No border picture saved for this artist yet.'):'');
+    updatePreview();
+  };
+
+  window.streamasiahPreviewBorder=function(ev){
+    const file=ev?.target?.files?.[0];
+    if(!file)return;
+    if(!file.type.startsWith('image/')){
+      status('Please choose an image file.');
+      return;
+    }
+    const reader=new FileReader();
+    reader.onload=function(){
+      const img=new Image();
+      img.onload=function(){
+        // Keep enough quality for positioning while avoiding an enormous
+        // localStorage payload.
+        const maxW=1800,maxH=1400;
+        const scale=Math.min(1,maxW/img.width,maxH/img.height);
+        const c=document.createElement('canvas');
+        c.width=Math.max(1,Math.round(img.width*scale));
+        c.height=Math.max(1,Math.round(img.height*scale));
+        const ctx=c.getContext('2d');
+        ctx.drawImage(img,0,0,c.width,c.height);
+        S.draft=c.toDataURL('image/jpeg',.86);
+        status('Picture loaded. Position and zoom it, then save.');
+        updatePreview();
+      };
+      img.onerror=function(){status('That picture could not be loaded.');};
+      img.src=reader.result;
+    };
+    reader.onerror=function(){status('Could not read that picture.');};
+    reader.readAsDataURL(file);
+  };
+
+  window.streamasiahSaveBorderPicture=function(){
+    const name=currentArtist();
+    if(!name){status('Choose an artist first.');return;}
+
+    const old=getBorder(name);
+    const image=S.draft||old.image;
+    if(!image){
+      status('Choose a picture first.');
+      return;
+    }
+
+    const b=borders(),bk=keyFor(b,name);
+    const x=Number(document.getElementById('saBorderX')?.value||old.x||50);
+    const y=Number(document.getElementById('saBorderY')?.value||old.y||50);
+    const zoom=Number(document.getElementById('saBorderZoom')?.value||old.zoom||100);
+
+    b[bk]={image:image,x:x,y:y,zoom:zoom};
+    jsonSet(BORDER_KEY,b);
+
+    // Mirror into the artist profile cache too, so the artist page and
+    // the border editor both read the same saved configuration.
+    const ps=profiles(),pk=keyFor(ps,name);
+    ps[pk]=ps[pk]||{};
+    ps[pk].heroImage=image;
+    ps[pk].heroX=x;
+    ps[pk].heroY=y;
+    ps[pk].heroZoom=zoom;
+    jsonSet(PROFILES_KEY,ps);
+
+    try{
+      if(typeof artistProfiles!=='undefined')artistProfiles=ps;
+    }catch(e){}
+
+    S.draft=null;
+    status('Saved border picture for '+pk+'.');
+    updatePreview();
+
+    // Force the currently visible artist page to rebuild immediately.
+    try{
+      if(typeof window.renderCurrentArtistPage==='function')window.renderCurrentArtistPage();
+    }catch(e){}
+    try{
+      if(typeof window.jcOpenArtist==='function' && window.currentArtistName)
+        window.jcOpenArtist(window.currentArtistName);
+    }catch(e){}
+  };
+
+  window.streamasiahRemoveBorderPicture=function(){
+    const name=currentArtist();
+    if(!name){status('Choose an artist first.');return;}
+    const b=borders(),bk=keyFor(b,name);
+    delete b[bk];
+    jsonSet(BORDER_KEY,b);
+
+    const ps=profiles(),pk=Object.keys(ps).find(k=>same(k,name));
+    if(pk){
+      delete ps[pk].heroImage;
+      delete ps[pk].heroX;
+      delete ps[pk].heroY;
+      delete ps[pk].heroZoom;
+      jsonSet(PROFILES_KEY,ps);
+      try{if(typeof artistProfiles!=='undefined')artistProfiles=ps}catch(e){}
+    }
+
+    S.draft=null;
+    status('Border picture removed for '+name+'.');
+    window.streamasiahLoadBorderEditor();
+    try{if(typeof window.renderCurrentArtistPage==='function')window.renderCurrentArtistPage()}catch(e){}
+  };
+
+  // Sliders update the preview immediately.
+  ['saBorderX','saBorderY','saBorderZoom'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.addEventListener('input',updatePreview);
+  });
+
+  // FINAL album deletion handler. It deletes only the album metadata; songs
+  // and their music files remain untouched.
+  window.streamasiahDeleteAlbum=function(){
+    const sel=document.getElementById('jcEditAlbumName');
+    const name=clean(sel?.value);
+    const st=document.getElementById('jcEditAlbumStatus');
+    if(!name){if(st)st.textContent='Select an album first.';return;}
+
+    const as=jsonGet(ALBUMS_KEY,{});
+    const k=Object.keys(as).find(n=>same(n,name));
+    if(!k){if(st)st.textContent='Album not found.';return;}
+
+    if(!confirm('Delete album "'+k+'"? The songs themselves will NOT be deleted.'))return;
+
+    delete as[k];
+    jsonSet(ALBUMS_KEY,as);
+
+    try{
+      if(typeof albums!=='undefined'&&albums){
+        const ak=Object.keys(albums).find(n=>same(n,k));
+        if(ak)delete albums[ak];
+      }
+    }catch(e){}
+
+    if(sel)sel.value='';
+    const checks=document.getElementById('jcEditAlbumSongs');
+    if(checks)checks.innerHTML='';
+    if(st)st.textContent='Album deleted.';
+
+    try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){}
+    try{if(typeof window.refresh==='function')window.refresh()}catch(e){}
+  };
+
+  // Populate the artist datalist and restore the selected artist's saved
+  // controls after the Admin Hub is opened.
+  function prepareArtists(){
+    const dl=document.getElementById('jcBorderArtistList');
+    if(!dl)return;
+    const names=new Map();
+    try{
+      Object.keys(profiles()).forEach(n=>{if(clean(n))names.set(clean(n).toLowerCase(),clean(n));});
+    }catch(e){}
+    try{
+      if(typeof songs!=='undefined'&&Array.isArray(songs)){
+        songs.forEach(s=>{
+          const n=clean(s.artist).split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0];
+          if(n&&!names.has(n.toLowerCase()))names.set(n.toLowerCase(),n);
+        });
+      }
+    }catch(e){}
+    dl.innerHTML=[...names.values()].sort((a,b)=>a.localeCompare(b))
+      .map(n=>'<option value="'+n.replace(/&/g,'&amp;').replace(/"/g,'&quot;')+'"></option>').join('');
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(prepareArtists,300);
+    setTimeout(prepareArtists,1200);
+  });
+
+  // Also refresh whenever Admin Hub content is revealed.
+  const observer=new MutationObserver(function(){prepareArtists();});
+  observer.observe(document.documentElement,{subtree:true,childList:true});
 })();
 </script>
 
