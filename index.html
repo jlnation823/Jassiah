@@ -9312,13 +9312,38 @@ const albumSongs=a=>{
  return refs.map(findSong).filter(Boolean);
 };
 
+function artistPageSize(id){
+  /* Home keeps its original 4-card featured layout.
+     The full Artists page uses as many rows as can fit above the fixed player. */
+  if(id!=='jcArtists')return 4;
+  const box=document.getElementById(id);
+  if(!box)return 4;
+  const slide=box.closest('.jc-slide');
+  if(!slide)return 4;
+  const boxTop=box.getBoundingClientRect().top;
+  const slideRect=slide.getBoundingClientRect();
+  const player=document.querySelector('.player');
+  const playerTop=player&&getComputedStyle(player).position==='fixed'
+    ?player.getBoundingClientRect().top
+    :window.innerHeight;
+  const bottom=Math.min(slideRect.bottom,playerTop)-34;
+  const available=Math.max(0,bottom-boxTop);
+  const card=box.querySelector('.jc-artist-card');
+  const cardHeight=card?card.getBoundingClientRect().height:137;
+  const styles=getComputedStyle(box);
+  const rowGap=parseFloat(styles.rowGap)||parseFloat(styles.gap)||26;
+  const rows=Math.max(1,Math.floor((available+rowGap)/(cardHeight+rowGap)));
+  return 4*rows;
+}
+
 function renderArtists(id){
  const box=document.getElementById(id);if(!box)return;
- const names=artistNames(), per=4;
+ const names=artistNames();
  const pageKey=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';
+ let per=artistPageSize(id);
  let page=Math.max(0,Number(window[pageKey]||0));
- const pages=Math.max(1,Math.ceil(names.length/per)); page=Math.min(page,pages-1);window[pageKey]=page;
- const slice=names.slice(page*per,page*per+per);
+ let pages=Math.max(1,Math.ceil(names.length/per)); page=Math.min(page,pages-1);window[pageKey]=page;
+ let slice=names.slice(page*per,page*per+per);
  box.innerHTML=(slice.length?slice.map(n=>`<div class="jc-artist-card" data-final-artist="${esc(n)}"><img src="${esc(artistImage(n))}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div></div>`).join(''):'<div class="jc-muted">No artists yet.</div>')+
  (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-artist-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-artist-page="1">›</button></div>`:'');
 }
@@ -9346,7 +9371,7 @@ window.renderAlbums=renderAlbums;
 window.jcRenderAlbumsFixed=renderAlbums;
 window.jcRenderArtistCards=function(){renderArtists('jcHomeArtists');renderArtists('jcArtists')};
 window.saAlbumPageFinalMove=function(d){window.saAlbumPageFinal=Math.max(0,Number(window.saAlbumPageFinal||0)+(Number(d)||0));renderAlbums()};
-window.saArtistPageFinalMove=function(id,d){const k=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';window[k]=Math.max(0,Number(window[k]||0)+(Number(d)||0));renderArtists(id)};
+window.saArtistPageFinalMove=function(id,d){const k=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';const per=artistPageSize(id);const pages=Math.max(1,Math.ceil(artistNames().length/per));window[k]=Math.max(0,Math.min(Number(window[k]||0)+(Number(d)||0),pages-1));renderArtists(id)};
 
 document.addEventListener('click',function(e){
  const album=e.target.closest('[data-final-album]');
@@ -9361,6 +9386,7 @@ function refresh(){renderAlbums();renderArtists('jcHomeArtists');renderArtists('
  const sel=document.getElementById('jcEditAlbumName');if(sel){const old=sel.value;const as=albums();sel.innerHTML='<option value="">Select an album...</option>'+Object.keys(as).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');if(old&&as[old])sel.value=old}
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,500);setTimeout(refresh,1500)});else{refresh();setTimeout(refresh,500);setTimeout(refresh,1500)}
+window.addEventListener('resize',()=>{clearTimeout(window.__saArtistResizeTimer);window.__saArtistResizeTimer=setTimeout(()=>{renderArtists('jcArtists')},120)});
 })();
 </script>
 
