@@ -8398,6 +8398,28 @@ initializeAuth();
 })();
 </script>
 
+
+<script id="streamasiah-album-song-last-render">
+(function(){
+  function rerender(){
+    try{
+      if(typeof window.renderAlbums === 'function') window.renderAlbums();
+    }catch(e){}
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){
+      setTimeout(rerender, 50);
+      setTimeout(rerender, 500);
+      setTimeout(rerender, 1500);
+    });
+  }else{
+    setTimeout(rerender, 50);
+    setTimeout(rerender, 500);
+    setTimeout(rerender, 1500);
+  }
+})();
+</script>
+
 </body>
 </html>
 
@@ -8418,8 +8440,11 @@ initializeAuth();
 const text=v=>String(v==null?'':v);
 const readJSON=(key, fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'');return v&&typeof v==='object'?v:fallback}catch(e){return fallback}};
 const songs=()=>{
-  try{if(Array.isArray(window.songs)&&window.songs.length)return window.songs}catch(e){}
-  try{if(typeof window.dataSongs==='function'){const v=window.dataSongs();if(Array.isArray(v))return v}}catch(e){}
+  /* The site's real song array is the top-level `let songs=[]`.
+     It is intentionally NOT window.songs.  The previous renderer only
+     checked window.songs/window.dataSongs, so it always received [] and
+     every album displayed 0 songs. */
+  try{if(typeof songs !== 'undefined' && Array.isArray(songs))return songs}catch(e){}
   return [];
 };
 const profiles=()=>{
