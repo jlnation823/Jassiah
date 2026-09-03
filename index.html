@@ -9209,3 +9209,166 @@ body{padding-bottom:92px!important;color:#fff!important;}
 })();
 </script>
 
+
+
+<style id="streamasiah-border-editor-actual-fix">
+/* Artist border editor: compact crop workspace, never a giant admin panel. */
+#saBorderPreview{
+  position:relative!important;
+  width:100%!important;
+  height:260px!important;
+  min-height:260px!important;
+  max-height:260px!important;
+  margin-top:10px!important;
+  border:1px solid rgba(178,60,255,.75)!important;
+  border-radius:12px!important;
+  background:#08040c!important;
+  overflow:hidden!important;
+  display:block!important;
+  box-shadow:inset 0 0 0 1px rgba(190,80,255,.18),inset 0 0 35px rgba(120,0,180,.10)!important;
+}
+#saBorderPreview .sa-preview-img{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:cover!important;
+  transform:translate(-50%,-50%) scale(1)!important;
+  transform-origin:center center!important;
+  pointer-events:none!important;
+  user-select:none!important;
+}
+#saBorderPreview .sa-preview-tint{
+  position:absolute!important;inset:0!important;z-index:2!important;pointer-events:none!important;
+  background:rgba(161,0,255,.075)!important;
+  box-shadow:inset 0 0 0 2px rgba(184,72,255,.45),inset 0 0 35px rgba(110,0,170,.10)!important;
+}
+#saBorderPreview .sa-preview-empty{
+  position:absolute!important;inset:0!important;z-index:3!important;display:flex!important;align-items:center!important;justify-content:center!important;
+  color:#aaa!important;font-size:13px!important;text-align:center!important;padding:20px!important;
+}
+#saBorderPreview .sa-preview-frame{
+  position:absolute!important;inset:8px!important;z-index:4!important;border:1px solid rgba(214,130,255,.34)!important;border-radius:9px!important;pointer-events:none!important;
+}
+#jcBorderImage{display:block!important;width:100%!important;}
+#saBorderStatus{min-height:18px!important;}
+</style>
+
+<script id="streamasiah-border-editor-actual-fix-js">
+(function(){
+  'use strict';
+  const STORE='jassiahArtistBorderPictures';
+  const PROFILE='jassiahArtistProfiles';
+  const esc=v=>String(v==null?'':v);
+  const same=(a,b)=>esc(a).trim().toLowerCase()===esc(b).trim().toLowerCase();
+  function read(k){try{const v=JSON.parse(localStorage.getItem(k)||'null');return v&&typeof v==='object'?v:{}}catch(e){return {}}}
+  function write(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){console.error(e);return false}}
+  function artistName(){return esc(document.getElementById('jcBorderArtist')?.value).trim()}
+  function keyFor(store,name){const n=esc(name).trim();return Object.keys(store).find(k=>same(k,n))||n}
+  function getConfig(name){
+    const store=read(STORE), k=keyFor(store,name), v=store[k]||{};
+    const profs=read(PROFILE), pk=keyFor(profs,name), p=profs[pk]||{};
+    return {
+      image:v.image||v.heroImage||p.heroImage||'',
+      x:Number.isFinite(+v.x)?+v.x:(Number.isFinite(+p.heroX)?+p.heroX:50),
+      y:Number.isFinite(+v.y)?+v.y:(Number.isFinite(+p.heroY)?+p.heroY:50),
+      zoom:Number.isFinite(+v.zoom)?+v.zoom:(Number.isFinite(+p.heroZoom)?+p.heroZoom:100)
+    };
+  }
+  function status(t){const e=document.getElementById('saBorderStatus');if(e)e.textContent=t||''}
+  function values(){
+    return {
+      x:+(document.getElementById('saBorderX')?.value||50),
+      y:+(document.getElementById('saBorderY')?.value||50),
+      zoom:+(document.getElementById('saBorderZoom')?.value||100)
+    };
+  }
+  function ensurePreview(){
+    const box=document.getElementById('saBorderPreview'); if(!box)return null;
+    let img=box.querySelector('.sa-preview-img');
+    if(!img){
+      box.innerHTML='<img class="sa-preview-img" alt="Border picture preview"><div class="sa-preview-tint"></div><div class="sa-preview-frame"></div><div class="sa-preview-empty"></div>';
+      img=box.querySelector('.sa-preview-img');
+    }
+    return {box,img,empty:box.querySelector('.sa-preview-empty')};
+  }
+  function renderPreview(){
+    const ui=ensurePreview();if(!ui)return;
+    const name=artistName(), c=name?getConfig(name):{image:'',x:50,y:50,zoom:100};
+    const image=window.saBorderDraftImage||c.image||'';
+    const v=values();
+    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue'),zv=document.getElementById('saBorderZoomValue');
+    if(xv)xv.textContent=v.x+'%';if(yv)yv.textContent=v.y+'%';if(zv)zv.textContent='Zoom '+v.zoom+'%';
+    if(image){
+      ui.img.src=image; ui.img.style.objectPosition=v.x+'% '+v.y+'%'; ui.img.style.transform='translate(-50%,-50%) scale('+(v.zoom/100)+')'; ui.empty.textContent=''; ui.empty.style.display='none';
+    }else{
+      ui.img.removeAttribute('src');ui.empty.textContent=name?'Choose a picture above to preview it here.':'Choose an artist first.';ui.empty.style.display='flex';
+    }
+  }
+  window.saUpdateBorderPreview=renderPreview;
+  window.saLoadBorderEditor=function(){
+    const n=artistName(),c=n?getConfig(n):{image:'',x:50,y:50,zoom:100};
+    const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');
+    if(x)x.value=c.x;if(y)y.value=c.y;if(z)z.value=c.zoom;
+    window.saBorderDraftImage='';
+    renderPreview();
+    const f=document.getElementById('jcBorderImage');if(f)f.value='';
+    status(n?(c.image?'Saved border picture loaded.':'No border picture saved for this artist yet.'):'');
+  };
+  window.saPreviewBorderImage=function(ev){
+    const file=ev?.target?.files?.[0];if(!file)return;
+    if(!file.type||!file.type.startsWith('image/')){status('Please choose an image file.');return;}
+    const reader=new FileReader();
+    reader.onerror=function(){status('Could not read that picture.');};
+    reader.onload=function(){
+      window.saBorderDraftImage=String(reader.result||'');
+      renderPreview();
+      status('Picture loaded. Use the sliders to position and zoom it, then save.');
+    };
+    reader.readAsDataURL(file);
+  };
+  window.saSaveBorderPicture=function(){
+    const n=artistName();if(!n){status('Choose an artist first.');return;}
+    const old=getConfig(n), image=window.saBorderDraftImage||old.image;
+    if(!image){status('Choose a picture first.');return;}
+    const v=values(),store=read(STORE),k=keyFor(store,n);
+    store[k]={image:image,x:v.x,y:v.y,zoom:v.zoom};
+    if(!write(STORE,store)){status('Could not save the picture in this browser.');return;}
+    const prof=read(PROFILE),pk=keyFor(prof,n);prof[pk]=prof[pk]||{};prof[pk].heroImage=image;prof[pk].heroX=v.x;prof[pk].heroY=v.y;prof[pk].heroZoom=v.zoom;write(PROFILE,prof);
+    try{if(typeof artistProfiles!=='undefined')artistProfiles=prof}catch(e){}
+    window.saBorderDraftImage='';
+    applyHero(n);
+    renderPreview();
+    status('Saved border picture for '+k+'.');
+  };
+  window.saRemoveBorderPicture=function(){
+    const n=artistName();if(!n){status('Choose an artist first.');return;}
+    const store=read(STORE),k=keyFor(store,n);delete store[k];write(STORE,store);
+    const prof=read(PROFILE),pk=keyFor(prof,n);if(prof[pk]){delete prof[pk].heroImage;delete prof[pk].heroX;delete prof[pk].heroY;delete prof[pk].heroZoom;write(PROFILE,prof);}
+    window.saBorderDraftImage='';applyHero(n);renderPreview();status('Border picture removed for '+k+'.');
+  };
+  function applyHero(n){
+    const hero=document.getElementById('artistHero');if(!hero)return;
+    const c=getConfig(n);let pic=hero.querySelector('.sa-artist-border-picture');
+    if(!pic){pic=document.createElement('div');pic.className='sa-artist-border-picture';hero.insertBefore(pic,hero.firstChild);}
+    let shade=hero.querySelector('.sa-artist-border-shade');
+    if(!shade){shade=document.createElement('div');shade.className='sa-artist-border-shade';hero.insertBefore(shade,pic.nextSibling);}
+    pic.style.backgroundImage=c.image?'url("'+c.image.replace(/"/g,'\\"')+'")':'none';
+    pic.style.backgroundPosition=c.x+'% '+c.y+'%';pic.style.backgroundSize=c.zoom+'% auto';pic.style.backgroundRepeat='no-repeat';pic.style.opacity='1';pic.style.zIndex='0';
+    shade.style.zIndex='1';shade.style.background='linear-gradient(90deg,rgba(110,0,160,.10),rgba(145,0,220,.06),rgba(70,0,100,.10)),linear-gradient(180deg,rgba(161,0,255,.07),rgba(0,0,0,.16))';
+    const content=hero.querySelector('.sa-artist-border-content');if(content)content.style.zIndex='3';
+  }
+  window.saApplyBorderToHero=applyHero;
+  function refresh(){try{const n=window.currentArtistName||document.querySelector('#artistHero .sa-artist-border-content img')?.alt||'';if(n)applyHero(n)}catch(e){}}
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){ensurePreview();renderPreview();refresh()},100);
+    setTimeout(refresh,700);setTimeout(refresh,1600);
+  });
+  document.addEventListener('input',function(e){if(['saBorderX','saBorderY','saBorderZoom'].includes(e.target?.id))renderPreview();});
+  window.addEventListener('pageshow',function(){renderPreview();refresh();});
+})();
+</script>
+
