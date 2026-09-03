@@ -8861,3 +8861,95 @@ body{padding-bottom:92px!important;}
   .jc-home-layout>.jc-home-copy{padding-top:135px!important;width:42%!important;}
 }
 </style>
+
+<style id="streamasiah-album-viewer-authoritative-fix">
+/* AUTHORITATIVE ALBUM VIEWER FIX — do not let the album shell or page scroll. */
+html, body{
+  overflow:hidden!important;
+}
+#jcAlbumViewer{
+  position:fixed!important;
+  inset:0!important;
+  display:none!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  padding:20px!important;
+  box-sizing:border-box!important;
+}
+#jcAlbumViewer.open{
+  display:flex!important;
+}
+#jcAlbumViewer .jc-album-viewer-box{
+  width:min(760px,96vw)!important;
+  height:min(760px,calc(100vh - 40px))!important;
+  max-height:calc(100vh - 40px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  position:relative!important;
+  padding:20px!important;
+}
+#jcAlbumViewer .jc-album-viewer-head{
+  flex:0 0 auto!important;
+  min-height:150px!important;
+}
+#jcAlbumViewer .jc-section[style*="margin-top:20px"]{
+  flex:0 0 auto!important;
+}
+#jcAlbumViewerSongs{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+  padding:0 4px 8px 0!important;
+  box-sizing:border-box!important;
+}
+#jcAlbumViewerSongs::-webkit-scrollbar{width:9px!important;}
+#jcAlbumViewerSongs::-webkit-scrollbar-track{background:#09070c!important;border-radius:9px!important;}
+#jcAlbumViewerSongs::-webkit-scrollbar-thumb{background:#8d00dc!important;border-radius:9px!important;}
+/* Draw the X instead of relying on the font glyph, so it is exactly centered. */
+#jcAlbumViewer .jc-album-close{
+  position:absolute!important;
+  right:14px!important;
+  top:12px!important;
+  width:34px!important;
+  height:34px!important;
+  padding:0!important;
+  margin:0!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  box-sizing:border-box!important;
+  font-size:0!important;
+  line-height:0!important;
+  text-align:center!important;
+}
+#jcAlbumViewer .jc-album-close::before,
+#jcAlbumViewer .jc-album-close::after{
+  content:""!important;
+  position:absolute!important;
+  width:13px!important;
+  height:2px!important;
+  border-radius:2px!important;
+  background:#fff!important;
+  left:50%!important;
+  top:50%!important;
+  transform-origin:center!important;
+}
+#jcAlbumViewer .jc-album-close::before{transform:translate(-50%,-50%) rotate(45deg)!important;}
+#jcAlbumViewer .jc-album-close::after{transform:translate(-50%,-50%) rotate(-45deg)!important;}
+@media(max-width:600px){
+  #jcAlbumViewer{padding:10px!important;}
+  #jcAlbumViewer .jc-album-viewer-box{
+    width:96vw!important;
+    height:calc(100vh - 20px)!important;
+    max-height:calc(100vh - 20px)!important;
+  }
+}
+</style>
