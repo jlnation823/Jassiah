@@ -1426,18 +1426,18 @@ body{padding-bottom:92px!important}
 </style>
 
 
-<style id="streamasiah-mobile-final-correct">
+<style id="streamasiah-mobile-clean-final">
 /* =========================================================
-   STREAMASIAH MOBILE — FINAL RESPONSIVE LAYOUT
-   Desktop (>1100px) is untouched.
+   STREAMASIAH — CLEAN MOBILE FIX
+   Only applies at 1100px and below.
+   Desktop is unchanged.
    ========================================================= */
 
-/* Phones and tablets in portrait/landscape */
 @media (max-width:1100px){
 
   html,body{
     width:100%!important;
-    max-width:100%!important;
+    min-width:0!important;
     margin:0!important;
     background:#000!important;
     overflow:hidden!important;
@@ -1445,8 +1445,10 @@ body{padding-bottom:92px!important}
 
   body{
     padding-bottom:82px!important;
+    box-sizing:border-box!important;
   }
 
+  /* APP fills the screen above the bottom player/nav. */
   .jc-app{
     position:fixed!important;
     left:0!important;
@@ -1460,9 +1462,9 @@ body{padding-bottom:92px!important}
     background:#000!important;
   }
 
-  /* No desktop left sidebar on a touch-sized screen. */
+  /* MOBILE NAVIGATION */
   .jc-sidebar{
-    position:absolute!important;
+    position:fixed!important;
     left:0!important;
     right:0!important;
     top:auto!important;
@@ -1475,16 +1477,20 @@ body{padding-bottom:92px!important}
     justify-content:space-around!important;
     padding:2px 4px!important;
     margin:0!important;
-    border-right:0!important;
+    border:0!important;
     border-top:1px solid #21172a!important;
     box-sizing:border-box!important;
-    z-index:10000!important;
+    z-index:100000!important;
     overflow:hidden!important;
+    background:#050505!important;
   }
 
-  .jc-logo{display:none!important;}
+  .jc-logo{
+    display:none!important;
+  }
 
   .jc-nav{
+    position:relative!important;
     flex:0 0 auto!important;
     width:42px!important;
     min-width:42px!important;
@@ -1493,11 +1499,11 @@ body{padding-bottom:92px!important}
     padding:0!important;
     border:0!important;
     border-radius:10px!important;
-    font-size:18px!important;
-    line-height:1!important;
     display:flex!important;
     align-items:center!important;
     justify-content:center!important;
+    font-size:18px!important;
+    line-height:1!important;
     box-sizing:border-box!important;
   }
 
@@ -1507,7 +1513,7 @@ body{padding-bottom:92px!important}
     box-shadow:none!important;
   }
 
-  /* Header never lets the search and action buttons occupy the same space. */
+  /* HEADER — search is ALWAYS separated from the action buttons. */
   .jc-top{
     position:absolute!important;
     left:0!important;
@@ -1516,13 +1522,18 @@ body{padding-bottom:92px!important}
     width:100%!important;
     height:112px!important;
     display:block!important;
+    padding:0!important;
+    margin:0!important;
     box-sizing:border-box!important;
     background:#050505!important;
-    z-index:10001!important;
+    border-bottom:1px solid #21172a!important;
+    z-index:90000!important;
     overflow:visible!important;
   }
 
-  .jc-arrows{display:none!important;}
+  .jc-arrows{
+    display:none!important;
+  }
 
   .jc-search-wrap{
     position:absolute!important;
@@ -1532,15 +1543,17 @@ body{padding-bottom:92px!important}
     width:auto!important;
     max-width:none!important;
     margin:0!important;
-    display:block!important;
     box-sizing:border-box!important;
   }
 
   .jc-search{
+    display:block!important;
     width:100%!important;
     min-width:0!important;
     height:42px!important;
+    margin:0!important;
     box-sizing:border-box!important;
+    border-radius:24px!important;
     font-size:13px!important;
     padding:0 14px!important;
   }
@@ -1551,8 +1564,9 @@ body{padding-bottom:92px!important}
     right:12px!important;
     top:62px!important;
     width:auto!important;
-    height:42px!important;
+    height:40px!important;
     margin:0!important;
+    padding:0!important;
     display:flex!important;
     align-items:center!important;
     justify-content:flex-end!important;
@@ -1564,6 +1578,7 @@ body{padding-bottom:92px!important}
     height:38px!important;
     min-height:38px!important;
     padding:0 10px!important;
+    margin:0!important;
     font-size:10px!important;
     border-radius:20px!important;
     box-sizing:border-box!important;
@@ -1575,7 +1590,7 @@ body{padding-bottom:92px!important}
     padding:0!important;
   }
 
-  /* The content area is independently scrollable. */
+  /* MAIN WINDOW IS THE ONLY VERTICAL SCROLLER. */
   .jc-window{
     position:absolute!important;
     left:0!important;
@@ -1584,28 +1599,36 @@ body{padding-bottom:92px!important}
     bottom:0!important;
     width:100%!important;
     height:auto!important;
+    min-height:0!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    touch-action:pan-y!important;
     box-sizing:border-box!important;
-    overflow:hidden!important;
     background:#000!important;
+    z-index:10!important;
+    scrollbar-width:auto!important;
   }
 
+  /* The horizontal page track must NOT lock the vertical height. */
   .jc-track{
+    display:flex!important;
     width:100%!important;
-    height:100%!important;
+    height:auto!important;
     min-height:100%!important;
+    align-items:flex-start!important;
   }
 
   .jc-slide{
     flex:0 0 100%!important;
     width:100%!important;
     max-width:100%!important;
-    height:100%!important;
+    height:auto!important;
     min-height:100%!important;
+    max-height:none!important;
+    overflow:visible!important;
     box-sizing:border-box!important;
-    overflow-x:hidden!important;
-    overflow-y:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    padding:16px 10px 30px!important;
+    padding:16px 10px 110px!important;
   }
 
   .jc-slide>.jc-inner{
@@ -1616,12 +1639,15 @@ body{padding-bottom:92px!important}
     min-height:0!important;
     margin:0!important;
     padding:0!important;
+    overflow:visible!important;
     box-sizing:border-box!important;
   }
 
-  .jc-right{display:none!important;}
+  .jc-right{
+    display:none!important;
+  }
 
-  /* IMPORTANT: don't trap the Home page inside a viewport-height box. */
+  /* HOME PAGE — allow the artwork/content to determine page height. */
   .jc-home-layout{
     position:relative!important;
     width:100%!important;
@@ -1640,14 +1666,19 @@ body{padding-bottom:92px!important}
     min-height:100%!important;
   }
 
-  .jc-home-layout>.jc-home-copy{
+  .jc-home-copy{
     position:relative!important;
     width:100%!important;
     max-width:none!important;
     min-width:0!important;
-    padding:24px 18px 50px!important;
+    padding:24px 18px 60px!important;
     box-sizing:border-box!important;
     z-index:2!important;
+  }
+
+  .jc-home-welcome{
+    font-size:14px!important;
+    letter-spacing:2px!important;
   }
 
   .jc-home-name{
@@ -1656,18 +1687,14 @@ body{padding-bottom:92px!important}
     white-space:normal!important;
   }
 
-  .jc-home-welcome{
-    font-size:14px!important;
-    letter-spacing:2px!important;
-  }
-
   .jc-home-tag{
     font-size:15px!important;
   }
 
   .jc-home-actions{
-    gap:10px!important;
+    display:flex!important;
     flex-wrap:wrap!important;
+    gap:10px!important;
   }
 
   .jc-home-action{
@@ -1676,19 +1703,15 @@ body{padding-bottom:92px!important}
     font-size:13px!important;
   }
 
-  .jc-home-featured-title{
-    font-size:18px!important;
-  }
-
   #jcHomeArtists{
     width:100%!important;
     max-width:100%!important;
     overflow-x:auto!important;
     overflow-y:hidden!important;
-    gap:10px!important;
-    box-sizing:border-box!important;
-    padding-bottom:12px!important;
     flex-wrap:nowrap!important;
+    gap:10px!important;
+    padding-bottom:12px!important;
+    box-sizing:border-box!important;
   }
 
   #jcHomeArtists .jc-artist-card{
@@ -1704,28 +1727,16 @@ body{padding-bottom:92px!important}
     max-height:82px!important;
   }
 
-  /* Artist detail/list pages can grow and scroll normally. */
+  /* ARTIST DETAIL — no nested scroll box; the main window scrolls it. */
   .jc-slide:has(#jcArtistPage){
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-  }
-
-  .jc-slide:has(#jcArtistPage)>.jc-inner{
-    height:auto!important;
-    min-height:0!important;
     overflow:visible!important;
   }
 
-  #jcArtistPage{
-    height:auto!important;
-    min-height:0!important;
-    overflow:visible!important;
-  }
-
+  .jc-slide:has(#jcArtistPage)>.jc-inner,
+  #jcArtistPage,
   .jc-artist-detail-shell{
     height:auto!important;
     min-height:0!important;
-    display:block!important;
     overflow:visible!important;
   }
 
@@ -1734,10 +1745,10 @@ body{padding-bottom:92px!important}
     min-height:0!important;
     max-height:none!important;
     overflow:visible!important;
-    padding:0 0 45px!important;
+    padding-bottom:60px!important;
   }
 
-  /* Keep the bottom player above Safari's bottom browser controls. */
+  /* BOTTOM PLAYER */
   .player{
     position:fixed!important;
     left:0!important;
@@ -1748,11 +1759,12 @@ body{padding-bottom:92px!important}
     min-height:82px!important;
     box-sizing:border-box!important;
     padding:7px 5px!important;
+    margin:0!important;
     gap:5px!important;
     display:flex!important;
     align-items:center!important;
     overflow:hidden!important;
-    z-index:2147483647!important;
+    z-index:200000!important;
   }
 
   .player img{
@@ -1770,7 +1782,8 @@ body{padding-bottom:92px!important}
     overflow:hidden!important;
   }
 
-  .player-title,.player-artist{
+  .player-title,
+  .player-artist{
     white-space:nowrap!important;
     overflow:hidden!important;
     text-overflow:ellipsis!important;
@@ -1805,12 +1818,23 @@ body{padding-bottom:92px!important}
     padding:0!important;
   }
 
-  .player-icon svg{width:14px!important;height:14px!important;}
-  .player-play svg{width:19px!important;height:19px!important;}
-  .player-progress,.player-volume{display:none!important;}
+  .player-icon svg{
+    width:14px!important;
+    height:14px!important;
+  }
+
+  .player-play svg{
+    width:19px!important;
+    height:19px!important;
+  }
+
+  .player-progress,
+  .player-volume{
+    display:none!important;
+  }
 }
 
-/* Landscape phone/tablet: compact header, still full-width and scrollable. */
+/* LANDSCAPE PHONES/TABLETS */
 @media (min-width:701px) and (max-width:1100px) and (orientation:landscape){
 
   .jc-top{
@@ -1838,7 +1862,7 @@ body{padding-bottom:92px!important}
     top:auto!important;
     width:auto!important;
     height:auto!important;
-    margin-left:auto!important;
+    margin:0 0 0 auto!important;
     justify-content:flex-end!important;
   }
 
@@ -1846,9 +1870,13 @@ body{padding-bottom:92px!important}
     top:70px!important;
   }
 
-  .jc-home-layout>.jc-home-copy{
-    padding:35px 35px 50px!important;
-    width:70%!important;
+  .jc-slide{
+    padding:16px 20px 110px!important;
+  }
+
+  .jc-home-copy{
+    padding:35px 35px 60px!important;
+    width:72%!important;
   }
 
   .jc-home-name{
