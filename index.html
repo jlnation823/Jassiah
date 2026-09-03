@@ -1349,66 +1349,15 @@ body{padding-bottom:92px!important}
 .jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;}
 #jcHomeArtists{position:relative!important;z-index:20!important;}
 
-/* ARTIST DETAIL — FINAL BOTTOM SONG LIST FIX */
-.jc-slide:has(#jcArtistPage){
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-.jc-slide:has(#jcArtistPage)>.jc-inner{
-  height:100%!important;
-  min-height:0!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-#jcArtistPage{
-  height:100%!important;
-  min-height:0!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-.jc-artist-detail-shell{
-  height:100%!important;
-  min-height:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-.jc-artist-detail-head{
-  flex:0 0 auto!important;
-}
-.jc-artist-detail-label{
-  flex:0 0 auto!important;
-  margin:0 0 10px!important;
-}
-.jc-artist-detail-list{
-  flex:1 1 auto!important;
-  min-height:1px!important;
-  height:auto!important;
-  max-height:none!important;
-  overflow-y:scroll!important;
-  overflow-x:hidden!important;
-  box-sizing:border-box!important;
-  padding:0 10px 40px 0!important;
-  margin:0!important;
-  overscroll-behavior:contain!important;
-  -webkit-overflow-scrolling:touch!important;
-  scrollbar-width:auto!important;
-  scrollbar-gutter:stable!important;
-}
-.jc-artist-detail-list .jc-table{
-  margin-bottom:24px!important;
-}
-.jc-artist-detail-list::-webkit-scrollbar{
-  width:10px!important;
-}
-.jc-artist-detail-list::-webkit-scrollbar-thumb{
-  background:#7d19b8!important;
-  border-radius:10px!important;
-}
-.jc-artist-detail-list::-webkit-scrollbar-track{
-  background:#111!important;
-}
+/* ARTIST DETAIL: keep the profile header fixed; only the song list scrolls. */
+.jc-slide:has(#jcArtistPage){overflow:hidden!important;}
+.jc-slide:has(#jcArtistPage)>.jc-inner{height:100%!important;min-height:0!important;overflow:hidden!important;}
+#jcArtistPage{height:100%!important;min-height:0!important;overflow:hidden!important;}
+.jc-artist-detail-shell{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
+.jc-artist-detail-head{flex:0 0 auto!important;}
+.jc-artist-detail-label{flex:0 0 auto!important;}
+.jc-artist-detail-list{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-right:6px!important;padding-bottom:12px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;}
+.jc-artist-detail-list::-webkit-scrollbar{width:10px!important;}
 /* Exact chrome and persistent player. */
 .jc-sidebar{width:112px!important;}
 .jc-top{left:112px!important;right:280px!important;height:72px!important;z-index:500!important;background:rgba(5,4,8,.72)!important;}
@@ -1476,60 +1425,6 @@ body{padding-bottom:92px!important}
 }
 </style>
 
-<style id="streamasiah-artist-list-authoritative-final-fix">
-/* AUTHORITATIVE ARTIST PAGE FIX — the previous nested flex scroller was being constrained by later slide/inner rules. */
-.jc-slide:has(#jcArtistPage){
-  height:100%!important;
-  min-height:100%!important;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
-  box-sizing:border-box!important;
-  padding-bottom:115px!important;
-}
-.jc-slide:has(#jcArtistPage)>.jc-inner{
-  width:100%!important;
-  max-width:none!important;
-  height:auto!important;
-  min-height:0!important;
-  overflow:visible!important;
-  box-sizing:border-box!important;
-}
-#jcArtistPage{
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  overflow:visible!important;
-  box-sizing:border-box!important;
-}
-.jc-artist-detail-shell{
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  display:block!important;
-  overflow:visible!important;
-  box-sizing:border-box!important;
-}
-.jc-artist-detail-head,
-.jc-artist-detail-label{
-  display:block!important;
-  flex:none!important;
-}
-.jc-artist-detail-list{
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  overflow:visible!important;
-  box-sizing:border-box!important;
-  padding:0 0 40px 0!important;
-  margin:0!important;
-}
-.jc-artist-detail-list .jc-table{
-  width:100%!important;
-  margin:0 0 24px!important;
-}
-</style>
 </head>
 
 <body>
@@ -9675,3 +9570,303 @@ html, body{
   if(document.body)obs.observe(document.body,{subtree:true,childList:true});
 })();
 </script>
+
+<style id="streamasiah-mobile-authoritative-final-fix">
+/* MOBILE FINAL FIX — this is intentionally last so the desktop reference rules cannot override it. */
+@media (max-width:700px){
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    background:#000!important;
+    overflow:hidden!important;
+  }
+
+  body{padding-bottom:82px!important;}
+
+  /* The app uses the full phone width. */
+  .jc-app{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    bottom:82px!important;
+    inset:0 0 82px 0!important;
+    width:100%!important;
+    height:auto!important;
+    overflow:hidden!important;
+  }
+
+  /* Mobile navigation belongs directly above the player. */
+  .jc-sidebar{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:auto!important;
+    bottom:0!important;
+    width:100%!important;
+    height:54px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-around!important;
+    padding:2px 4px!important;
+    margin:0!important;
+    border-right:0!important;
+    border-top:1px solid #21172a!important;
+    z-index:10000!important;
+    overflow:hidden!important;
+  }
+
+  /* The desktop logo is not part of the mobile bottom navigation. */
+  .jc-logo{
+    display:none!important;
+  }
+
+  .jc-nav{
+    flex:0 0 auto!important;
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:10px!important;
+    font-size:18px!important;
+    line-height:1!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-nav.active{
+    background:linear-gradient(135deg,#4c0878,#26003e)!important;
+    color:#fff!important;
+    box-shadow:none!important;
+  }
+
+  /* Header is full-width on phones instead of the 112px/280px desktop columns. */
+  .jc-top{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    width:100%!important;
+    height:58px!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:0 8px!important;
+    z-index:10001!important;
+  }
+
+  .jc-arrows{display:none!important;}
+
+  .jc-search-wrap{
+    display:block!important;
+    width:52%!important;
+    max-width:none!important;
+    margin:0!important;
+    flex:0 1 52%!important;
+  }
+
+  .jc-search{
+    width:100%!important;
+    height:40px!important;
+    box-sizing:border-box!important;
+    font-size:13px!important;
+    padding:0 14px!important;
+  }
+
+  .jc-actions{
+    position:absolute!important;
+    right:7px!important;
+    top:0!important;
+    height:58px!important;
+    display:flex!important;
+    align-items:center!important;
+    gap:5px!important;
+    margin:0!important;
+  }
+
+  .jc-actions button{
+    height:38px!important;
+    min-height:38px!important;
+    padding:0 9px!important;
+    font-size:10px!important;
+    border-radius:20px!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-bell{
+    width:38px!important;
+    min-width:38px!important;
+    padding:0!important;
+  }
+
+  /* Main content gets the whole phone width and the correct vertical area. */
+  .jc-window{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:58px!important;
+    bottom:0!important;
+    width:100%!important;
+    height:auto!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    background:#000!important;
+  }
+
+  .jc-track{
+    width:100%!important;
+    height:100%!important;
+    min-height:100%!important;
+  }
+
+  .jc-slide{
+    flex:0 0 100%!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:100%!important;
+    min-height:100%!important;
+    box-sizing:border-box!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    padding:16px 10px 24px!important;
+  }
+
+  .jc-slide>.jc-inner{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:100%!important;
+    margin:0!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-right{display:none!important;}
+
+  /* Keep home artwork inside the actual phone width. */
+  .jc-home-layout{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:100%!important;
+    min-height:100%!important;
+    overflow:hidden!important;
+  }
+
+  .jc-home-layout>.jc-home-copy{
+    width:82%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:55px 18px 0!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-home-name{
+    font-size:31px!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+  }
+
+  /* Artist cards stay inside the phone instead of forcing desktop widths. */
+  #jcHomeArtists{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    gap:10px!important;
+    box-sizing:border-box!important;
+    padding-bottom:8px!important;
+  }
+
+  #jcHomeArtists .jc-artist-card{
+    flex:0 0 80px!important;
+    width:80px!important;
+  }
+
+  #jcHomeArtists .jc-artist-card img{
+    width:70px!important;
+    height:70px!important;
+  }
+
+  /* Mobile player: all seven transport controls fit instead of being cut off. */
+  .player{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100%!important;
+    height:82px!important;
+    min-height:82px!important;
+    box-sizing:border-box!important;
+    padding:7px 5px!important;
+    gap:5px!important;
+    display:flex!important;
+    align-items:center!important;
+    overflow:hidden!important;
+    z-index:2147483647!important;
+  }
+
+  .player img{
+    width:44px!important;
+    height:44px!important;
+    flex:0 0 44px!important;
+    border-radius:6px!important;
+  }
+
+  .player-song-info{
+    width:72px!important;
+    min-width:72px!important;
+    max-width:72px!important;
+    flex:0 0 72px!important;
+    overflow:hidden!important;
+  }
+
+  .player-title,.player-artist{
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .player-title{font-size:13px!important;}
+  .player-artist{font-size:11px!important;}
+
+  .player-buttons{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:3px!important;
+    overflow:visible!important;
+  }
+
+  .player-icon{
+    width:26px!important;
+    min-width:26px!important;
+    height:26px!important;
+    flex:0 0 26px!important;
+    padding:0!important;
+  }
+
+  .player-play{
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    flex:0 0 42px!important;
+    padding:0!important;
+  }
+
+  .player-icon svg{width:14px!important;height:14px!important;}
+  .player-play svg{width:19px!important;height:19px!important;}
+  .player-progress,.player-volume{display:none!important;}
+}
+</style>
