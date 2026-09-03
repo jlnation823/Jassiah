@@ -4904,7 +4904,10 @@ async function deleteSong(id){
   await loadSongs();
 }
 
-loadSongs();
+(async function(){
+  await loadArtistProfilesFromSupabase();
+  await loadSongs();
+})();
 
 
 function updateAdminVisibility(){
@@ -5443,17 +5446,58 @@ initializeAuth();
     }catch(e){status.textContent="Upload failed: "+(e?.message||"Unknown error")}
   };
 
-  window.jcCreateArtist=function(){
+  async function loadArtistProfilesFromSupabase(){
+    try{
+      const {data,error}=await client.from("artist_profiles").select("name,image_url,created_at").order("name",{ascending:true});
+      if(error){console.warn("Artist profile load failed:",error.message||error);return}
+      if(!Array.isArray(data))return;
+      const p=profiles();
+      data.forEach(row=>{
+        const name=String(row?.name||"").trim();
+        if(!name)return;
+        const key=Object.keys(p).find(k=>k.toLowerCase()===name.toLowerCase())||name;
+        p[key]={...(p[key]||{}),image:row.image_url||p[key]?.image||"",created_at:row.created_at||p[key]?.created_at||""};
+      });
+      artistProfiles=p;
+      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
+    }catch(e){console.warn("Artist profile load failed:",e)}
+  }
+
+  window.jcCreateArtist=async function(){
     if(!currentUser){alert("Please log in first.");return}
     const name=document.getElementById("jcArtistName").value.trim(),file=document.getElementById("jcArtistImage").files[0],status=document.getElementById("jcArtistStatus");
     if(!name||!file){status.textContent="Enter artist name and choose a picture.";return}
-    imgRead(file).then(image=>{
-      const p=profiles();p[name]={image,created_at:new Date().toISOString()};
+    status.textContent="Saving artist profile...";
+    try{
+      const existing=Object.keys(profiles()).find(k=>k.toLowerCase()===name.toLowerCase());
+      if(existing){status.textContent="That artist profile already exists.";return}
+
+      const safeFile=cleanName(file.name||"artist-image");
+      const path="artists/"+Date.now()+"_"+safeFile;
+      const upload=await client.storage.from("artist-images").upload(path,file,{upsert:false,contentType:file.type||"image/jpeg"});
+      if(upload.error)throw upload.error;
+      const imageUrl=client.storage.from("artist-images").getPublicUrl(path).data.publicUrl;
+
+      const row=await client.from("artist_profiles").upsert({
+        name:name,
+        image_url:imageUrl,
+        created_at:new Date().toISOString()
+      },{onConflict:"name"}).select().single();
+      if(row.error)throw row.error;
+
+      const p=profiles();
+      p[name]={...(p[name]||{}),image:imageUrl,created_at:row.data?.created_at||new Date().toISOString()};
       localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
-      status.textContent="Artist profile created.";
-      document.getElementById("jcArtistName").value="";document.getElementById("jcArtistImage").value="";
+      artistProfiles=p;
+
+      status.textContent="Artist profile created successfully.";
+      document.getElementById("jcArtistName").value="";
+      document.getElementById("jcArtistImage").value="";
       jcPrepareAdmin();renderHome();renderArtists();renderNews();
-    })
+    }catch(e){
+      console.error(e);
+      status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
+    }
   };
 
   window.jcCreateAlbum=function(){
