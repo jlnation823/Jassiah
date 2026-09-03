@@ -9048,3 +9048,164 @@ body{padding-bottom:92px!important;color:#fff!important;}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 })();
 </script>
+
+
+<style id="streamasiah-border-picture-final-fix">
+/* FINAL BORDER PICTURE FIX: the uploaded artist-specific image sits INSIDE the hero,
+   remains visible through a LIGHT purple tint, and never covers the artist text/photo. */
+#artistHero{position:relative!important;overflow:hidden!important;isolation:isolate!important;}
+#artistHero .sa-artist-border-picture{
+  position:absolute!important;inset:0!important;z-index:0!important;
+  display:block!important;opacity:1!important;pointer-events:none!important;
+  background-repeat:no-repeat!important;background-color:transparent!important;
+  filter:saturate(.96) brightness(.92)!important;
+}
+#artistHero .sa-artist-border-shade{
+  position:absolute!important;inset:0!important;z-index:1!important;pointer-events:none!important;
+  background:
+    linear-gradient(90deg,rgba(90,0,130,.10),rgba(155,0,230,.07),rgba(70,0,100,.10)),
+    linear-gradient(180deg,rgba(145,0,220,.07),rgba(0,0,0,.18))!important;
+  box-shadow:inset 0 0 0 1px rgba(190,80,255,.40),inset 0 0 42px rgba(150,0,220,.10)!important;
+}
+#artistHero .sa-artist-border-content{position:relative!important;z-index:3!important;}
+#saBorderPreview{
+  position:relative!important;overflow:hidden!important;min-height:260px!important;
+  border:1px solid rgba(190,80,255,.65)!important;
+  background:#09050d!important;border-radius:10px!important;
+}
+#saBorderPreview:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:rgba(150,0,220,.08);box-shadow:inset 0 0 0 1px rgba(200,100,255,.28),inset 0 0 35px rgba(150,0,220,.12);z-index:2;}
+</style>
+<script id="streamasiah-border-picture-final-fix-js">
+(function(){
+  'use strict';
+  const KEY='jassiahArtistBorderPictures';
+  const PROFILE_KEY='jassiahArtistProfiles';
+  const text=v=>String(v==null?'':v);
+  const same=(a,b)=>text(a).trim().toLowerCase()===text(b).trim().toLowerCase();
+  function read(k,fb){try{const v=JSON.parse(localStorage.getItem(k)||'');return v&&typeof v==='object'?v:fb}catch(e){return fb}}
+  function write(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){console.error('STREAMASIAH border storage error',e);return false}}
+  function allProfiles(){
+    const p=read(PROFILE_KEY,{});
+    try{if(typeof artistProfiles!=='undefined'&&artistProfiles&&typeof artistProfiles==='object')Object.assign(p,artistProfiles)}catch(e){}
+    return p;
+  }
+  function findKey(obj,name){const n=text(name).trim();return Object.keys(obj).find(k=>same(k,n))||n}
+  function get(name){
+    const store=read(KEY,{}), k=findKey(store,name), v=store[k]||{};
+    const p=allProfiles(), pk=findKey(p,name), prof=p[pk]||{};
+    return {
+      image:v.image||v.heroImage||prof.heroImage||prof.hero_image||'',
+      x:Number.isFinite(Number(v.x))?Number(v.x):(Number.isFinite(Number(prof.heroX))?Number(prof.heroX):50),
+      y:Number.isFinite(Number(v.y))?Number(v.y):(Number.isFinite(Number(prof.heroY))?Number(prof.heroY):50),
+      zoom:Number.isFinite(Number(v.zoom))?Number(v.zoom):(Number.isFinite(Number(prof.heroZoom))?Number(prof.heroZoom):100)
+    };
+  }
+  window.saGetBorderConfig=get;
+
+  function name(){return text(document.getElementById('jcBorderArtist')?.value).trim()}
+  function status(t){const e=document.getElementById('saBorderStatus');if(e)e.textContent=t||''}
+
+  window.saLoadBorderEditor=function(){
+    const n=name(), c=n?get(n):{image:'',x:50,y:50,zoom:100};
+    const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');
+    if(x)x.value=c.x;if(y)y.value=c.y;if(z)z.value=c.zoom;
+    window.saBorderDraftImage='';
+    window.saUpdateBorderPreview();
+    status(n?(c.image?'Saved border picture loaded. You can move, zoom, and save it.':'No border picture saved for this artist yet.'):'');
+  };
+
+  window.saPreviewBorderImage=function(ev){
+    const file=ev&&ev.target&&ev.target.files&&ev.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+      const img=new Image();
+      img.onload=function(){
+        const maxW=1400,maxH=1000,scale=Math.min(1,maxW/img.width,maxH/img.height);
+        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
+        const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
+        window.saBorderDraftImage=c.toDataURL('image/jpeg',.86);
+        window.saUpdateBorderPreview();
+        status('New border picture loaded into the preview.');
+      };
+      img.onerror=function(){status('That picture could not be loaded. Choose another image.');};
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.saUpdateBorderPreview=function(){
+    const box=document.getElementById('saBorderPreview');if(!box)return;
+    const n=name(),c=n?get(n):{image:'',x:50,y:50,zoom:100};
+    const image=window.saBorderDraftImage||c.image||'';
+    const x=Number(document.getElementById('saBorderX')?.value||c.x||50);
+    const y=Number(document.getElementById('saBorderY')?.value||c.y||50);
+    const z=Number(document.getElementById('saBorderZoom')?.value||c.zoom||100);
+    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue'),zv=document.getElementById('saBorderZoomValue');
+    if(xv)xv.textContent=x+'%';if(yv)yv.textContent=y+'%';if(zv)zv.textContent='Zoom '+z+'%';
+    box.style.backgroundImage=image?'url("'+image.replace(/"/g,'\\"')+'")':'none';
+    box.style.backgroundPosition=x+'% '+y+'%';
+    box.style.backgroundSize=z+'% auto';
+    box.style.backgroundRepeat='no-repeat';
+    box.style.backgroundColor=image?'#09050d':'#09050d';
+    box.innerHTML=image?'':'Select an artist and upload a picture to preview it here.';
+  };
+
+  window.saSaveBorderPicture=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return;}
+    const n=name();if(!n){status('Choose an artist first.');return;}
+    const old=get(n),image=window.saBorderDraftImage||old.image;
+    if(!image){status('Choose a picture first.');return;}
+    const x=Number(document.getElementById('saBorderX')?.value||old.x||50);
+    const y=Number(document.getElementById('saBorderY')?.value||old.y||50);
+    const zoom=Number(document.getElementById('saBorderZoom')?.value||old.zoom||100);
+    const store=read(KEY,{}),k=findKey(store,n);
+    store[k]={image,x,y,zoom};
+    if(!write(KEY,store)){status('Could not save the border picture in this browser.');return;}
+    const p=allProfiles(),pk=findKey(p,n);p[pk]=p[pk]||{};
+    p[pk].heroImage=image;p[pk].heroX=x;p[pk].heroY=y;p[pk].heroZoom=zoom;
+    write(PROFILE_KEY,p);
+    try{if(typeof artistProfiles!=='undefined')artistProfiles=p}catch(e){}
+    window.saBorderDraftImage='';
+    status('Artist border picture saved for '+pk+'.');
+    applyToHero(n);
+    window.saLoadBorderEditor();
+  };
+
+  window.saRemoveBorderPicture=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return;}
+    const n=name();if(!n){status('Choose an artist first.');return;}
+    const store=read(KEY,{}),k=findKey(store,n);delete store[k];write(KEY,store);
+    const p=allProfiles(),pk=findKey(p,n);
+    if(p[pk]){delete p[pk].heroImage;delete p[pk].heroX;delete p[pk].heroY;delete p[pk].heroZoom;write(PROFILE_KEY,p);try{if(typeof artistProfiles!=='undefined')artistProfiles=p}catch(e){}}
+    window.saBorderDraftImage='';status('Border picture removed for '+pk+'.');applyToHero(n);window.saLoadBorderEditor();
+  };
+
+  function applyToHero(n){
+    const hero=document.getElementById('artistHero');if(!hero)return;
+    const c=get(n||window.currentArtistName||'');
+    let pic=hero.querySelector('.sa-artist-border-picture');
+    if(!pic){pic=document.createElement('div');pic.className='sa-artist-border-picture';pic.setAttribute('aria-hidden','true');hero.insertBefore(pic,hero.firstChild);}
+    let shade=hero.querySelector('.sa-artist-border-shade');
+    if(!shade){shade=document.createElement('div');shade.className='sa-artist-border-shade';shade.setAttribute('aria-hidden','true');hero.insertBefore(shade,pic.nextSibling)}
+    pic.style.backgroundImage=c.image?'url("'+c.image.replace(/"/g,'\\"')+'")':'none';
+    pic.style.backgroundPosition=(c.x||50)+'% '+(c.y||50)+'%';
+    pic.style.backgroundSize=(c.zoom||100)+'% auto';
+    pic.style.backgroundRepeat='no-repeat';
+    pic.style.zIndex='0';pic.style.opacity='1';
+    shade.style.zIndex='1';
+    const content=hero.querySelector('.sa-artist-border-content');if(content)content.style.zIndex='3';
+  }
+  window.saApplyBorderToHero=applyToHero;
+
+  function refresh(){
+    try{
+      const n=window.currentArtistName||document.querySelector('#artistHero .sa-artist-border-content img')?.alt||'';
+      if(n)applyToHero(n);
+    }catch(e){}
+  }
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh,100);setTimeout(refresh,700);setTimeout(refresh,1600);});
+  setInterval(refresh,1800);
+})();
+</script>
+
