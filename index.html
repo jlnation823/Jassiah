@@ -1476,6 +1476,60 @@ body{padding-bottom:92px!important}
 }
 </style>
 
+<style id="streamasiah-artist-list-authoritative-final-fix">
+/* AUTHORITATIVE ARTIST PAGE FIX — the previous nested flex scroller was being constrained by later slide/inner rules. */
+.jc-slide:has(#jcArtistPage){
+  height:100%!important;
+  min-height:100%!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  box-sizing:border-box!important;
+  padding-bottom:115px!important;
+}
+.jc-slide:has(#jcArtistPage)>.jc-inner{
+  width:100%!important;
+  max-width:none!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+#jcArtistPage{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+.jc-artist-detail-shell{
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  display:block!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+.jc-artist-detail-head,
+.jc-artist-detail-label{
+  display:block!important;
+  flex:none!important;
+}
+.jc-artist-detail-list{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+  padding:0 0 40px 0!important;
+  margin:0!important;
+}
+.jc-artist-detail-list .jc-table{
+  width:100%!important;
+  margin:0 0 24px!important;
+}
+</style>
 </head>
 
 <body>
