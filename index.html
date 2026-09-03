@@ -5465,38 +5465,59 @@ initializeAuth();
 
   window.jcCreateArtist=async function(){
     if(!currentUser){alert("Please log in first.");return}
-    const name=document.getElementById("jcArtistName").value.trim(),file=document.getElementById("jcArtistImage").files[0],status=document.getElementById("jcArtistStatus");
-    if(!name||!file){status.textContent="Enter artist name and choose a picture.";return}
-    status.textContent="Saving artist profile...";
+    const nameInput=document.getElementById("jcArtistName");
+    const imageInput=document.getElementById("jcArtistImage");
+    const status=document.getElementById("jcArtistStatus");
+    const name=nameInput?.value.trim()||"";
+    const file=imageInput?.files?.[0]||null;
+    if(!name||!file){if(status)status.textContent="Enter artist name and choose a picture.";return}
+    if(status)status.textContent="Saving artist profile...";
+    let uploadedPath="";
     try{
-      const existing=Object.keys(profiles()).find(k=>k.toLowerCase()===name.toLowerCase());
-      if(existing){status.textContent="That artist profile already exists.";return}
+      // Supabase is the source of truth. Do not let stale localStorage data
+      // prevent creation of an artist that is not actually in the database.
+      const existing=await client.from("artist_profiles")
+        .select("id,name")
+        .ilike("name",name)
+        .limit(1);
+      if(existing.error)throw existing.error;
+      if(Array.isArray(existing.data)&&existing.data.length){
+        if(status)status.textContent="That artist profile already exists.";
+        return;
+      }
 
       const safeFile=cleanName(file.name||"artist-image");
-      const path="artists/"+Date.now()+"_"+safeFile;
-      const upload=await client.storage.from("artist-images").upload(path,file,{upsert:false,contentType:file.type||"image/jpeg"});
+      uploadedPath="artists/"+Date.now()+"_"+safeFile;
+      const upload=await client.storage.from("artist-images").upload(
+        uploadedPath,file,{upsert:false,contentType:file.type||"image/jpeg"}
+      );
       if(upload.error)throw upload.error;
-      const imageUrl=client.storage.from("artist-images").getPublicUrl(path).data.publicUrl;
+      const imageUrl=client.storage.from("artist-images").getPublicUrl(uploadedPath).data.publicUrl;
 
-      const row=await client.from("artist_profiles").upsert({
+      const row=await client.from("artist_profiles").insert({
         name:name,
         image_url:imageUrl,
         created_at:new Date().toISOString()
-      },{onConflict:"name"}).select().single();
+      }).select("id,name,image_url,created_at").single();
       if(row.error)throw row.error;
 
+      // Keep the existing local profile settings (hero/border/etc.) while
+      // replacing only the profile picture with the database URL.
       const p=profiles();
-      p[name]={...(p[name]||{}),image:imageUrl,created_at:row.data?.created_at||new Date().toISOString()};
-      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
+      const oldKey=Object.keys(p).find(k=>k.toLowerCase()===name.toLowerCase());
+      const key=oldKey||name;
+      p[key]={...(p[key]||{}),image:row.data?.image_url||imageUrl,created_at:row.data?.created_at||new Date().toISOString()};
       artistProfiles=p;
+      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
 
-      status.textContent="Artist profile created successfully.";
-      document.getElementById("jcArtistName").value="";
-      document.getElementById("jcArtistImage").value="";
+      if(status)status.textContent="Artist profile created successfully.";
+      if(nameInput)nameInput.value="";
+      if(imageInput)imageInput.value="";
       jcPrepareAdmin();renderHome();renderArtists();renderNews();
     }catch(e){
-      console.error(e);
-      status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
+      console.error("Artist profile save failed:",e);
+      if(uploadedPath){try{await client.storage.from("artist-images").remove([uploadedPath])}catch(_){} }
+      if(status)status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
     }
   };
 
