@@ -287,14 +287,14 @@ audio{width:100%;height:40px}
   #seek{display:none}
 }
 
-/* GOLD PLAYER THEME */
+/* PURPLE PLAYER THEME */
 .player{
   border-top-color:#a83cff !important;
 }
 .player-buttons button{
   color:#c56cff !important;
   border-color:#8b2ad9 !important;
-  box-shadow:0 0 8px rgba(214,168,60,.12);
+  box-shadow:0 0 8px rgba(197,108,255,.12);
 }
 .player-buttons button:hover{
   background:#24102f !important;
@@ -310,7 +310,7 @@ audio{width:100%;height:40px}
   background:linear-gradient(135deg,#d67aff,#7621b5) !important;
   color:#111 !important;
   border-color:#c15cff !important;
-  box-shadow:0 0 14px rgba(214,168,60,.25);
+  box-shadow:0 0 14px rgba(197,108,255,.25);
 }
 .player-volume svg{
   stroke:#b84cff !important;
@@ -440,7 +440,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 }
 .jc-actions button{
   position:relative;height:36px;border-radius:999px;padding:0 11px;
-  border:1px solid #5b4818;background:#191919;color:#c56cff;
+  border:1px solid #32164a;background:#191919;color:#c56cff;
   font-size:11px;font-weight:900;cursor:pointer;z-index:36;
 }
 .jc-bell{
@@ -462,7 +462,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   overflow-y:auto;padding:24px 28px 34px;
 }
 .jc-inner{max-width:1050px;margin:0 auto}
-.jc-kicker{color:#aa9156;font-size:10px;letter-spacing:3px;font-weight:900}
+.jc-kicker{color:#c56cff;font-size:10px;letter-spacing:3px;font-weight:900}
 .jc-brand{color:#c56cff;font:italic 44px Georgia,serif;margin-top:4px}
 .jc-muted{color:#999}
 .jc-section{font-size:23px;font-weight:900;margin:24px 0 14px}
@@ -504,7 +504,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;
 }
 .jc-like{
-  width:34px;height:34px;min-width:34px;border:1px solid #7d5e1c;border-radius:50%;
+  width:34px;height:34px;min-width:34px;border:1px solid #4f2470;border-radius:50%;
   background:#111;color:#c56cff;font-size:19px;font-weight:900;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
@@ -513,17 +513,17 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 
 .jc-detail{
   display:flex;align-items:center;gap:20px;padding:22px;
-  border:1px solid #544216;border-radius:12px;
+  border:1px solid #32164a;border-radius:12px;
   background:linear-gradient(135deg,#211b0c,#121212 65%);
 }
 .jc-detail img{
   width:165px;height:165px;border-radius:50%;object-fit:cover;background:#222;
-  border:3px solid #d3a63f;flex-shrink:0;
+  border:3px solid #c56cff;flex-shrink:0;
 }
 .jc-detail-name{color:#c56cff;font:italic 45px Georgia,serif}
 .jc-detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
 .jc-detail-actions button{
-  border:1px solid #6c5319;border-radius:999px;background:#111;color:#c56cff;
+  border:1px solid #4f2470;border-radius:999px;background:#111;color:#c56cff;
   padding:9px 14px;font-weight:800;cursor:pointer;
 }
 .jc-detail-actions .primary{background:#c56cff;color:#111;border:0}
@@ -547,7 +547,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 .jc-related-song{display:block;font-size:11px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .jc-related-credit{display:block;color:#999;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-.jc-admin-card{background:#151515;border:1px solid #3a321f;border-radius:12px;padding:16px;margin-bottom:14px}
+.jc-admin-card{background:#151515;border:1px solid #2b1838;border-radius:12px;padding:16px;margin-bottom:14px}
 .jc-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
 .jc-admin-card h3{margin:0 0 11px;color:#c56cff}
 .jc-admin-card input,.jc-admin-card select{
@@ -697,7 +697,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 }
 .jc-fan-page-icon{
   width:72px;height:72px;border-radius:9px;
-  background:#1a1a1a;border:1px solid #3a321f;
+  background:#1a1a1a;border:1px solid #2b1838;
   display:flex;align-items:center;justify-content:center;
   font-size:30px;color:#c56cff;
 }
@@ -742,7 +742,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
   height:34px!important;
   min-width:34px!important;
   border-radius:50%!important;
-  border:1px solid #7d5e1c!important;
+  border:1px solid #4f2470!important;
   background:#111!important;
   color:#c56cff!important;
   font-size:19px!important;
@@ -3828,7 +3828,7 @@ function renderCurrentArtistPage(){
         object-fit:cover;
         border-radius:50%;
         border:3px solid #a83cff;
-        box-shadow:0 0 25px rgba(214,168,60,.25);
+        box-shadow:0 0 25px rgba(197,108,255,.25);
         flex-shrink:0;
       "
     >
@@ -9115,117 +9115,573 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 <script id="streamasiah-final-data-render-fix-js">
 (function(){
 'use strict';
+
+/*
+  STREAMASIAH SHARED DATA LAYER
+  - Songs come from Supabase (existing loadSongs).
+  - Artist profiles come from public.artist_profiles.
+  - Albums, favorites, playlists and featured song are shared through
+    public.site_state instead of being permanently tied to one browser origin.
+  - Artist border pictures are stored in public.artist_borders.
+  - Existing local browser data is migrated once when an authenticated admin
+    opens the site, so the data is not thrown away.
+*/
+
 const text=v=>String(v==null?'':v);
-const readJSON=(key, fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'');return v&&typeof v==='object'?v:fallback}catch(e){return fallback}};
-const dataSongs=()=>{
-  /* Use the site's existing top-level `let songs=[]` array. */
-  try{if(typeof songs!=='undefined' && Array.isArray(songs))return songs}catch(e){}
-  try{if(typeof window.songs!=='undefined' && Array.isArray(window.songs))return window.songs}catch(e){}
-  return [];
+const esc=v=>{
+  try{if(typeof window.escapeHtml==='function')return window.escapeHtml(v)}catch(e){}
+  return text(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 };
-const profiles=()=>{
-  const p=readJSON('jassiahArtistProfiles',{});
-  try{if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.assign(p,window.artistProfiles)}catch(e){}
-  return p;
-};
-const albums=()=>{
-  const a=readJSON('jassiahAlbums',{});
-  try{if(window.albums&&typeof window.albums==='object')Object.assign(a,window.albums)}catch(e){}
-  return a;
-};
-const esc=v=>{try{if(typeof window.escapeHtml==='function')return window.escapeHtml(v)}catch(e){}return text(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
 const js=v=>text(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-const songId=s=>s&&s.id!=null?text(s.id):'';
-const findSong=ref=>{
- const list=dataSongs();
- if(ref&&typeof ref==='object'){
-   const rid=ref.id!=null?ref.id:(ref.song_id!=null?ref.song_id:ref.songId);
-   if(rid!=null){const exact=list.find(s=>text(s.id)===text(rid));if(exact)return exact}
-   const title=text(ref.title||ref.song_title).trim().toLowerCase();
-   const file=text(ref.file_path||ref.path||ref.file||ref.url).trim().toLowerCase();
-   return list.find(s=>
-     (title&&text(s.title).trim().toLowerCase()===title) ||
-     (file&&text(s.file_path||s.path||s.file||s.url).trim().toLowerCase()===file)
-   )||null;
- }
- const r=text(ref).trim();
- if(!r||r==='null'||r==='undefined'||r==='NaN')return null;
- return list.find(s=>text(s.id).trim()===r)||list.find(s=>String(s.id).trim()===r)||null;
-};
-const songCover=s=>{try{if(typeof window.coverUrl==='function')return window.coverUrl(s)||''}catch(e){}return text(s&& (s.cover_url||s.cover||s.image_url||''))};
-const profileKey=(name)=>{const target=text(name).trim().toLowerCase();return Object.keys(profiles()).find(k=>text(k).trim().toLowerCase()===target)||text(name).trim()};
-const artistImage=name=>{
- const p=profiles()[profileKey(name)]||{};
- const saved=p.image||p.image_url||p.heroImage||p.hero_image||'';
- if(saved)return saved;
- const n=text(name).trim().toLowerCase();
- const hit=dataSongs().find(s=>text(s.artist).trim().toLowerCase().startsWith(n));
- return hit?songCover(hit):'';
-};
-const artistNames=()=>{
- const m=new Map();
- Object.keys(profiles()).forEach(n=>{if(text(n).trim())m.set(text(n).trim().toLowerCase(),text(n).trim())});
- dataSongs().forEach(s=>{
-   const n=text(s.artist).trim().split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
-   if(n&&!m.has(n.toLowerCase()))m.set(n.toLowerCase(),n);
- });
- return [...m.values()].sort((a,b)=>a.localeCompare(b));
-};
-const albumNames=()=>Object.keys(albums()).filter(n=>text(n).trim());
-const albumSongs=a=>{
- const refs=Array.isArray(a?.songs)?a.songs:(Array.isArray(a?.song_ids)?a.song_ids:(Array.isArray(a?.songIds)?a.songIds:[]));
- return refs.map(findSong).filter(Boolean);
-};
+
+function dataSongs(){
+  try{if(typeof songs!=='undefined'&&Array.isArray(songs))return songs}catch(e){}
+  return [];
+}
+function localJSON(key,fallback){
+  try{
+    const v=JSON.parse(localStorage.getItem(key)||'');
+    return v&&typeof v==='object'?v:fallback;
+  }catch(e){return fallback}
+}
+function adminNow(){
+  try{return !!(typeof currentUser!=='undefined'&&currentUser)}catch(e){return false}
+}
+function songCover(s){
+  try{if(typeof window.coverUrl==='function')return window.coverUrl(s)||''}catch(e){}
+  return text(s&&(s.cover_url||s.cover||s.image_url||''));
+}
+function findSong(ref){
+  const list=dataSongs();
+  const rid=ref&&typeof ref==='object'
+    ?(ref.id!=null?ref.id:(ref.song_id!=null?ref.song_id:ref.songId))
+    :ref;
+  if(rid!=null&&text(rid).trim()){
+    const hit=list.find(s=>text(s.id)===text(rid));
+    if(hit)return hit;
+  }
+  if(ref&&typeof ref==='object'){
+    const title=text(ref.title||ref.song_title).trim().toLowerCase();
+    const file=text(ref.file_path||ref.path||ref.file||ref.url).trim().toLowerCase();
+    return list.find(s=>
+      (title&&text(s.title).trim().toLowerCase()===title) ||
+      (file&&text(s.file_path||s.path||s.file||s.url).trim().toLowerCase()===file)
+    )||null;
+  }
+  return null;
+}
+
+let sharedReady=false;
+let sharedState={};
+let remoteProfiles={};
+let remoteBorders={};
+
+async function loadRemoteState(){
+  try{
+    const [profileResult,stateResult,borderResult]=await Promise.all([
+      client.from('artist_profiles').select('name,image_url'),
+      client.from('site_state').select('key,value'),
+      client.from('artist_borders').select('artist_name,image_url,x,y,zoom')
+    ]);
+
+    if(profileResult.error)console.warn('Artist profiles:',profileResult.error.message);
+    if(stateResult.error)console.warn('Shared site state:',stateResult.error.message);
+    if(borderResult.error)console.warn('Artist borders:',borderResult.error.message);
+
+    remoteProfiles={};
+    (profileResult.data||[]).forEach(row=>{
+      const name=text(row.name).trim();
+      if(name)remoteProfiles[name]={image:text(row.image_url||'')};
+    });
+
+    sharedState={};
+    (stateResult.data||[]).forEach(row=>{
+      sharedState[row.key]=row.value;
+    });
+
+    remoteBorders={};
+    (borderResult.data||[]).forEach(row=>{
+      const name=text(row.artist_name).trim();
+      if(name){
+        remoteBorders[name]={
+          image:text(row.image_url||''),
+          x:Number(row.x??50),
+          y:Number(row.y??50),
+          zoom:Number(row.zoom??100)
+        };
+      }
+    });
+
+    sharedReady=true;
+    applyRemoteState();
+    return true;
+  }catch(error){
+    console.warn('Shared data load:',error);
+    return false;
+  }
+}
+
+function applyRemoteState(){
+  /*
+    Artist profiles in Supabase are authoritative. This is the part that
+    fixes artist pictures being different between GitHub Pages and .com.
+  */
+  if(Object.keys(remoteProfiles).length){
+    try{
+      artistProfiles=remoteProfiles;
+      localStorage.setItem('jassiahArtistProfiles',JSON.stringify(remoteProfiles));
+    }catch(e){}
+  }
+
+  /*
+    A missing shared key means there has not been a migration yet. Keep the
+    browser's existing values temporarily so the authenticated migration below
+    can publish them instead of deleting them.
+  */
+  if(Object.prototype.hasOwnProperty.call(sharedState,'albums')){
+    const value=sharedState.albums&&typeof sharedState.albums==='object'?sharedState.albums:{};
+    try{albums=value;localStorage.setItem('jassiahAlbums',JSON.stringify(value))}catch(e){}
+  }
+  if(Object.prototype.hasOwnProperty.call(sharedState,'favorites')){
+    const value=Array.isArray(sharedState.favorites)?sharedState.favorites.map(Number):[];
+    try{favorites=value;localStorage.setItem('jassiahFavorites',JSON.stringify(value))}catch(e){}
+  }
+  if(Object.prototype.hasOwnProperty.call(sharedState,'playlists')){
+    const value=sharedState.playlists&&typeof sharedState.playlists==='object'?sharedState.playlists:{};
+    try{playlists=value;localStorage.setItem('jassiahPlaylists',JSON.stringify(value))}catch(e){}
+  }
+  if(Object.prototype.hasOwnProperty.call(sharedState,'featuredSong')){
+    const value=Number(sharedState.featuredSong||0);
+    try{featuredSongId=value;localStorage.setItem('jassiahFeaturedSong',String(value))}catch(e){}
+  }
+
+  refreshAll();
+}
+
+/* Publish one shared value. Only authenticated users can write by policy. */
+async function saveShared(key,value){
+  if(!adminNow())return false;
+  try{
+    const {error}=await client.from('site_state').upsert({
+      key,
+      value,
+      updated_at:new Date().toISOString()
+    },{onConflict:'key'});
+    if(error)throw error;
+    sharedState[key]=value;
+    return true;
+  }catch(error){
+    console.warn('Could not save shared '+key+':',error);
+    return false;
+  }
+}
+
+async function migrateLocalState(){
+  if(!adminNow())return;
+
+  try{
+    /*
+      If a shared key does not exist yet, publish the current browser copy.
+      This makes the first authenticated browser the migration source.
+    */
+    const localAlbums=localJSON('jassiahAlbums',{});
+    const localFavorites=localJSON('jassiahFavorites',[]);
+    const localPlaylists=localJSON('jassiahPlaylists',{});
+    const localFeatured=Number(localStorage.getItem('jassiahFeaturedSong')||0);
+
+    if(!Object.prototype.hasOwnProperty.call(sharedState,'albums') &&
+       Object.keys(localAlbums).length){
+      await saveShared('albums',localAlbums);
+      sharedState.albums=localAlbums;
+    }
+    if(!Object.prototype.hasOwnProperty.call(sharedState,'favorites') &&
+       Array.isArray(localFavorites)&&localFavorites.length){
+      await saveShared('favorites',localFavorites.map(Number));
+      sharedState.favorites=localFavorites.map(Number);
+    }
+    if(!Object.prototype.hasOwnProperty.call(sharedState,'playlists') &&
+       Object.keys(localPlaylists).length){
+      await saveShared('playlists',localPlaylists);
+      sharedState.playlists=localPlaylists;
+    }
+    if(!Object.prototype.hasOwnProperty.call(sharedState,'featuredSong') && localFeatured){
+      await saveShared('featuredSong',localFeatured);
+      sharedState.featuredSong=localFeatured;
+    }
+
+    /*
+      Migrate artist profiles that exist only in this browser. Existing
+      Supabase profiles are never overwritten automatically.
+    */
+    const localProfiles=localJSON('jassiahArtistProfiles',{});
+    for(const name of Object.keys(localProfiles)){
+      if(!name.trim()||remoteProfiles[name])continue;
+      const profile=localProfiles[name]||{};
+      if(profile.image||profile.image_url){
+        const {error}=await client.from('artist_profiles').upsert({
+          name,
+          image_url:profile.image||profile.image_url||null
+        },{onConflict:'name'});
+        if(!error){
+          remoteProfiles[name]={image:profile.image||profile.image_url||''};
+        }
+      }
+    }
+
+    await migrateLocalBorders();
+    applyRemoteState();
+  }catch(error){
+    console.warn('Local data migration:',error);
+  }
+}
+
+async function migrateLocalBorders(){
+  const local=localJSON('jassiahArtistBorderPictures',{});
+  if(!adminNow()||!Object.keys(local).length)return;
+
+  for(const name of Object.keys(local)){
+    if(remoteBorders[name])continue;
+    const b=local[name]||{};
+    let image=text(b.image||b.heroImage||'');
+    if(!image)continue;
+
+    /*
+      Data URLs are uploaded to the existing public artist-images bucket.
+      Normal URLs are stored as-is.
+    */
+    if(/^data:image\//i.test(image)){
+      try{
+        const match=image.match(/^data:(image\/[^;]+);base64,(.+)$/i);
+        if(match){
+          const mime=match[1],base64=match[2];
+          const bytes=Uint8Array.from(atob(base64),c=>c.charCodeAt(0));
+          const ext=(mime.split('/')[1]||'jpeg').replace('jpeg','jpg');
+          const path='borders/'+Date.now()+'_'+text(name).replace(/[^a-z0-9_-]/gi,'_')+'.'+ext;
+          const result=await client.storage.from('artist-images').upload(path,bytes,{
+            upsert:false,contentType:mime
+          });
+          if(!result.error){
+            image=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl;
+          }
+        }
+      }catch(error){
+        console.warn('Border image migration:',name,error);
+      }
+    }
+
+    const row={
+      artist_name:name,
+      image_url:image,
+      x:Number(b.x??50),
+      y:Number(b.y??50),
+      zoom:Number(b.zoom??100),
+      updated_at:new Date().toISOString()
+    };
+    const {error}=await client.from('artist_borders').upsert(row,{onConflict:'artist_name'});
+    if(!error)remoteBorders[name]={
+      image:row.image_url,x:row.x,y:row.y,zoom:row.zoom
+    };
+  }
+}
+
+function profileKey(name){
+  const target=text(name).trim().toLowerCase();
+  return Object.keys(remoteProfiles).find(k=>k.toLowerCase()===target) ||
+         Object.keys((typeof artistProfiles!=='undefined'?artistProfiles:{})).find(k=>k.toLowerCase()===target) ||
+         text(name).trim();
+}
+function artistImage(name){
+  const key=profileKey(name);
+  const p=remoteProfiles[key]||((typeof artistProfiles!=='undefined'&&artistProfiles[key])||{});
+  const saved=p.image||p.image_url||'';
+  if(saved)return saved;
+
+  const n=text(name).trim().toLowerCase();
+  const hit=dataSongs().find(s=>text(s.artist).trim().toLowerCase().startsWith(n));
+  return hit?songCover(hit):'';
+}
+function artistNames(){
+  const m=new Map();
+  Object.keys(remoteProfiles).forEach(n=>{if(n.trim())m.set(n.toLowerCase(),n)});
+  Object.keys((typeof artistProfiles!=='undefined'?artistProfiles:{})).forEach(n=>{
+    if(n.trim()&&!m.has(n.toLowerCase()))m.set(n.toLowerCase(),n);
+  });
+  dataSongs().forEach(s=>{
+    const n=text(s.artist).trim().split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
+    if(n&&!m.has(n.toLowerCase()))m.set(n.toLowerCase(),n);
+  });
+  return [...m.values()].sort((a,b)=>a.localeCompare(b));
+}
+function albumData(){
+  try{if(typeof albums!=='undefined'&&albums&&typeof albums==='object')return albums}catch(e){}
+  return localJSON('jassiahAlbums',{});
+}
+function albumNames(){
+  return Object.keys(albumData()).filter(n=>text(n).trim());
+}
+function albumSongs(a){
+  const refs=Array.isArray(a?.songs)?a.songs:
+    (Array.isArray(a?.song_ids)?a.song_ids:
+    (Array.isArray(a?.songIds)?a.songIds:[]));
+  return refs.map(findSong).filter(Boolean);
+}
 
 function renderArtists(id){
- const box=document.getElementById(id);if(!box)return;
- const names=artistNames(), per=4;
- const pageKey=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';
- let page=Math.max(0,Number(window[pageKey]||0));
- const pages=Math.max(1,Math.ceil(names.length/per)); page=Math.min(page,pages-1);window[pageKey]=page;
- const slice=names.slice(page*per,page*per+per);
- box.innerHTML=(slice.length?slice.map(n=>`<div class="jc-artist-card" data-final-artist="${esc(n)}"><img src="${esc(artistImage(n))}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div></div>`).join(''):'<div class="jc-muted">No artists yet.</div>')+
- (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-artist-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-artist-page="1">›</button></div>`:'');
+  const box=document.getElementById(id);if(!box)return;
+  const names=artistNames(),per=4;
+  const pageKey=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';
+  let page=Math.max(0,Number(window[pageKey]||0));
+  const pages=Math.max(1,Math.ceil(names.length/per));
+  page=Math.min(page,pages-1);window[pageKey]=page;
+  const slice=names.slice(page*per,page*per+per);
+  box.innerHTML=(slice.length
+    ?slice.map(n=>`<div class="jc-artist-card" data-final-artist="${esc(n)}"><img src="${esc(artistImage(n))}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div></div>`).join('')
+    :'<div class="jc-muted">No artists yet.</div>')+
+    (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-artist-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-artist-page="1">›</button></div>`:'');
 }
+
 function renderAlbums(){
- const box=document.getElementById('jcAlbums');if(!box)return;
- const names=albumNames(), per=5;
- let page=Math.max(0,Number(window.saAlbumPageFinal||0));const pages=Math.max(1,Math.ceil(names.length/per));page=Math.min(page,pages-1);window.saAlbumPageFinal=page;
- const slice=names.slice(page*per,page*per+per);
- box.innerHTML=(slice.length?slice.map(n=>{const a=albums()[n]||{},list=albumSongs(a),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');return `<div class="jc-artist-card jc-album-card" data-final-album="${esc(n)}" role="button" tabindex="0"><img src="${esc(img)}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div><div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?'':'s'}</div></div>`}).join(''):'<div class="jc-muted">No albums yet.</div>')+
- (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-album-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-album-page="1">›</button></div>`:'');
+  const box=document.getElementById('jcAlbums');if(!box)return;
+  const as=albumData(),names=albumNames(),per=5;
+  let page=Math.max(0,Number(window.saAlbumPageFinal||0));
+  const pages=Math.max(1,Math.ceil(names.length/per));
+  page=Math.min(page,pages-1);window.saAlbumPageFinal=page;
+  const slice=names.slice(page*per,page*per+per);
+  box.innerHTML=(slice.length
+    ?slice.map(n=>{
+      const a=as[n]||{},list=albumSongs(a);
+      const img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');
+      return `<div class="jc-artist-card jc-album-card" data-final-album="${esc(n)}" role="button" tabindex="0"><img src="${esc(img)}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div><div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?'':'s'}</div></div>`;
+    }).join('')
+    :'<div class="jc-muted">No albums yet.</div>')+
+    (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-album-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-album-page="1">›</button></div>`:'');
 }
+
 function openAlbum(name){
- const key=albumNames().find(n=>n===name)||albumNames().find(n=>n.toLowerCase()===text(name).toLowerCase());if(!key)return;
- const a=albums()[key]||{},list=albumSongs(a),modal=document.getElementById('jcAlbumViewer');
- if(!modal){alert('Album viewer is missing from this page.');return}
- const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle'),count=document.getElementById('jcAlbumViewerCount'),box=document.getElementById('jcAlbumViewerSongs');
- const img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');if(c)c.src=img;if(t)t.textContent=key;if(count)count.textContent=list.length+' song'+(list.length===1?'':'s');
- if(box)box.innerHTML=list.length?list.map(s=>{const idx=dataSongs().findIndex(x=>text(x.id)===text(s.id));return `<button type="button" class="jc-album-song" data-song-index="${idx}"><img src="${esc(songCover(s))}" alt=""><span><strong>${esc(s.title||'Untitled')}</strong><small>${esc(s.artist||'Unknown Artist')}</small></span><b>▶</b></button>`}).join(''):'<div class="jc-muted" style="padding:16px">No songs have been added to this album yet.</div>';
- const play=document.getElementById('jcAlbumViewerPlay');if(play)play.onclick=function(){if(list[0]){const i=dataSongs().findIndex(x=>text(x.id)===text(list[0].id));if(i>=0&&typeof window.playSong==='function')window.playSong(i)}if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer()};
- modal.classList.add('open');
+  const key=albumNames().find(n=>n.toLowerCase()===text(name).toLowerCase());
+  if(!key)return;
+  const a=albumData()[key]||{},list=albumSongs(a),modal=document.getElementById('jcAlbumViewer');
+  if(!modal){alert('Album viewer is missing from this page.');return}
+  const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle');
+  const count=document.getElementById('jcAlbumViewerCount'),box=document.getElementById('jcAlbumViewerSongs');
+  const img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');
+  if(c)c.src=img;if(t)t.textContent=key;
+  if(count)count.textContent=list.length+' song'+(list.length===1?'':'s');
+  if(box)box.innerHTML=list.length?list.map(s=>{
+    const idx=dataSongs().findIndex(x=>text(x.id)===text(s.id));
+    return `<button type="button" class="jc-album-song" data-song-index="${idx}"><img src="${esc(songCover(s))}" alt=""><span><strong>${esc(s.title||'Untitled')}</strong><small>${esc(s.artist||'Unknown Artist')}</small></span><b>▶</b></button>`;
+  }).join(''):'<div class="jc-muted" style="padding:16px">No songs have been added to this album yet.</div>';
+  const play=document.getElementById('jcAlbumViewerPlay');
+  if(play)play.onclick=function(){
+    if(list[0]){
+      const i=dataSongs().findIndex(x=>text(x.id)===text(list[0].id));
+      if(i>=0&&typeof window.playSong==='function')window.playSong(i);
+    }
+    if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();
+  };
+  modal.classList.add('open');
 }
+
 window.jcOpenAlbum=openAlbum;
 window.saOpenAlbumReal=openAlbum;
 window.renderAlbums=renderAlbums;
 window.jcRenderAlbumsFixed=renderAlbums;
 window.jcRenderArtistCards=function(){renderArtists('jcHomeArtists');renderArtists('jcArtists')};
-window.saAlbumPageFinalMove=function(d){window.saAlbumPageFinal=Math.max(0,Number(window.saAlbumPageFinal||0)+(Number(d)||0));renderAlbums()};
-window.saArtistPageFinalMove=function(id,d){const k=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';window[k]=Math.max(0,Number(window[k]||0)+(Number(d)||0));renderArtists(id)};
+window.saAlbumPageFinalMove=function(d){
+  window.saAlbumPageFinal=Math.max(0,Number(window.saAlbumPageFinal||0)+(Number(d)||0));
+  renderAlbums();
+};
+window.saArtistPageFinalMove=function(id,d){
+  const k=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage';
+  window[k]=Math.max(0,Number(window[k]||0)+(Number(d)||0));
+  renderArtists(id);
+};
 
 document.addEventListener('click',function(e){
- const album=e.target.closest('[data-final-album]');
- if(album){e.preventDefault();e.stopImmediatePropagation();openAlbum(album.getAttribute('data-final-album'));return}
- const ap=e.target.closest('[data-album-page]');if(ap){e.preventDefault();e.stopImmediatePropagation();window.saAlbumPageFinalMove(ap.getAttribute('data-album-page'));return}
- const artist=e.target.closest('[data-final-artist]');if(artist){e.preventDefault();e.stopImmediatePropagation();const n=artist.getAttribute('data-final-artist');if(typeof window.jcOpenArtist==='function')window.jcOpenArtist(n);return}
- const pp=e.target.closest('[data-artist-page]');if(pp){e.preventDefault();e.stopImmediatePropagation();const id=pp.closest('#jcHomeArtists,#jcArtists')?.id;window.saArtistPageFinalMove(id,pp.getAttribute('data-artist-page'));return}
- const row=e.target.closest('#jcAlbumViewerSongs [data-song-index]');if(row){e.preventDefault();e.stopImmediatePropagation();const i=Number(row.getAttribute('data-song-index'));if(Number.isInteger(i)&&typeof window.playSong==='function')window.playSong(i);if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer()}
+  const album=e.target.closest('[data-final-album]');
+  if(album){e.preventDefault();e.stopImmediatePropagation();openAlbum(album.getAttribute('data-final-album'));return}
+  const ap=e.target.closest('[data-album-page]');
+  if(ap){e.preventDefault();e.stopImmediatePropagation();window.saAlbumPageFinalMove(ap.getAttribute('data-album-page'));return}
+  const artist=e.target.closest('[data-final-artist]');
+  if(artist){
+    e.preventDefault();e.stopImmediatePropagation();
+    const n=artist.getAttribute('data-final-artist');
+    if(typeof window.jcOpenArtist==='function')window.jcOpenArtist(n);
+    return;
+  }
+  const pp=e.target.closest('[data-artist-page]');
+  if(pp){
+    e.preventDefault();e.stopImmediatePropagation();
+    const id=pp.closest('#jcHomeArtists,#jcArtists')?.id;
+    window.saArtistPageFinalMove(id,pp.getAttribute('data-artist-page'));
+    return;
+  }
+  const row=e.target.closest('#jcAlbumViewerSongs [data-song-index]');
+  if(row){
+    e.preventDefault();e.stopImmediatePropagation();
+    const i=Number(row.getAttribute('data-song-index'));
+    if(Number.isInteger(i)&&typeof window.playSong==='function')window.playSong(i);
+    if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();
+  }
 },true);
 
-function refresh(){renderAlbums();renderArtists('jcHomeArtists');renderArtists('jcArtists');
- const sel=document.getElementById('jcEditAlbumName');if(sel){const old=sel.value;const as=albums();sel.innerHTML='<option value="">Select an album...</option>'+Object.keys(as).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');if(old&&as[old])sel.value=old}
+/* ===== Shared artist border read/write ===== */
+window.saGetBorderConfig=function(name){
+  const key=Object.keys(remoteBorders).find(k=>k.toLowerCase()===text(name).trim().toLowerCase());
+  const b=key?remoteBorders[key]:null;
+  if(b)return b;
+  try{
+    const local=localJSON('jassiahArtistBorderPictures',{});
+    const lk=Object.keys(local).find(k=>k.toLowerCase()===text(name).trim().toLowerCase());
+    const v=lk?local[lk]:{};
+    return {
+      image:v.image||v.heroImage||'',
+      x:Number(v.x??50),y:Number(v.y??50),zoom:Number(v.zoom??100)
+    };
+  }catch(e){return {image:'',x:50,y:50,zoom:100}}
+};
+
+window.saSaveBorderPicture=async function(){
+  if(!adminNow()){alert('Please log in first.');return}
+  const name=text(document.getElementById('jcBorderArtist')?.value).trim();
+  if(!name)return;
+  const old=window.saGetBorderConfig(name);
+  const image=window.saBorderDraftImage||old.image;
+  if(!image)return;
+
+  let finalImage=image;
+  try{
+    if(/^data:image\//i.test(finalImage)){
+      const match=finalImage.match(/^data:(image\/[^;]+);base64,(.+)$/i);
+      if(match){
+        const mime=match[1],bytes=Uint8Array.from(atob(match[2]),c=>c.charCodeAt(0));
+        const ext=(mime.split('/')[1]||'jpeg').replace('jpeg','jpg');
+        const path='borders/'+Date.now()+'_'+name.replace(/[^a-z0-9_-]/gi,'_')+'.'+ext;
+        const up=await client.storage.from('artist-images').upload(path,bytes,{upsert:false,contentType:mime});
+        if(up.error)throw up.error;
+        finalImage=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl;
+      }
+    }
+    const row={
+      artist_name:name,image_url:finalImage,
+      x:Number(document.getElementById('saBorderX')?.value??old.x??50),
+      y:Number(document.getElementById('saBorderY')?.value??old.y??50),
+      zoom:Number(document.getElementById('saBorderZoom')?.value??old.zoom??100),
+      updated_at:new Date().toISOString()
+    };
+    const {error}=await client.from('artist_borders').upsert(row,{onConflict:'artist_name'});
+    if(error)throw error;
+    remoteBorders[name]={image:finalImage,x:row.x,y:row.y,zoom:row.zoom};
+    const local=localJSON('jassiahArtistBorderPictures',{});
+    local[name]={image:finalImage,x:row.x,y:row.y,zoom:row.zoom};
+    localStorage.setItem('jassiahArtistBorderPictures',JSON.stringify(local));
+    window.saBorderDraftImage='';
+    if(typeof window.saLoadBorderEditor==='function')window.saLoadBorderEditor();
+    if(typeof window.renderCurrentArtistPage==='function')window.renderCurrentArtistPage();
+  }catch(error){
+    console.error(error);
+    const st=document.getElementById('saBorderStatus');
+    if(st)st.textContent='Border picture save failed: '+(error?.message||'Unknown error');
+  }
+};
+
+window.saRemoveBorderPicture=async function(){
+  if(!adminNow()){alert('Please log in first.');return}
+  const name=text(document.getElementById('jcBorderArtist')?.value).trim();
+  if(!name)return;
+  try{
+    const {error}=await client.from('artist_borders').delete().eq('artist_name',name);
+    if(error)throw error;
+    delete remoteBorders[name];
+    const local=localJSON('jassiahArtistBorderPictures',{});
+    delete local[name];
+    localStorage.setItem('jassiahArtistBorderPictures',JSON.stringify(local));
+    window.saBorderDraftImage='';
+    if(typeof window.saLoadBorderEditor==='function')window.saLoadBorderEditor();
+    if(typeof window.renderCurrentArtistPage==='function')window.renderCurrentArtistPage();
+  }catch(error){
+    console.error(error);
+    alert('Could not remove border picture: '+(error?.message||'Unknown error'));
+  }
+};
+
+/* ===== Shared favorites ===== */
+const oldToggleFavorite=window.toggleFavorite;
+window.toggleFavorite=async function(id){
+  if(typeof oldToggleFavorite==='function')oldToggleFavorite(id);
+  try{
+    const current=(typeof favorites!=='undefined'&&Array.isArray(favorites))
+      ?favorites.map(Number):[];
+    await saveShared('favorites',current);
+  }catch(e){}
+};
+
+/* ===== Shared featured song ===== */
+const oldSetFeatured=window.setFeaturedSong;
+window.setFeaturedSong=async function(id){
+  if(typeof oldSetFeatured==='function')oldSetFeatured(id);
+  await saveShared('featuredSong',Number(id)||0);
+};
+
+/* ===== Shared album saves ===== */
+function persistAlbums(){
+  try{
+    const value=albumData();
+    localStorage.setItem('jassiahAlbums',JSON.stringify(value));
+    saveShared('albums',value);
+  }catch(e){console.warn(e)}
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,500);setTimeout(refresh,1500)});else{refresh();setTimeout(refresh,500);setTimeout(refresh,1500)}
+const oldCreateAlbum=window.jcCreateAlbum;
+const oldSaveAlbumEdit=window.jcSaveAlbumEdit;
+window.jcCreateAlbum=async function(){
+  if(typeof oldCreateAlbum==='function')await oldCreateAlbum();
+  persistAlbums();
+};
+window.jcSaveAlbumEdit=async function(){
+  if(typeof oldSaveAlbumEdit==='function')await oldSaveAlbumEdit();
+  persistAlbums();
+};
+
+/* Shared playlists use the existing local editor UI, then publish the result. */
+function persistPlaylists(){
+  try{
+    const value=(typeof playlists!=='undefined'&&playlists)?playlists:localJSON('jassiahPlaylists',{});
+    localStorage.setItem('jassiahPlaylists',JSON.stringify(value));
+    saveShared('playlists',value);
+  }catch(e){}
+}
+['createPlaylist','deletePlaylist','addSongToPlaylist','removeSongFromPlaylist'].forEach(name=>{
+  const old=window[name];
+  if(typeof old!=='function')return;
+  window[name]=async function(){
+    const result=old.apply(this,arguments);
+    if(result&&typeof result.then==='function')await result;
+    persistPlaylists();
+    return result;
+  };
+});
+
+function refreshAll(){
+  try{renderAlbums()}catch(e){}
+  try{renderArtists('jcHomeArtists');renderArtists('jcArtists')}catch(e){}
+  try{if(typeof window.refreshEditArtistList==='function')window.refreshEditArtistList()}catch(e){}
+  try{if(typeof window.renderHome==='function')window.renderHome()}catch(e){}
+  try{if(typeof window.renderSongs==='function')window.renderSongs()}catch(e){}
+  try{if(typeof window.renderArtists==='function'&&window.renderArtists!==renderArtists)window.renderArtists()}catch(e){}
+}
+
+/* Initial render + remote load. */
+async function bootSharedData(){
+  refreshAll();
+  await loadRemoteState();
+  await migrateLocalState();
+  refreshAll();
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',bootSharedData);
+}else{
+  bootSharedData();
+}
 })();
 </script>
 
