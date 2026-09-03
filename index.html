@@ -1349,15 +1349,57 @@ body{padding-bottom:92px!important}
 .jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;}
 #jcHomeArtists{position:relative!important;z-index:20!important;}
 
-/* ARTIST DETAIL: keep the profile header fixed; only the song list scrolls. */
-.jc-slide:has(#jcArtistPage){overflow:hidden!important;}
-.jc-slide:has(#jcArtistPage)>.jc-inner{height:100%!important;min-height:0!important;overflow:hidden!important;}
-#jcArtistPage{height:100%!important;min-height:0!important;overflow:hidden!important;}
-.jc-artist-detail-shell{height:100%!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;}
-.jc-artist-detail-head{flex:0 0 auto!important;}
-.jc-artist-detail-label{flex:0 0 auto!important;}
-.jc-artist-detail-list{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;padding-right:6px!important;padding-bottom:12px!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;}
-.jc-artist-detail-list::-webkit-scrollbar{width:10px!important;}
+/* ARTIST DETAIL — FIX BOTTOM SONG LIST CLIPPING */
+.jc-slide:has(#jcArtistPage){
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.jc-slide:has(#jcArtistPage)>.jc-inner{
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#jcArtistPage{
+  height:100%!important;
+  min-height:0!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.jc-artist-detail-shell{
+  height:100%!important;
+  min-height:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+.jc-artist-detail-head{
+  flex:0 0 auto!important;
+}
+.jc-artist-detail-label{
+  flex:0 0 auto!important;
+  margin-bottom:10px!important;
+}
+.jc-artist-detail-list{
+  flex:1 1 0!important;
+  min-height:0!important;
+  height:0!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  box-sizing:border-box!important;
+  padding-right:6px!important;
+  padding-bottom:30px!important;
+  margin-bottom:0!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.jc-artist-detail-list .jc-table{
+  margin-bottom:20px!important;
+}
+.jc-artist-detail-list::-webkit-scrollbar{
+  width:10px!important;
+}
 /* Exact chrome and persistent player. */
 .jc-sidebar{width:112px!important;}
 .jc-top{left:112px!important;right:280px!important;height:72px!important;z-index:500!important;background:rgba(5,4,8,.72)!important;}
