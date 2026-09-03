@@ -8798,7 +8798,7 @@ initializeAuth();
 
 <style id="streamasiah-final-editor-authority">
 #saBorderPreview{position:relative!important;overflow:hidden!important;background:#120018!important;}
-#saBorderPreview .sa-border-preview-img{position:absolute!important;max-width:none!important;max-height:none!important;width:auto!important;height:auto!important;object-fit:contain!important;object-position:center!important;left:50%!important;top:50%!important;transform-origin:center center!important;pointer-events:none!important;display:block!important;}
+#saBorderPreview .sa-border-preview-img{position:absolute!important;max-width:none!important;max-height:none!important;width:auto!important;height:auto!important;object-fit:fill!important;object-position:center!important;left:50%!important;top:50%!important;transform-origin:center center!important;pointer-events:none!important;display:block!important;}
 #saBorderPreview .sa-border-preview-tint{position:absolute!important;inset:0!important;z-index:2!important;pointer-events:none!important;}
 #jcEditAlbumSongs .jc-album-order-row{display:flex!important;align-items:center!important;gap:8px!important;min-height:44px!important;}
 #jcEditAlbumSongs .jc-album-order-text{flex:1!important;min-width:0!important;}
@@ -8851,7 +8851,18 @@ initializeAuth();
     const box=document.getElementById('saBorderPreview');if(!box)return;const name=T(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name),image=window.saBorderDraftImage||cfg.image,x=Math.max(0,Math.min(100,Number(document.getElementById('saBorderX')?.value??cfg.x))),y=Math.max(0,Math.min(100,Number(document.getElementById('saBorderY')?.value??cfg.y))),zoom=Math.max(60,Math.min(180,Number(document.getElementById('saBorderZoom')?.value??cfg.zoom)));
     const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');if(xv)xv.textContent=Math.round(x)+'%';if(yv)yv.textContent=Math.round(y)+'%';let zv=document.getElementById('saBorderZoomValue');if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';document.querySelector('.sa-position-values')?.appendChild(zv)}zv.textContent='Zoom '+Math.round(zoom)+'%';
     box.innerHTML=image?`<img class="sa-border-preview-img" src="${esc(image)}" alt=""><span class="sa-border-preview-tint"></span>`:'Select an artist to preview the border picture.';if(!image)return;const im=box.querySelector('.sa-border-preview-img');if(!im)return;
-    const apply=()=>{const bw=box.clientWidth||1,bh=box.clientHeight||1,iw=im.naturalWidth||1,ih=im.naturalHeight||1,fit=Math.min(bw/iw,bh/ih),w=iw*fit*(zoom/100),h=ih*fit*(zoom/100),panX=Math.max(bw*.35,(w-bw)/2),panY=Math.max(bh*.35,(h-bh)/2),dx=((x-50)/50)*panX,dy=((y-50)/50)*panY;im.style.width=w+'px';im.style.height=h+'px';im.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px)`};if(im.complete)apply();else im.onload=apply;
+    const apply=()=>{
+      const bw=box.clientWidth||1,bh=box.clientHeight||1,iw=im.naturalWidth||1,ih=im.naturalHeight||1;
+      /* The editor must show exactly what the artist border will crop.  At 100% the image is sized to cover the preview; lower values reveal more of it, higher values crop more. */
+      const cover=Math.max(bw/iw,bh/ih),scale=cover*(zoom/100),w=iw*scale,h=ih*scale;
+      const roomX=Math.max(0,(w-bw)/2),roomY=Math.max(0,(h-bh)/2);
+      const dx=((x-50)/50)*roomX,dy=((y-50)/50)*roomY;
+      im.style.setProperty('width',w+'px','important');
+      im.style.setProperty('height',h+'px','important');
+      im.style.setProperty('left','50%','important');
+      im.style.setProperty('top','50%','important');
+      im.style.setProperty('transform',`translate(-50%,-50%) translate(${dx}px,${dy}px)`,'important');
+    };if(im.complete)apply();else im.onload=apply;
   }
   window.saUpdateBorderPreview=updateBorder;
   window.saLoadBorderEditor=function(){const name=T(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name),x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');if(x)x.value=cfg.x;if(y)y.value=cfg.y;if(z)z.value=cfg.zoom;window.saBorderDraftImage='';const f=document.getElementById('jcBorderImage');if(f)f.value='';updateBorder();const st=document.getElementById('saBorderStatus');if(st)st.textContent=name?(cfg.image?'Saved border picture loaded. Move it or zoom it.':'No border picture saved for this artist yet.'):'Choose an artist.'};
