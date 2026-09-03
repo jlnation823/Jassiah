@@ -1425,6 +1425,446 @@ body{padding-bottom:92px!important}
 }
 </style>
 
+
+<style id="streamasiah-mobile-final-correct">
+/* =========================================================
+   STREAMASIAH MOBILE — FINAL RESPONSIVE LAYOUT
+   Desktop (>1100px) is untouched.
+   ========================================================= */
+
+/* Phones and tablets in portrait/landscape */
+@media (max-width:1100px){
+
+  html,body{
+    width:100%!important;
+    max-width:100%!important;
+    margin:0!important;
+    background:#000!important;
+    overflow:hidden!important;
+  }
+
+  body{
+    padding-bottom:82px!important;
+  }
+
+  .jc-app{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    bottom:82px!important;
+    width:100%!important;
+    height:auto!important;
+    inset:0 0 82px 0!important;
+    overflow:hidden!important;
+    background:#000!important;
+  }
+
+  /* No desktop left sidebar on a touch-sized screen. */
+  .jc-sidebar{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:auto!important;
+    bottom:0!important;
+    width:100%!important;
+    height:54px!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    justify-content:space-around!important;
+    padding:2px 4px!important;
+    margin:0!important;
+    border-right:0!important;
+    border-top:1px solid #21172a!important;
+    box-sizing:border-box!important;
+    z-index:10000!important;
+    overflow:hidden!important;
+  }
+
+  .jc-logo{display:none!important;}
+
+  .jc-nav{
+    flex:0 0 auto!important;
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:10px!important;
+    font-size:18px!important;
+    line-height:1!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-nav.active{
+    background:linear-gradient(135deg,#4c0878,#26003e)!important;
+    color:#fff!important;
+    box-shadow:none!important;
+  }
+
+  /* Header never lets the search and action buttons occupy the same space. */
+  .jc-top{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:0!important;
+    width:100%!important;
+    height:112px!important;
+    display:block!important;
+    box-sizing:border-box!important;
+    background:#050505!important;
+    z-index:10001!important;
+    overflow:visible!important;
+  }
+
+  .jc-arrows{display:none!important;}
+
+  .jc-search-wrap{
+    position:absolute!important;
+    left:12px!important;
+    right:12px!important;
+    top:10px!important;
+    width:auto!important;
+    max-width:none!important;
+    margin:0!important;
+    display:block!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-search{
+    width:100%!important;
+    min-width:0!important;
+    height:42px!important;
+    box-sizing:border-box!important;
+    font-size:13px!important;
+    padding:0 14px!important;
+  }
+
+  .jc-actions{
+    position:absolute!important;
+    left:12px!important;
+    right:12px!important;
+    top:62px!important;
+    width:auto!important;
+    height:42px!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:6px!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-actions button{
+    height:38px!important;
+    min-height:38px!important;
+    padding:0 10px!important;
+    font-size:10px!important;
+    border-radius:20px!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-bell{
+    width:38px!important;
+    min-width:38px!important;
+    padding:0!important;
+  }
+
+  /* The content area is independently scrollable. */
+  .jc-window{
+    position:absolute!important;
+    left:0!important;
+    right:0!important;
+    top:112px!important;
+    bottom:0!important;
+    width:100%!important;
+    height:auto!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+    background:#000!important;
+  }
+
+  .jc-track{
+    width:100%!important;
+    height:100%!important;
+    min-height:100%!important;
+  }
+
+  .jc-slide{
+    flex:0 0 100%!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:100%!important;
+    min-height:100%!important;
+    box-sizing:border-box!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    padding:16px 10px 30px!important;
+  }
+
+  .jc-slide>.jc-inner{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    box-sizing:border-box!important;
+  }
+
+  .jc-right{display:none!important;}
+
+  /* IMPORTANT: don't trap the Home page inside a viewport-height box. */
+  .jc-home-layout{
+    position:relative!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    height:auto!important;
+    min-height:100%!important;
+    overflow:visible!important;
+    box-sizing:border-box!important;
+    background:#000!important;
+  }
+
+  .jc-home-layout:before{
+    position:absolute!important;
+    inset:0!important;
+    min-height:100%!important;
+  }
+
+  .jc-home-layout>.jc-home-copy{
+    position:relative!important;
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    padding:24px 18px 50px!important;
+    box-sizing:border-box!important;
+    z-index:2!important;
+  }
+
+  .jc-home-name{
+    font-size:31px!important;
+    line-height:1.05!important;
+    white-space:normal!important;
+  }
+
+  .jc-home-welcome{
+    font-size:14px!important;
+    letter-spacing:2px!important;
+  }
+
+  .jc-home-tag{
+    font-size:15px!important;
+  }
+
+  .jc-home-actions{
+    gap:10px!important;
+    flex-wrap:wrap!important;
+  }
+
+  .jc-home-action{
+    height:44px!important;
+    padding:0 18px!important;
+    font-size:13px!important;
+  }
+
+  .jc-home-featured-title{
+    font-size:18px!important;
+  }
+
+  #jcHomeArtists{
+    width:100%!important;
+    max-width:100%!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    gap:10px!important;
+    box-sizing:border-box!important;
+    padding-bottom:12px!important;
+    flex-wrap:nowrap!important;
+  }
+
+  #jcHomeArtists .jc-artist-card{
+    flex:0 0 92px!important;
+    width:92px!important;
+    max-width:92px!important;
+  }
+
+  #jcHomeArtists .jc-artist-card img{
+    width:82px!important;
+    height:82px!important;
+    max-width:82px!important;
+    max-height:82px!important;
+  }
+
+  /* Artist detail/list pages can grow and scroll normally. */
+  .jc-slide:has(#jcArtistPage){
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+  }
+
+  .jc-slide:has(#jcArtistPage)>.jc-inner{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+
+  #jcArtistPage{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+
+  .jc-artist-detail-shell{
+    height:auto!important;
+    min-height:0!important;
+    display:block!important;
+    overflow:visible!important;
+  }
+
+  .jc-artist-detail-list{
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    padding:0 0 45px!important;
+  }
+
+  /* Keep the bottom player above Safari's bottom browser controls. */
+  .player{
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:0!important;
+    width:100%!important;
+    height:82px!important;
+    min-height:82px!important;
+    box-sizing:border-box!important;
+    padding:7px 5px!important;
+    gap:5px!important;
+    display:flex!important;
+    align-items:center!important;
+    overflow:hidden!important;
+    z-index:2147483647!important;
+  }
+
+  .player img{
+    width:44px!important;
+    height:44px!important;
+    flex:0 0 44px!important;
+    border-radius:6px!important;
+  }
+
+  .player-song-info{
+    width:78px!important;
+    min-width:78px!important;
+    max-width:78px!important;
+    flex:0 0 78px!important;
+    overflow:hidden!important;
+  }
+
+  .player-title,.player-artist{
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+
+  .player-title{font-size:13px!important;}
+  .player-artist{font-size:11px!important;}
+
+  .player-buttons{
+    flex:1 1 auto!important;
+    min-width:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-end!important;
+    gap:3px!important;
+    overflow:visible!important;
+  }
+
+  .player-icon{
+    width:26px!important;
+    min-width:26px!important;
+    height:26px!important;
+    flex:0 0 26px!important;
+    padding:0!important;
+  }
+
+  .player-play{
+    width:42px!important;
+    min-width:42px!important;
+    height:42px!important;
+    flex:0 0 42px!important;
+    padding:0!important;
+  }
+
+  .player-icon svg{width:14px!important;height:14px!important;}
+  .player-play svg{width:19px!important;height:19px!important;}
+  .player-progress,.player-volume{display:none!important;}
+}
+
+/* Landscape phone/tablet: compact header, still full-width and scrollable. */
+@media (min-width:701px) and (max-width:1100px) and (orientation:landscape){
+
+  .jc-top{
+    height:70px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    padding:0 12px!important;
+  }
+
+  .jc-search-wrap{
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    width:min(52%,560px)!important;
+    flex:0 1 52%!important;
+    margin:0!important;
+  }
+
+  .jc-actions{
+    position:relative!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    width:auto!important;
+    height:auto!important;
+    margin-left:auto!important;
+    justify-content:flex-end!important;
+  }
+
+  .jc-window{
+    top:70px!important;
+  }
+
+  .jc-home-layout>.jc-home-copy{
+    padding:35px 35px 50px!important;
+    width:70%!important;
+  }
+
+  .jc-home-name{
+    font-size:38px!important;
+  }
+
+  .jc-home-welcome{
+    font-size:17px!important;
+  }
+
+  .jc-home-tag{
+    font-size:17px!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -9570,303 +10010,3 @@ html, body{
   if(document.body)obs.observe(document.body,{subtree:true,childList:true});
 })();
 </script>
-
-<style id="streamasiah-mobile-authoritative-final-fix">
-/* MOBILE FINAL FIX — this is intentionally last so the desktop reference rules cannot override it. */
-@media (max-width:700px){
-  html,body{
-    width:100%!important;
-    max-width:100%!important;
-    margin:0!important;
-    background:#000!important;
-    overflow:hidden!important;
-  }
-
-  body{padding-bottom:82px!important;}
-
-  /* The app uses the full phone width. */
-  .jc-app{
-    position:fixed!important;
-    left:0!important;
-    right:0!important;
-    top:0!important;
-    bottom:82px!important;
-    inset:0 0 82px 0!important;
-    width:100%!important;
-    height:auto!important;
-    overflow:hidden!important;
-  }
-
-  /* Mobile navigation belongs directly above the player. */
-  .jc-sidebar{
-    position:absolute!important;
-    left:0!important;
-    right:0!important;
-    top:auto!important;
-    bottom:0!important;
-    width:100%!important;
-    height:54px!important;
-    box-sizing:border-box!important;
-    display:flex!important;
-    flex-direction:row!important;
-    align-items:center!important;
-    justify-content:space-around!important;
-    padding:2px 4px!important;
-    margin:0!important;
-    border-right:0!important;
-    border-top:1px solid #21172a!important;
-    z-index:10000!important;
-    overflow:hidden!important;
-  }
-
-  /* The desktop logo is not part of the mobile bottom navigation. */
-  .jc-logo{
-    display:none!important;
-  }
-
-  .jc-nav{
-    flex:0 0 auto!important;
-    width:42px!important;
-    min-width:42px!important;
-    height:42px!important;
-    margin:0!important;
-    padding:0!important;
-    border:0!important;
-    border-radius:10px!important;
-    font-size:18px!important;
-    line-height:1!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    box-sizing:border-box!important;
-  }
-
-  .jc-nav.active{
-    background:linear-gradient(135deg,#4c0878,#26003e)!important;
-    color:#fff!important;
-    box-shadow:none!important;
-  }
-
-  /* Header is full-width on phones instead of the 112px/280px desktop columns. */
-  .jc-top{
-    position:absolute!important;
-    left:0!important;
-    right:0!important;
-    top:0!important;
-    width:100%!important;
-    height:58px!important;
-    box-sizing:border-box!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    padding:0 8px!important;
-    z-index:10001!important;
-  }
-
-  .jc-arrows{display:none!important;}
-
-  .jc-search-wrap{
-    display:block!important;
-    width:52%!important;
-    max-width:none!important;
-    margin:0!important;
-    flex:0 1 52%!important;
-  }
-
-  .jc-search{
-    width:100%!important;
-    height:40px!important;
-    box-sizing:border-box!important;
-    font-size:13px!important;
-    padding:0 14px!important;
-  }
-
-  .jc-actions{
-    position:absolute!important;
-    right:7px!important;
-    top:0!important;
-    height:58px!important;
-    display:flex!important;
-    align-items:center!important;
-    gap:5px!important;
-    margin:0!important;
-  }
-
-  .jc-actions button{
-    height:38px!important;
-    min-height:38px!important;
-    padding:0 9px!important;
-    font-size:10px!important;
-    border-radius:20px!important;
-    box-sizing:border-box!important;
-  }
-
-  .jc-bell{
-    width:38px!important;
-    min-width:38px!important;
-    padding:0!important;
-  }
-
-  /* Main content gets the whole phone width and the correct vertical area. */
-  .jc-window{
-    position:absolute!important;
-    left:0!important;
-    right:0!important;
-    top:58px!important;
-    bottom:0!important;
-    width:100%!important;
-    height:auto!important;
-    box-sizing:border-box!important;
-    overflow:hidden!important;
-    background:#000!important;
-  }
-
-  .jc-track{
-    width:100%!important;
-    height:100%!important;
-    min-height:100%!important;
-  }
-
-  .jc-slide{
-    flex:0 0 100%!important;
-    width:100%!important;
-    max-width:100%!important;
-    height:100%!important;
-    min-height:100%!important;
-    box-sizing:border-box!important;
-    overflow-x:hidden!important;
-    overflow-y:auto!important;
-    padding:16px 10px 24px!important;
-  }
-
-  .jc-slide>.jc-inner{
-    width:100%!important;
-    max-width:none!important;
-    min-width:0!important;
-    height:auto!important;
-    min-height:100%!important;
-    margin:0!important;
-    padding:0!important;
-    box-sizing:border-box!important;
-  }
-
-  .jc-right{display:none!important;}
-
-  /* Keep home artwork inside the actual phone width. */
-  .jc-home-layout{
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    height:100%!important;
-    min-height:100%!important;
-    overflow:hidden!important;
-  }
-
-  .jc-home-layout>.jc-home-copy{
-    width:82%!important;
-    max-width:none!important;
-    min-width:0!important;
-    padding:55px 18px 0!important;
-    box-sizing:border-box!important;
-  }
-
-  .jc-home-name{
-    font-size:31px!important;
-    line-height:1.05!important;
-    white-space:normal!important;
-  }
-
-  /* Artist cards stay inside the phone instead of forcing desktop widths. */
-  #jcHomeArtists{
-    width:100%!important;
-    max-width:100%!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    gap:10px!important;
-    box-sizing:border-box!important;
-    padding-bottom:8px!important;
-  }
-
-  #jcHomeArtists .jc-artist-card{
-    flex:0 0 80px!important;
-    width:80px!important;
-  }
-
-  #jcHomeArtists .jc-artist-card img{
-    width:70px!important;
-    height:70px!important;
-  }
-
-  /* Mobile player: all seven transport controls fit instead of being cut off. */
-  .player{
-    position:fixed!important;
-    left:0!important;
-    right:0!important;
-    bottom:0!important;
-    width:100%!important;
-    height:82px!important;
-    min-height:82px!important;
-    box-sizing:border-box!important;
-    padding:7px 5px!important;
-    gap:5px!important;
-    display:flex!important;
-    align-items:center!important;
-    overflow:hidden!important;
-    z-index:2147483647!important;
-  }
-
-  .player img{
-    width:44px!important;
-    height:44px!important;
-    flex:0 0 44px!important;
-    border-radius:6px!important;
-  }
-
-  .player-song-info{
-    width:72px!important;
-    min-width:72px!important;
-    max-width:72px!important;
-    flex:0 0 72px!important;
-    overflow:hidden!important;
-  }
-
-  .player-title,.player-artist{
-    white-space:nowrap!important;
-    overflow:hidden!important;
-    text-overflow:ellipsis!important;
-  }
-
-  .player-title{font-size:13px!important;}
-  .player-artist{font-size:11px!important;}
-
-  .player-buttons{
-    flex:1 1 auto!important;
-    min-width:0!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-end!important;
-    gap:3px!important;
-    overflow:visible!important;
-  }
-
-  .player-icon{
-    width:26px!important;
-    min-width:26px!important;
-    height:26px!important;
-    flex:0 0 26px!important;
-    padding:0!important;
-  }
-
-  .player-play{
-    width:42px!important;
-    min-width:42px!important;
-    height:42px!important;
-    flex:0 0 42px!important;
-    padding:0!important;
-  }
-
-  .player-icon svg{width:14px!important;height:14px!important;}
-  .player-play svg{width:19px!important;height:19px!important;}
-  .player-progress,.player-volume{display:none!important;}
-}
-</style>
