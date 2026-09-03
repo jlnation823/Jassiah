@@ -5464,39 +5464,99 @@ initializeAuth();
   }
 
   window.jcCreateArtist=async function(){
-    if(!currentUser){alert("Please log in first.");return}
-    const name=document.getElementById("jcArtistName").value.trim(),file=document.getElementById("jcArtistImage").files[0],status=document.getElementById("jcArtistStatus");
-    if(!name||!file){status.textContent="Enter artist name and choose a picture.";return}
-    status.textContent="Saving artist profile...";
+    const status=document.getElementById("jcArtistStatus");
+    const nameInput=document.getElementById("jcArtistName");
+    const imageInput=document.getElementById("jcArtistImage");
+
+    if(!currentUser){
+      if(status)status.textContent="Please log in first.";
+      return;
+    }
+
+    const name=nameInput?.value.trim()||"";
+    const file=imageInput?.files?.[0]||null;
+
+    if(!name){
+      if(status)status.textContent="Enter artist name.";
+      return;
+    }
+    if(!file){
+      if(status)status.textContent="Choose an artist picture.";
+      return;
+    }
+
+    if(status)status.textContent="Saving artist profile...";
+
     try{
-      const existing=Object.keys(profiles()).find(k=>k.toLowerCase()===name.toLowerCase());
-      if(existing){status.textContent="That artist profile already exists.";return}
+      // Check Supabase itself for an existing artist. Do not rely only on
+      // localStorage, because that can contain stale profile data.
+      const existingResult=await client
+        .from("artist_profiles")
+        .select("name")
+        .ilike("name",name)
+        .limit(1);
+
+      if(existingResult.error)throw existingResult.error;
+
+      if(existingResult.data && existingResult.data.length){
+        if(status)status.textContent="That artist profile already exists.";
+        return;
+      }
 
       const safeFile=cleanName(file.name||"artist-image");
-      const path="artists/"+Date.now()+"_"+safeFile;
-      const upload=await client.storage.from("artist-images").upload(path,file,{upsert:false,contentType:file.type||"image/jpeg"});
-      if(upload.error)throw upload.error;
-      const imageUrl=client.storage.from("artist-images").getPublicUrl(path).data.publicUrl;
+      const path="artists/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"_"+safeFile;
 
-      const row=await client.from("artist_profiles").upsert({
-        name:name,
-        image_url:imageUrl,
-        created_at:new Date().toISOString()
-      },{onConflict:"name"}).select().single();
-      if(row.error)throw row.error;
+      const upload=await client.storage
+        .from("artist-images")
+        .upload(path,file,{upsert:false,contentType:file.type||"image/jpeg"});
+
+      if(upload.error)throw upload.error;
+
+      const imageUrl=client.storage
+        .from("artist-images")
+        .getPublicUrl(path).data.publicUrl;
+
+      // INSERT a genuinely new profile. The previous code used upsert with
+      // onConflict:"name", which is unnecessary here and can fail when the
+      // table does not have the expected unique constraint.
+      const row=await client
+        .from("artist_profiles")
+        .insert({
+          name:name,
+          image_url:imageUrl,
+          created_at:new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if(row.error){
+        // If the database rejected the row, remove the newly uploaded image
+        // so a failed artist creation does not leave an orphaned file.
+        try{await client.storage.from("artist-images").remove([path]);}catch(_){ }
+        throw row.error;
+      }
 
       const p=profiles();
-      p[name]={...(p[name]||{}),image:imageUrl,created_at:row.data?.created_at||new Date().toISOString()};
-      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
-      artistProfiles=p;
+      p[name]={
+        ...(p[name]||{}),
+        image:imageUrl,
+        created_at:row.data?.created_at||new Date().toISOString()
+      };
 
-      status.textContent="Artist profile created successfully.";
-      document.getElementById("jcArtistName").value="";
-      document.getElementById("jcArtistImage").value="";
-      jcPrepareAdmin();renderHome();renderArtists();renderNews();
+      artistProfiles=p;
+      localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
+
+      if(status)status.textContent="Artist profile created successfully.";
+      if(nameInput)nameInput.value="";
+      if(imageInput)imageInput.value="";
+
+      jcPrepareAdmin();
+      renderHome();
+      renderArtists();
+      renderNews();
     }catch(e){
-      console.error(e);
-      status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
+      console.error("Artist profile save failed:",e);
+      if(status)status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
     }
   };
 
