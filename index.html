@@ -2079,7 +2079,7 @@ body{padding-bottom:92px!important}
             <div class="sa-position-grid">
               <label>Left / Right <input id="saBorderX" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
               <label>Up / Down <input id="saBorderY" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
-              <label style="grid-column:1/-1">Zoom In / Out <input id="saBorderZoom" type="range" min="60" max="180" value="100" oninput="saUpdateBorderPreview()"></label>
+              <label style="grid-column:1/-1">Zoom In / Out <input id="saBorderZoom" type="range" min="100" max="180" value="100" oninput="saUpdateBorderPreview()"></label>
             </div>
             <div class="sa-position-values"><span id="saBorderXValue">50%</span><span id="saBorderYValue">50%</span></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="saSaveBorderPicture()">Save Artist Border Picture</button>
@@ -8925,16 +8925,18 @@ function store(){try{const x=JSON.parse(localStorage.getItem('jassiahArtistBorde
 function cfg(name){const b=store(),n=T(name).toLowerCase(),k=Object.keys(b).find(x=>T(x).toLowerCase()===n)||T(name),v=b[k]||{};return {image:v.image||v.heroImage||'',x:clamp(num(v.x,50),0,100),y:clamp(num(v.y,50),0,100),zoom:clamp(num(v.zoom,100),60,180)}}
 function crop(box,img,x,y,zoom){
   if(!box||!img||!img.naturalWidth)return;
-  const bw=box.clientWidth||1,bh=box.clientHeight||1,iw=img.naturalWidth,ih=img.naturalHeight;
-  const cover=Math.max(bw/iw,bh/ih);
-  const scale=cover*(zoom/100),w=iw*scale,h=ih*scale;
-  const roomX=Math.max(0,w-bw),roomY=Math.max(0,h-bh);
-  const left=-(roomX*(x/100)),top=-(roomY*(y/100));
-  img.style.setProperty('width',w+'px','important');
-  img.style.setProperty('height',h+'px','important');
-  img.style.setProperty('left',left+'px','important');
-  img.style.setProperty('top',top+'px','important');
-  img.style.setProperty('transform','none','important');
+  /* The editor and live banner both use the same CSS crop model:
+     cover the box first, then zoom around the center.  Never scale
+     below the cover size, which prevents the purple blank-space gap. */
+  const z=Math.max(1,Number(zoom||100)/100);
+  img.style.setProperty('left','0','important');
+  img.style.setProperty('top','0','important');
+  img.style.setProperty('width','100%','important');
+  img.style.setProperty('height','100%','important');
+  img.style.setProperty('object-fit','cover','important');
+  img.style.setProperty('object-position',x+'% '+y+'%','important');
+  img.style.setProperty('transform','scale('+z+')','important');
+  img.style.setProperty('transform-origin','center center','important');
 }
 function values(){
  const name=T(document.getElementById('jcBorderArtist')?.value),c=cfg(name);
@@ -9430,6 +9432,14 @@ html, body{
   filter:saturate(.88) brightness(.72)!important;
 }
 </style>
+
+<style id="streamasiah-border-zoom-final-css">
+/* Final border editor/live crop: no blank gap and no circular image styling. */
+#saBorderPreview{aspect-ratio:6.41 / 1!important;overflow:hidden!important;}
+#saBorderPreview .sa-border-preview-img{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 50%!important;border-radius:0!important;border:0!important;box-shadow:none!important;transform-origin:center center!important;}
+.jc-artist-border-detail>.jc-artist-border-bg{inset:0!important;overflow:hidden!important;background:none!important;border-radius:0!important;transform:none!important;}
+.jc-artist-border-detail>.jc-artist-border-bg .sa-live-border-img{left:0!important;top:0!important;width:100%!important;height:100%!important;object-fit:cover!important;object-position:50% 50%!important;border-radius:0!important;border:0!important;box-shadow:none!important;transform-origin:center center!important;}
+</style>
 <script id="streamasiah-border-authoritative-fix-js">
 (function(){
   'use strict';
@@ -9560,53 +9570,3 @@ html, body{
   if(document.body)obs.observe(document.body,{subtree:true,childList:true});
 })();
 </script>
-
-
-<style id="streamasiah-final-artist-scroll-fix">
-/* Artist detail: give the inner viewport a definite height so the song list gets the remaining space. */
-.jc-slide:has(#jcArtistPage){
-  height:100%!important;
-  min-height:0!important;
-  overflow:hidden!important;
-  padding:0!important;
-}
-.jc-slide:has(#jcArtistPage)>.jc-inner{
-  height:100%!important;
-  min-height:0!important;
-  max-height:100%!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-  padding:0!important;
-}
-#jcArtistPage{
-  height:100%!important;
-  min-height:0!important;
-  max-height:100%!important;
-  overflow:hidden!important;
-  box-sizing:border-box!important;
-}
-.jc-artist-detail-shell{
-  height:100%!important;
-  min-height:0!important;
-  max-height:100%!important;
-  overflow:hidden!important;
-  display:flex!important;
-  flex-direction:column!important;
-  box-sizing:border-box!important;
-}
-.jc-artist-detail-head,.jc-artist-detail-label{
-  flex:0 0 auto!important;
-}
-.jc-artist-detail-list{
-  flex:1 1 0!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:none!important;
-  overflow-y:auto!important;
-  overflow-x:hidden!important;
-  box-sizing:border-box!important;
-  padding-bottom:16px!important;
-  overscroll-behavior:contain!important;
-  -webkit-overflow-scrolling:touch!important;
-}
-</style>
