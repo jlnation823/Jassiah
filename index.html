@@ -1349,7 +1349,7 @@ body{padding-bottom:92px!important}
 .jc-home-featured-title{font-size:21px!important;margin-bottom:17px!important;}
 #jcHomeArtists{position:relative!important;z-index:20!important;}
 
-/* ARTIST DETAIL — FIX BOTTOM SONG LIST CLIPPING */
+/* ARTIST DETAIL — FINAL BOTTOM SONG LIST FIX */
 .jc-slide:has(#jcArtistPage){
   overflow:hidden!important;
   box-sizing:border-box!important;
@@ -1379,26 +1379,35 @@ body{padding-bottom:92px!important}
 }
 .jc-artist-detail-label{
   flex:0 0 auto!important;
-  margin-bottom:10px!important;
+  margin:0 0 10px!important;
 }
 .jc-artist-detail-list{
-  flex:1 1 0!important;
-  min-height:0!important;
-  height:0!important;
-  overflow-y:auto!important;
+  flex:1 1 auto!important;
+  min-height:1px!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow-y:scroll!important;
   overflow-x:hidden!important;
   box-sizing:border-box!important;
-  padding-right:6px!important;
-  padding-bottom:30px!important;
-  margin-bottom:0!important;
+  padding:0 10px 40px 0!important;
+  margin:0!important;
   overscroll-behavior:contain!important;
   -webkit-overflow-scrolling:touch!important;
+  scrollbar-width:auto!important;
+  scrollbar-gutter:stable!important;
 }
 .jc-artist-detail-list .jc-table{
-  margin-bottom:20px!important;
+  margin-bottom:24px!important;
 }
 .jc-artist-detail-list::-webkit-scrollbar{
   width:10px!important;
+}
+.jc-artist-detail-list::-webkit-scrollbar-thumb{
+  background:#7d19b8!important;
+  border-radius:10px!important;
+}
+.jc-artist-detail-list::-webkit-scrollbar-track{
+  background:#111!important;
 }
 /* Exact chrome and persistent player. */
 .jc-sidebar{width:112px!important;}
