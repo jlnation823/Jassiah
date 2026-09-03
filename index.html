@@ -5464,85 +5464,73 @@ initializeAuth();
   }
 
   window.jcCreateArtist=async function(){
-    const status=document.getElementById("jcArtistStatus");
+    if(!currentUser){alert("Please log in first.");return}
+
     const nameInput=document.getElementById("jcArtistName");
     const imageInput=document.getElementById("jcArtistImage");
-
-    if(!currentUser){
-      if(status)status.textContent="Please log in first.";
-      return;
-    }
-
+    const status=document.getElementById("jcArtistStatus");
     const name=nameInput?.value.trim()||"";
     const file=imageInput?.files?.[0]||null;
 
-    if(!name){
-      if(status)status.textContent="Enter artist name.";
-      return;
-    }
-    if(!file){
-      if(status)status.textContent="Choose an artist picture.";
+    if(!name||!file){
+      if(status)status.textContent="Enter artist name and choose a picture.";
       return;
     }
 
-    if(status)status.textContent="Saving artist profile...";
+    if(status)status.textContent="Checking artist profile...";
+
+    let uploadedPath="";
 
     try{
-      // Check Supabase itself for an existing artist. Do not rely only on
-      // localStorage, because that can contain stale profile data.
-      const existingResult=await client
-        .from("artist_profiles")
-        .select("name")
+      /* Supabase is the source of truth. Do not reject a new artist because
+         an old/stale browser localStorage entry has the same name. */
+      const existing=await client.from("artist_profiles")
+        .select("id,name")
         .ilike("name",name)
         .limit(1);
 
-      if(existingResult.error)throw existingResult.error;
+      if(existing.error)throw existing.error;
 
-      if(existingResult.data && existingResult.data.length){
+      if(Array.isArray(existing.data)&&existing.data.length){
         if(status)status.textContent="That artist profile already exists.";
         return;
       }
 
+      if(status)status.textContent="Uploading artist picture...";
+
       const safeFile=cleanName(file.name||"artist-image");
-      const path="artists/"+Date.now()+"_"+Math.random().toString(36).slice(2,8)+"_"+safeFile;
+      uploadedPath="artists/"+Date.now()+"_"+safeFile;
 
-      const upload=await client.storage
-        .from("artist-images")
-        .upload(path,file,{upsert:false,contentType:file.type||"image/jpeg"});
-
+      const upload=await client.storage.from("artist-images").upload(
+        uploadedPath,
+        file,
+        {upsert:false,contentType:file.type||"image/jpeg"}
+      );
       if(upload.error)throw upload.error;
 
-      const imageUrl=client.storage
-        .from("artist-images")
-        .getPublicUrl(path).data.publicUrl;
+      const imageUrl=client.storage.from("artist-images")
+        .getPublicUrl(uploadedPath).data.publicUrl;
 
-      // INSERT a genuinely new profile. The previous code used upsert with
-      // onConflict:"name", which is unnecessary here and can fail when the
-      // table does not have the expected unique constraint.
-      const row=await client
-        .from("artist_profiles")
+      if(status)status.textContent="Saving artist profile...";
+
+      const row=await client.from("artist_profiles")
         .insert({
           name:name,
           image_url:imageUrl,
           created_at:new Date().toISOString()
         })
-        .select()
+        .select("id,name,image_url,created_at")
         .single();
 
-      if(row.error){
-        // If the database rejected the row, remove the newly uploaded image
-        // so a failed artist creation does not leave an orphaned file.
-        try{await client.storage.from("artist-images").remove([path]);}catch(_){ }
-        throw row.error;
-      }
+      if(row.error)throw row.error;
 
+      /* Update the browser cache only after Supabase successfully saved it. */
       const p=profiles();
       p[name]={
         ...(p[name]||{}),
-        image:imageUrl,
+        image:row.data?.image_url||imageUrl,
         created_at:row.data?.created_at||new Date().toISOString()
       };
-
       artistProfiles=p;
       localStorage.setItem("jassiahArtistProfiles",JSON.stringify(p));
 
@@ -5556,6 +5544,13 @@ initializeAuth();
       renderNews();
     }catch(e){
       console.error("Artist profile save failed:",e);
+
+      /* If the database save failed after the image uploaded, remove the
+         orphaned image so the bucket does not fill with unused files. */
+      if(uploadedPath){
+        try{await client.storage.from("artist-images").remove([uploadedPath]);}catch(_){}
+      }
+
       if(status)status.textContent="Artist profile save failed: "+(e?.message||"Unknown error");
     }
   };
