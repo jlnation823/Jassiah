@@ -8675,15 +8675,6 @@ initializeAuth();
     if(file){const r=new FileReader();r.onload=()=>finish(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else finish(old.cover||old.cover_url||'');
   };
 
-  document.addEventListener('click',function(e){
-    const move=e.target.closest('#jcEditAlbumSongs [data-album-move]');
-    if(!move)return;
-    e.preventDefault();e.stopImmediatePropagation();
-    const row=move.closest('.jc-album-order-row'),box=document.getElementById('jcEditAlbumSongs');if(!row||!box)return;
-    const rows=[...box.querySelectorAll('.jc-album-order-row')],i=rows.indexOf(row),dir=Number(move.getAttribute('data-album-move'))||0,j=i+dir;
-    if(i<0||j<0||j>=rows.length)return;
-    if(dir<0)box.insertBefore(row,rows[j]);else box.insertBefore(row,rows[j].nextSibling);
-  },true);
 
   /* Replace the broken preview math with object-fit:cover + object-position + scale. */
   window.saUpdateBorderPreview=function(){
@@ -8711,6 +8702,164 @@ initializeAuth();
 })();
 </script>
 
+
+<script id="streamasiah-verified-final-fix">
+(function(){
+  'use strict';
+  const S=v=>String(v==null?'':v).trim();
+  const esc=v=>{try{if(typeof window.escapeHtml==='function')return window.escapeHtml(v)}catch(e){}return S(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
+  function getAlbums(){try{const a=JSON.parse(localStorage.getItem('jassiahAlbums')||'{}');return a&&typeof a==='object'?a:{}}catch(e){return {}}}
+  function getSongs(){
+    try{if(typeof songs!=='undefined'&&Array.isArray(songs))return songs}catch(e){}
+    try{if(typeof window.songs!=='undefined'&&Array.isArray(window.songs))return window.songs}catch(e){}
+    try{if(typeof window.dataSongs==='function'){const a=window.dataSongs();if(Array.isArray(a))return a}}catch(e){}
+    return [];
+  }
+  function findSong(ref){
+    const list=getSongs(), r=ref&&typeof ref==='object'?(ref.id??ref.song_id??ref.songId):ref, rid=S(r);
+    if(rid){const hit=list.find(s=>S(s.id)===rid);if(hit)return hit;}
+    if(ref&&typeof ref==='object'){
+      const title=S(ref.title||ref.song_title).toLowerCase(), path=S(ref.file_path||ref.path||ref.file||ref.url).toLowerCase();
+      const hit=list.find(s=>(title&&S(s.title).toLowerCase()===title)||(path&&S(s.file_path||s.path||s.file||s.url).toLowerCase()===path));
+      if(hit)return hit;
+    }
+    return null;
+  }
+  function albumKey(name){const a=getAlbums(),n=S(name).toLowerCase();return Object.keys(a).find(k=>S(k).toLowerCase()===n)||'';}
+  function renderAlbumEditor(){
+    const sel=document.getElementById('jcEditAlbumName'),box=document.getElementById('jcEditAlbumSongs');
+    if(!sel||!box)return;
+    const key=albumKey(sel.value), a=key?getAlbums()[key]:null;
+    const add=document.getElementById('jcEditAlbumAddSongs');
+    if(!key||!a){box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';if(add)add.innerHTML='';return;}
+    const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]);
+    const current=refs.map(findSong).filter(Boolean);
+    const currentIds=new Set(current.map(s=>S(s.id)));
+    box.innerHTML=current.length?current.map(s=>`<div class="jc-check-row jc-album-order-row" data-song-id="${esc(S(s.id))}"><input type="checkbox" checked aria-label="Keep ${esc(s.title||'Untitled')} in album"><span class="jc-album-order-text">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span><span class="jc-album-order-buttons"><button type="button" class="jc-album-move" data-album-move="-1" title="Move up" aria-label="Move ${esc(s.title||'song')} up">↑</button><button type="button" class="jc-album-move" data-album-move="1" title="Move down" aria-label="Move ${esc(s.title||'song')} down">↓</button></span></div>`).join(''):'<div style="color:#777;padding:7px">No songs are in this album yet.</div>';
+    if(add){
+      const available=getSongs().filter(s=>!currentIds.has(S(s.id)));
+      add.innerHTML='<div class="jc-album-add-heading">Add songs to this album</div>'+(available.length?available.map(s=>`<label class="jc-check-row"><input type="checkbox" data-album-add="1" value="${esc(S(s.id))}">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</label>`).join(''):'<div style="color:#777;padding:7px">All available songs are already in this album.</div>');
+    }
+  }
+  window.jcLoadAlbumEditor=renderAlbumEditor;
+  window.jcSaveAlbumEdit=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const sel=document.getElementById('jcEditAlbumName'),oldKey=albumKey(sel?.value),title=S(document.getElementById('jcEditAlbumTitle')?.value),status=document.getElementById('jcEditAlbumStatus'),file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    if(!oldKey){if(status)status.textContent='Select an album first.';return}
+    if(!title){if(status)status.textContent='Enter an album name.';return}
+    const as=getAlbums(),old=as[oldKey];if(!old){if(status)status.textContent='Album not found.';return}
+    if(title!==oldKey&&as[title]){if(status)status.textContent='That album name already exists.';return}
+    const ordered=[...document.querySelectorAll('#jcEditAlbumSongs .jc-album-order-row')].filter(row=>row.querySelector('input[type="checkbox"]')?.checked).map(row=>S(row.dataset.songId)).filter(Boolean);
+    const added=[...document.querySelectorAll('#jcEditAlbumAddSongs input[data-album-add="1"]:checked')].map(x=>S(x.value)).filter(Boolean);
+    const ids=[...new Set(ordered.concat(added))];
+    const finish=cover=>{
+      const next={...old,cover:cover||old.cover||old.cover_url||'',songs:ids};
+      if(title!==oldKey)delete as[oldKey];as[title]=next;localStorage.setItem('jassiahAlbums',JSON.stringify(as));
+      if(status)status.textContent=`Album updated with ${ids.length} song${ids.length===1?'':'s'}.`;
+      if(sel)sel.value=title;const ci=document.getElementById('jcEditAlbumCover');if(ci)ci.value='';
+      try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){} renderAlbumEditor();
+    };
+    if(file){const r=new FileReader();r.onload=()=>finish(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else finish(old.cover||old.cover_url||'');
+  };
+
+  function borderData(name){
+    try{const b=JSON.parse(localStorage.getItem('jassiahArtistBorderPictures')||'{}')||{};const k=Object.keys(b).find(x=>S(x).toLowerCase()===S(name).toLowerCase())||S(name);const v=b[k]||{};return {image:v.image||v.heroImage||'',x:Number(v.x??50),y:Number(v.y??50),zoom:Number(v.zoom??100)}}catch(e){return {image:'',x:50,y:50,zoom:100}}
+  }
+  function updateBorder(){
+    const box=document.getElementById('saBorderPreview');if(!box)return;
+    const name=S(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name),image=window.saBorderDraftImage||cfg.image;
+    const x=Math.max(0,Math.min(100,Number(document.getElementById('saBorderX')?.value??cfg.x))),y=Math.max(0,Math.min(100,Number(document.getElementById('saBorderY')?.value??cfg.y))),zoom=Math.max(60,Math.min(180,Number(document.getElementById('saBorderZoom')?.value??cfg.zoom)));
+    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');if(xv)xv.textContent=Math.round(x)+'%';if(yv)yv.textContent=Math.round(y)+'%';
+    let zv=document.getElementById('saBorderZoomValue');if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';document.querySelector('.sa-position-values')?.appendChild(zv)}zv.textContent='Zoom '+Math.round(zoom)+'%';
+    box.innerHTML=image?`<img class="sa-border-preview-img" src="${esc(image)}" alt=""><span class="sa-border-preview-tint"></span>`:'Select an artist to preview the border picture.';
+    const im=box.querySelector('.sa-border-preview-img');if(!im)return;
+    const apply=()=>{
+      const bw=box.clientWidth||1,bh=box.clientHeight||1,iw=im.naturalWidth||1,ih=im.naturalHeight||1,fit=Math.min(bw/iw,bh/ih),baseW=iw*fit,baseH=ih*fit,scale=zoom/100,w=baseW*scale,h=baseH*scale;
+      const maxX=Math.max(0,(w-bw)/2),maxY=Math.max(0,(h-bh)/2),dx=((x-50)/50)*Math.max(maxX,bw*.22),dy=((y-50)/50)*Math.max(maxY,bh*.22);
+      im.style.width=w+'px';im.style.height=h+'px';im.style.left='50%';im.style.top='50%';im.style.objectFit='fill';im.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px)`;
+    };
+    if(im.complete)apply();else im.onload=apply;
+  }
+  window.saUpdateBorderPreview=updateBorder;
+  window.saLoadBorderEditor=function(){
+    const name=S(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name);
+    const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');if(x)x.value=cfg.x;if(y)y.value=cfg.y;if(z)z.value=cfg.zoom;
+    window.saBorderDraftImage='';const f=document.getElementById('jcBorderImage');if(f)f.value='';updateBorder();
+    const st=document.getElementById('saBorderStatus');if(st)st.textContent=name?(cfg.image?'Saved border picture loaded. Move it or upload a new one.':'No border picture saved for this artist yet.'):'Choose an artist.';
+  };
+  window.saPreviewBorderImage=function(ev){const file=ev?.target?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{window.saBorderDraftImage=String(r.result||'');updateBorder()};r.readAsDataURL(file)};
+  function finalArtistBorder(){
+    document.querySelectorAll('.jc-artist-border-detail').forEach(detail=>{const bg=detail.querySelector('.jc-artist-border-bg');if(!bg)return;const z=Math.max(.6,Math.min(1.8,Number(getComputedStyle(bg).getPropertyValue('--border-zoom'))||1));bg.style.backgroundSize='cover';bg.style.backgroundPosition=getComputedStyle(bg).getPropertyValue('--border-pos-x')+' '+getComputedStyle(bg).getPropertyValue('--border-pos-y');bg.style.transform=`scale(${z})`;});
+  }
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderAlbumEditor,400);setTimeout(renderAlbumEditor,1200);setTimeout(finalArtistBorder,300);setTimeout(finalArtistBorder,1000)});
+})();
+</script>
+
+
+<style id="streamasiah-final-editor-authority">
+#saBorderPreview{position:relative!important;overflow:hidden!important;background:#120018!important;}
+#saBorderPreview .sa-border-preview-img{position:absolute!important;max-width:none!important;max-height:none!important;width:auto!important;height:auto!important;object-fit:contain!important;object-position:center!important;left:50%!important;top:50%!important;transform-origin:center center!important;pointer-events:none!important;display:block!important;}
+#saBorderPreview .sa-border-preview-tint{position:absolute!important;inset:0!important;z-index:2!important;pointer-events:none!important;}
+#jcEditAlbumSongs .jc-album-order-row{display:flex!important;align-items:center!important;gap:8px!important;min-height:44px!important;}
+#jcEditAlbumSongs .jc-album-order-text{flex:1!important;min-width:0!important;}
+#jcEditAlbumSongs .jc-album-order-buttons{margin-left:auto!important;display:flex!important;gap:5px!important;flex-shrink:0!important;}
+#jcEditAlbumSongs .jc-album-move,#jcEditAlbumSongs .jc-album-remove{width:30px!important;height:30px!important;border:1px solid #7d1ab2!important;border-radius:6px!important;background:#16091c!important;color:#d06cff!important;font-weight:900!important;cursor:pointer!important;padding:0!important;display:inline-grid!important;place-items:center!important;}
+#jcEditAlbumSongs .jc-album-move:hover,#jcEditAlbumSongs .jc-album-remove:hover{background:#281032!important;border-color:#c56cff!important;}
+#jcEditAlbumSongs .jc-album-remove{color:#ff8cff!important;}
+</style>
+<script id="streamasiah-final-editor-authority-js">
+(function(){
+  'use strict';
+  const T=v=>String(v==null?'':v).trim();
+  const esc=v=>{try{if(typeof window.escapeHtml==='function')return window.escapeHtml(v)}catch(e){}return T(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
+  const read=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||'');return v&&typeof v==='object'?v:d}catch(e){return d}};
+  const songsList=()=>{try{if(typeof songs!=='undefined'&&Array.isArray(songs))return songs}catch(e){}try{if(Array.isArray(window.songs))return window.songs}catch(e){}return []};
+  const albums=()=>read('jassiahAlbums',{});
+  const albumKey=n=>{const a=albums(),q=T(n).toLowerCase();return Object.keys(a).find(k=>T(k).toLowerCase()===q)||''};
+  const sid=s=>T(s&&s.id);
+  const findSong=ref=>{const r=T(ref&&typeof ref==='object'?(ref.id??ref.song_id??ref.songId):ref), list=songsList();let x=list.find(s=>sid(s)===r);if(x)return x;if(ref&&typeof ref==='object'){const title=T(ref.title||ref.song_title).toLowerCase(),path=T(ref.file_path||ref.path||ref.file||ref.url).toLowerCase();x=list.find(s=>(title&&T(s.title).toLowerCase()===title)||(path&&T(s.file_path||s.path||s.file||s.url).toLowerCase()===path));if(x)return x}return null};
+  function renderAlbumEditor(){
+    const sel=document.getElementById('jcEditAlbumName'),box=document.getElementById('jcEditAlbumSongs');if(!sel||!box)return;
+    const key=albumKey(sel.value),a=key?albums()[key]:null,add=document.getElementById('jcEditAlbumAddSongs');
+    if(!key||!a){box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';if(add)add.innerHTML='';return}
+    const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]),current=refs.map(findSong).filter(Boolean),currentIds=new Set(current.map(sid));
+    box.innerHTML=current.length?current.map(s=>`<div class="jc-check-row jc-album-order-row" data-song-id="${esc(sid(s))}"><span class="jc-album-order-text">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span><span class="jc-album-order-buttons"><button type="button" class="jc-album-move" data-final-move="-1" title="Move up">↑</button><button type="button" class="jc-album-move" data-final-move="1" title="Move down">↓</button><button type="button" class="jc-album-remove" data-final-remove="1" title="Remove from album">×</button></span></div>`).join(''):'<div style="color:#777;padding:7px">No songs are in this album yet.</div>';
+    if(add){const available=songsList().filter(s=>!currentIds.has(sid(s)));add.innerHTML='<div class="jc-album-add-heading">Add songs to this album</div>'+(available.length?available.map(s=>`<label class="jc-check-row"><input type="checkbox" data-album-add="1" value="${esc(sid(s))}">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</label>`).join(''):'<div style="color:#777;padding:7px">All available songs are already in this album.</div>')}
+  }
+  window.jcLoadAlbumEditor=renderAlbumEditor;
+  window.saMoveAlbumSong=function(button,dir){
+    const b=button&&button.closest?button.closest('.jc-album-move'):null,row=b&&b.closest('.jc-album-order-row'),box=document.getElementById('jcEditAlbumSongs');if(!row||!box)return false;
+    const rows=[...box.querySelectorAll('.jc-album-order-row')],i=rows.indexOf(row),j=i+(Number(dir)||0);if(i<0||j<0||j>=rows.length)return false;
+    if(j<i)box.insertBefore(row,rows[j]);else box.insertBefore(row,rows[j].nextSibling);return false;
+  };
+  window.saRemoveAlbumSong=function(button){const row=button&&button.closest?button.closest('.jc-album-order-row'):null;if(row)row.remove();};
+  document.addEventListener('click',function(e){
+    const up=e.target.closest('#jcEditAlbumSongs [data-final-move]');if(up){e.preventDefault();e.stopPropagation();window.saMoveAlbumSong(up,up.getAttribute('data-final-move'));return;}
+    const rm=e.target.closest('#jcEditAlbumSongs [data-final-remove]');if(rm){e.preventDefault();e.stopPropagation();window.saRemoveAlbumSong(rm);return;}
+  },false);
+  window.jcSaveAlbumEdit=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const sel=document.getElementById('jcEditAlbumName'),oldKey=albumKey(sel?.value),title=T(document.getElementById('jcEditAlbumTitle')?.value),status=document.getElementById('jcEditAlbumStatus'),file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    if(!oldKey){if(status)status.textContent='Select an album first.';return} if(!title){if(status)status.textContent='Enter an album name.';return}
+    const as=albums(),old=as[oldKey];if(!old){if(status)status.textContent='Album not found.';return} if(title!==oldKey&&as[title]){if(status)status.textContent='That album name already exists.';return}
+    const ordered=[...document.querySelectorAll('#jcEditAlbumSongs .jc-album-order-row')].map(r=>T(r.dataset.songId)).filter(Boolean),added=[...document.querySelectorAll('#jcEditAlbumAddSongs input[data-album-add="1"]:checked')].map(x=>T(x.value)).filter(Boolean),ids=[...new Set(ordered.concat(added))];
+    const finish=cover=>{const next={...old,cover:cover||old.cover||old.cover_url||'',songs:ids};if(title!==oldKey)delete as[oldKey];as[title]=next;localStorage.setItem('jassiahAlbums',JSON.stringify(as));if(status)status.textContent=`Album updated with ${ids.length} song${ids.length===1?'':'s'}.`;if(sel)sel.value=title;const ci=document.getElementById('jcEditAlbumCover');if(ci)ci.value='';try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){}renderAlbumEditor()};
+    if(file){const r=new FileReader();r.onload=()=>finish(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else finish(old.cover||old.cover_url||'');
+  };
+  function borderData(name){const b=read('jassiahArtistBorderPictures',{}),k=Object.keys(b).find(x=>T(x).toLowerCase()===T(name).toLowerCase())||T(name),v=b[k]||{};return {image:v.image||v.heroImage||'',x:Number.isFinite(Number(v.x))?Number(v.x):50,y:Number.isFinite(Number(v.y))?Number(v.y):50,zoom:Number.isFinite(Number(v.zoom))?Number(v.zoom):100}}
+  function updateBorder(){
+    const box=document.getElementById('saBorderPreview');if(!box)return;const name=T(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name),image=window.saBorderDraftImage||cfg.image,x=Math.max(0,Math.min(100,Number(document.getElementById('saBorderX')?.value??cfg.x))),y=Math.max(0,Math.min(100,Number(document.getElementById('saBorderY')?.value??cfg.y))),zoom=Math.max(60,Math.min(180,Number(document.getElementById('saBorderZoom')?.value??cfg.zoom)));
+    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');if(xv)xv.textContent=Math.round(x)+'%';if(yv)yv.textContent=Math.round(y)+'%';let zv=document.getElementById('saBorderZoomValue');if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';document.querySelector('.sa-position-values')?.appendChild(zv)}zv.textContent='Zoom '+Math.round(zoom)+'%';
+    box.innerHTML=image?`<img class="sa-border-preview-img" src="${esc(image)}" alt=""><span class="sa-border-preview-tint"></span>`:'Select an artist to preview the border picture.';if(!image)return;const im=box.querySelector('.sa-border-preview-img');if(!im)return;
+    const apply=()=>{const bw=box.clientWidth||1,bh=box.clientHeight||1,iw=im.naturalWidth||1,ih=im.naturalHeight||1,fit=Math.min(bw/iw,bh/ih),w=iw*fit*(zoom/100),h=ih*fit*(zoom/100),panX=Math.max(bw*.35,(w-bw)/2),panY=Math.max(bh*.35,(h-bh)/2),dx=((x-50)/50)*panX,dy=((y-50)/50)*panY;im.style.width=w+'px';im.style.height=h+'px';im.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px)`};if(im.complete)apply();else im.onload=apply;
+  }
+  window.saUpdateBorderPreview=updateBorder;
+  window.saLoadBorderEditor=function(){const name=T(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name),x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');if(x)x.value=cfg.x;if(y)y.value=cfg.y;if(z)z.value=cfg.zoom;window.saBorderDraftImage='';const f=document.getElementById('jcBorderImage');if(f)f.value='';updateBorder();const st=document.getElementById('saBorderStatus');if(st)st.textContent=name?(cfg.image?'Saved border picture loaded. Move it or zoom it.':'No border picture saved for this artist yet.'):'Choose an artist.'};
+  window.saPreviewBorderImage=function(ev){const file=ev?.target?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{window.saBorderDraftImage=String(r.result||'');const z=document.getElementById('saBorderZoom');if(z)z.value=100;const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY');if(x)x.value=50;if(y)y.value=50;updateBorder()};r.readAsDataURL(file)};
+  window.saSaveBorderPicture=function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const name=T(document.getElementById('jcBorderArtist')?.value);if(!name)return;const b=read('jassiahArtistBorderPictures',{}),k=Object.keys(b).find(x=>T(x).toLowerCase()===name.toLowerCase())||name,old=borderData(name),image=window.saBorderDraftImage||old.image;if(!image)return;const x=Number(document.getElementById('saBorderX')?.value??old.x),y=Number(document.getElementById('saBorderY')?.value??old.y),zoom=Number(document.getElementById('saBorderZoom')?.value??old.zoom);b[k]={image,x,y,zoom};localStorage.setItem('jassiahArtistBorderPictures',JSON.stringify(b));try{const p=read('jassiahArtistProfiles',{}),pk=Object.keys(p).find(x=>T(x).toLowerCase()===name.toLowerCase())||name;p[pk]=p[pk]||{};p[pk].heroImage=image;p[pk].heroX=x;p[pk].heroY=y;p[pk].heroZoom=zoom;localStorage.setItem('jassiahArtistProfiles',JSON.stringify(p))}catch(e){}window.saBorderDraftImage='';updateBorder();const st=document.getElementById('saBorderStatus');if(st)st.textContent='Artist border picture saved for '+k+'.'};
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderAlbumEditor,300);setTimeout(renderAlbumEditor,1000)});
+})();
+</script>
 </body>
 </html>
 
