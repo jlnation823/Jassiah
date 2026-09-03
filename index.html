@@ -8439,12 +8439,10 @@ initializeAuth();
 'use strict';
 const text=v=>String(v==null?'':v);
 const readJSON=(key, fallback)=>{try{const v=JSON.parse(localStorage.getItem(key)||'');return v&&typeof v==='object'?v:fallback}catch(e){return fallback}};
-const songs=()=>{
-  /* The site's real song array is the top-level `let songs=[]`.
-     It is intentionally NOT window.songs.  The previous renderer only
-     checked window.songs/window.dataSongs, so it always received [] and
-     every album displayed 0 songs. */
-  try{if(typeof songs !== 'undefined' && Array.isArray(songs))return songs}catch(e){}
+const dataSongs=()=>{
+  /* Use the site's existing top-level `let songs=[]` array. */
+  try{if(typeof songs!=='undefined' && Array.isArray(songs))return songs}catch(e){}
+  try{if(typeof window.songs!=='undefined' && Array.isArray(window.songs))return window.songs}catch(e){}
   return [];
 };
 const profiles=()=>{
@@ -8461,7 +8459,7 @@ const esc=v=>{try{if(typeof window.escapeHtml==='function')return window.escapeH
 const js=v=>text(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 const songId=s=>s&&s.id!=null?text(s.id):'';
 const findSong=ref=>{
- const list=songs();
+ const list=dataSongs();
  if(ref&&typeof ref==='object'){
    const rid=ref.id!=null?ref.id:(ref.song_id!=null?ref.song_id:ref.songId);
    if(rid!=null){const exact=list.find(s=>text(s.id)===text(rid));if(exact)return exact}
@@ -8483,13 +8481,13 @@ const artistImage=name=>{
  const saved=p.image||p.image_url||p.heroImage||p.hero_image||'';
  if(saved)return saved;
  const n=text(name).trim().toLowerCase();
- const hit=songs().find(s=>text(s.artist).trim().toLowerCase().startsWith(n));
+ const hit=dataSongs().find(s=>text(s.artist).trim().toLowerCase().startsWith(n));
  return hit?songCover(hit):'';
 };
 const artistNames=()=>{
  const m=new Map();
  Object.keys(profiles()).forEach(n=>{if(text(n).trim())m.set(text(n).trim().toLowerCase(),text(n).trim())});
- songs().forEach(s=>{
+ dataSongs().forEach(s=>{
    const n=text(s.artist).trim().split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
    if(n&&!m.has(n.toLowerCase()))m.set(n.toLowerCase(),n);
  });
@@ -8525,8 +8523,8 @@ function openAlbum(name){
  if(!modal){alert('Album viewer is missing from this page.');return}
  const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle'),count=document.getElementById('jcAlbumViewerCount'),box=document.getElementById('jcAlbumViewerSongs');
  const img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');if(c)c.src=img;if(t)t.textContent=key;if(count)count.textContent=list.length+' song'+(list.length===1?'':'s');
- if(box)box.innerHTML=list.length?list.map(s=>{const idx=songs().findIndex(x=>text(x.id)===text(s.id));return `<button type="button" class="jc-album-song" data-song-index="${idx}"><img src="${esc(songCover(s))}" alt=""><span><strong>${esc(s.title||'Untitled')}</strong><small>${esc(s.artist||'Unknown Artist')}</small></span><b>▶</b></button>`}).join(''):'<div class="jc-muted" style="padding:16px">No songs have been added to this album yet.</div>';
- const play=document.getElementById('jcAlbumViewerPlay');if(play)play.onclick=function(){if(list[0]){const i=songs().findIndex(x=>text(x.id)===text(list[0].id));if(i>=0&&typeof window.playSong==='function')window.playSong(i)}if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer()};
+ if(box)box.innerHTML=list.length?list.map(s=>{const idx=dataSongs().findIndex(x=>text(x.id)===text(s.id));return `<button type="button" class="jc-album-song" data-song-index="${idx}"><img src="${esc(songCover(s))}" alt=""><span><strong>${esc(s.title||'Untitled')}</strong><small>${esc(s.artist||'Unknown Artist')}</small></span><b>▶</b></button>`}).join(''):'<div class="jc-muted" style="padding:16px">No songs have been added to this album yet.</div>';
+ const play=document.getElementById('jcAlbumViewerPlay');if(play)play.onclick=function(){if(list[0]){const i=dataSongs().findIndex(x=>text(x.id)===text(list[0].id));if(i>=0&&typeof window.playSong==='function')window.playSong(i)}if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer()};
  modal.classList.add('open');
 }
 window.jcOpenAlbum=openAlbum;
