@@ -2037,6 +2037,7 @@ body{padding-bottom:92px!important}
             <label>Songs in this album</label>
             <div id="jcEditAlbumSongs" class="jc-admin-song-checks"></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="jcSaveAlbumEdit()">Save Album Changes</button>
+            <button class="jc-admin-btn jc-admin-danger" id="jcDeleteAlbumBtn" onclick="jcDeleteAlbum()">Delete Album</button>
             <div id="jcEditAlbumStatus" class="jc-admin-status"></div>
           </div>
 
@@ -2068,6 +2069,7 @@ body{padding-bottom:92px!important}
             <div class="sa-position-grid">
               <label>Left / Right <input id="saBorderX" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
               <label>Up / Down <input id="saBorderY" type="range" min="0" max="100" value="50" oninput="saUpdateBorderPreview()"></label>
+              <label style="grid-column:1/-1">Zoom In / Out <input id="saBorderZoom" type="range" min="100" max="300" value="100" oninput="saUpdateBorderPreview()"></label>
             </div>
             <div class="sa-position-values"><span id="saBorderXValue">50%</span><span id="saBorderYValue">50%</span></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="saSaveBorderPicture()">Save Artist Border Picture</button>
@@ -3691,12 +3693,14 @@ function renderCurrentArtistPage(){
   const fallback=document.querySelector(".logo")?.src || "";
   const image=profile.image || fallback;
 
-  const borderImage=profile.heroImage||"";
-  const borderX=Number.isFinite(Number(profile.heroX))?Number(profile.heroX):50;
-  const borderY=Number.isFinite(Number(profile.heroY))?Number(profile.heroY):50;
+  const borderCfg=(typeof window.saGetBorderConfig==="function")?window.saGetBorderConfig(name):{};
+  const borderImage=borderCfg.image||profile.heroImage||"";
+  const borderX=Number.isFinite(Number(borderCfg.x))?Number(borderCfg.x):(Number.isFinite(Number(profile.heroX))?Number(profile.heroX):50);
+  const borderY=Number.isFinite(Number(borderCfg.y))?Number(borderCfg.y):(Number.isFinite(Number(profile.heroY))?Number(profile.heroY):50);
+  const borderZoom=Number.isFinite(Number(borderCfg.zoom))?Number(borderCfg.zoom):(Number.isFinite(Number(profile.heroZoom))?Number(profile.heroZoom):100);
 
   hero.innerHTML=`
-    <div class="sa-artist-border-picture" aria-hidden="true" style="${borderImage?`background-image:url(${escapeHtml(borderImage)});background-position:${borderX}% ${borderY}%;`:``}"></div>
+    <div class="sa-artist-border-picture" aria-hidden="true" style="${borderImage?`background-image:url(${escapeHtml(borderImage)});background-position:${borderX}% ${borderY}%;background-size:${borderZoom}% auto;`:``}"></div>
     <div class="sa-artist-border-shade" aria-hidden="true"></div>
     <div class="sa-artist-border-content">
     <img
@@ -8417,6 +8421,136 @@ initializeAuth();
     setTimeout(rerender, 500);
     setTimeout(rerender, 1500);
   }
+})();
+</script>
+
+
+<style id="streamasiah-album-delete-border-zoom-final">
+#jcDeleteAlbumBtn{margin-left:8px!important}
+.sa-position-grid{grid-template-columns:1fr 1fr!important}
+.sa-position-grid label:last-child{grid-column:1/-1!important}
+</style>
+<script id="streamasiah-album-delete-border-zoom-final-script">
+(function(){
+  'use strict';
+  const BORDER_KEY='jassiahArtistBorderPictures';
+  const ALBUM_KEY='jassiahAlbums';
+  const txt=v=>String(v==null?'':v);
+  function read(key,fb){try{const v=JSON.parse(localStorage.getItem(key)||'');return v&&typeof v==='object'?v:fb}catch(e){return fb}}
+  function write(key,v){localStorage.setItem(key,JSON.stringify(v));}
+  function same(a,b){return txt(a).trim().toLowerCase()===txt(b).trim().toLowerCase()}
+  function profiles(){try{return (typeof artistProfiles!=='undefined'&&artistProfiles)||read('jassiahArtistProfiles',{})}catch(e){return read('jassiahArtistProfiles',{})}}
+  function borderStore(){return read(BORDER_KEY,{})}
+  function borderKey(name){const b=borderStore(),n=txt(name).trim();return Object.keys(b).find(k=>same(k,n))||n}
+
+  window.saGetBorderConfig=function(name){
+    const b=borderStore(),k=borderKey(name),v=b[k]||{};
+    let p={};try{p=profiles()[k]||Object.keys(profiles()).reduce((o,x)=>{if(same(x,k))return profiles()[x];return o}, {})||{}}catch(e){}
+    return {
+      image:v.image||v.heroImage||p.heroImage||'',
+      x:Number.isFinite(Number(v.x))?Number(v.x):(Number.isFinite(Number(p.heroX))?Number(p.heroX):50),
+      y:Number.isFinite(Number(v.y))?Number(v.y):(Number.isFinite(Number(p.heroY))?Number(p.heroY):50),
+      zoom:Number.isFinite(Number(v.zoom))?Number(v.zoom):(Number.isFinite(Number(p.heroZoom))?Number(p.heroZoom):100)
+    };
+  };
+
+  function setStatus(t){const el=document.getElementById('saBorderStatus');if(el)el.textContent=t||''}
+  function currentName(){return txt(document.getElementById('jcBorderArtist')?.value).trim()}
+
+  window.saLoadBorderEditor=function(){
+    const name=currentName();
+    const cfg=name?window.saGetBorderConfig(name):{image:'',x:50,y:50,zoom:100};
+    const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');
+    if(x)x.value=cfg.x;if(y)y.value=cfg.y;if(z)z.value=cfg.zoom;
+    window.saBorderDraftImage='';
+    const f=document.getElementById('jcBorderImage');if(f)f.value='';
+    window.saUpdateBorderPreview();
+    setStatus(name?(cfg.image?'Saved border picture loaded. You can move and zoom it.':'No border picture saved for this artist yet.'):'');
+  };
+
+  window.saPreviewBorderImage=function(ev){
+    const file=ev?.target?.files?.[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(){
+      const img=new Image();
+      img.onload=function(){
+        const maxW=1200,maxH=900,scale=Math.min(1,maxW/img.width,maxH/img.height);
+        const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));
+        const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
+        window.saBorderDraftImage=c.toDataURL('image/jpeg',.78);
+        window.saUpdateBorderPreview();
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.saUpdateBorderPreview=function(){
+    const box=document.getElementById('saBorderPreview');if(!box)return;
+    const name=currentName(),cfg=name?window.saGetBorderConfig(name):{image:'',x:50,y:50,zoom:100};
+    const image=window.saBorderDraftImage||cfg.image||'';
+    const x=Number(document.getElementById('saBorderX')?.value||cfg.x||50);
+    const y=Number(document.getElementById('saBorderY')?.value||cfg.y||50);
+    const zoom=Number(document.getElementById('saBorderZoom')?.value||cfg.zoom||100);
+    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');
+    if(xv)xv.textContent=x+'%';if(yv)yv.textContent=y+'%';
+    let zv=document.getElementById('saBorderZoomValue');
+    if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';const vals=document.querySelector('.sa-position-values');if(vals)vals.appendChild(zv)}
+    zv.textContent='Zoom '+zoom+'%';
+    box.style.backgroundImage=image?`url("${image}")`:'none';
+    box.style.backgroundPosition=`${x}% ${y}%`;
+    box.style.backgroundSize=`${zoom}% auto`;
+    box.innerHTML=image?'':'Select an artist to preview the border picture.';
+  };
+
+  window.saSaveBorderPicture=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const name=currentName();if(!name){setStatus('Choose an artist first.');return}
+    const old=window.saGetBorderConfig(name),image=window.saBorderDraftImage||old.image;
+    if(!image){setStatus('Choose a picture first.');return}
+    const store=borderStore(),key=borderKey(name);
+    store[key]={image:image,x:Number(document.getElementById('saBorderX')?.value||old.x||50),y:Number(document.getElementById('saBorderY')?.value||old.y||50),zoom:Number(document.getElementById('saBorderZoom')?.value||old.zoom||100)};
+    write(BORDER_KEY,store);
+    // Also mirror it into the existing artist profile object/local cache so older code can see it.
+    try{
+      const p=profiles(),pk=Object.keys(p).find(k=>same(k,name))||name;p[pk]=p[pk]||{};p[pk].heroImage=image;p[pk].heroX=store[key].x;p[pk].heroY=store[key].y;p[pk].heroZoom=store[key].zoom;write('jassiahArtistProfiles',p);artistProfiles=p;
+    }catch(e){}
+    window.saBorderDraftImage='';
+    setStatus('Artist border picture saved for '+key+'.');
+    window.saLoadBorderEditor();
+    try{if(typeof renderCurrentArtistPage==='function')renderCurrentArtistPage()}catch(e){}
+  };
+
+  window.saRemoveBorderPicture=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const name=currentName();if(!name)return;const store=borderStore(),key=borderKey(name);delete store[key];write(BORDER_KEY,store);
+    try{const p=profiles(),pk=Object.keys(p).find(k=>same(k,name));if(pk){delete p[pk].heroImage;delete p[pk].heroX;delete p[pk].heroY;delete p[pk].heroZoom;write('jassiahArtistProfiles',p);artistProfiles=p}}catch(e){}
+    window.saBorderDraftImage='';setStatus('Border picture removed for '+key+'.');window.saLoadBorderEditor();
+    try{if(typeof renderCurrentArtistPage==='function')renderCurrentArtistPage()}catch(e){}
+  };
+
+  window.jcDeleteAlbum=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const sel=document.getElementById('jcEditAlbumName'),name=txt(sel?.value).trim();
+    const status=document.getElementById('jcEditAlbumStatus');if(!name){if(status)status.textContent='Select an album first.';return}
+    const as=read(ALBUM_KEY,{}),key=Object.keys(as).find(k=>same(k,name));if(!key){if(status)status.textContent='Album not found.';return}
+    if(!confirm('Delete album "'+key+'"? The songs themselves will NOT be deleted.'))return;
+    delete as[key];write(ALBUM_KEY,as);
+    try{if(typeof albums!=='undefined'&&albums!==as){delete albums[key]}}catch(e){}
+    if(sel)sel.value='';
+    const checks=document.getElementById('jcEditAlbumSongs');if(checks)checks.innerHTML='';
+    if(status)status.textContent='Album deleted.';
+    try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){}
+    try{if(typeof window.refresh==='function')window.refresh()}catch(e){}
+  };
+
+  document.addEventListener('DOMContentLoaded',function(){
+    setTimeout(function(){
+      const sel=document.getElementById('jcEditAlbumName');
+      if(sel&&!sel.dataset.deleteBound){sel.dataset.deleteBound='1';}
+      try{if(typeof window.saPrepareBorderArtists==='function')window.saPrepareBorderArtists()}catch(e){}
+    },300);
+  });
 })();
 </script>
 
