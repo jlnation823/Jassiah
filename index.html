@@ -9264,124 +9264,186 @@ html, body{
 }
 </style>
 
-<style id="streamasiah-border-final-match">
-/* The editor is a portrait-aware crop window; keep the saved artist banner using that same crop. */
-#saBorderPreview{position:relative!important;overflow:hidden!important;background:#120018!important;}
-#saBorderPreview .sa-border-preview-img{position:absolute!important;left:50%!important;top:50%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:50% 50%!important;transform-origin:center center!important;display:block!important;pointer-events:none!important;}
-.jc-artist-border-detail{position:relative!important;overflow:hidden!important;isolation:isolate!important;}
-.jc-artist-border-detail>.jc-artist-border-bg{position:absolute!important;inset:0!important;background-repeat:no-repeat!important;background-size:cover!important;background-position:50% 50%!important;transform-origin:center center!important;pointer-events:none!important;}
-</style>
-<script id="streamasiah-border-final-match-js">
-(function(){
-'use strict';
-const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-const N=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
-function borderCfg(name){
-  try{
-    const b=JSON.parse(localStorage.getItem('jassiahArtistBorderPictures')||'{}')||{};
-    const key=Object.keys(b).find(k=>String(k).trim().toLowerCase()===String(name||'').trim().toLowerCase())||String(name||'').trim();
-    const v=b[key]||{};
-    return {image:v.image||v.heroImage||'',x:N(v.x,50),y:N(v.y,50),zoom:clamp(N(v.zoom,100),60,180)};
-  }catch(e){return {image:'',x:50,y:50,zoom:100};}
-}
-function esc(v){try{if(typeof window.escapeHtml==='function')return window.escapeHtml(v)}catch(e){}return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function renderEditor(){
-  const box=document.getElementById('saBorderPreview');if(!box)return;
-  const name=String(document.getElementById('jcBorderArtist')?.value||'').trim(),cfg=borderCfg(name),image=window.saBorderDraftImage||cfg.image;
-  const x=clamp(N(document.getElementById('saBorderX')?.value,cfg.x),0,100),y=clamp(N(document.getElementById('saBorderY')?.value,cfg.y),0,100),z=clamp(N(document.getElementById('saBorderZoom')?.value,cfg.zoom),60,180);
-  const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');if(xv)xv.textContent=Math.round(x)+'%';if(yv)yv.textContent=Math.round(y)+'%';
-  let zv=document.getElementById('saBorderZoomValue');if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';document.querySelector('.sa-position-values')?.appendChild(zv)}zv.textContent='Zoom '+Math.round(z)+'%';
-  box.innerHTML=image?`<img class="sa-border-preview-img" src="${esc(image)}" alt=""><span class="sa-border-preview-tint"></span>`:'Select an artist to preview the border picture.';
-  if(!image)return;const im=box.querySelector('.sa-border-preview-img');if(!im)return;
-  const apply=()=>{
-    const bw=box.clientWidth||1,bh=box.clientHeight||1,iw=im.naturalWidth||1,ih=im.naturalHeight||1;
-    const cover=Math.max(bw/iw,bh/ih),w=iw*cover*(z/100),h=ih*cover*(z/100);
-    const roomX=Math.max(0,(w-bw)/2),roomY=Math.max(0,(h-bh)/2);
-    const dx=((x-50)/50)*roomX,dy=((y-50)/50)*roomY;
-    im.style.width=w+'px';im.style.height=h+'px';im.style.left='50%';im.style.top='50%';im.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px)`;
-  };
-  if(im.complete)apply();else im.onload=apply;
-}
-window.saUpdateBorderPreview=renderEditor;
-window.saLoadBorderEditor=function(){
-  const name=String(document.getElementById('jcBorderArtist')?.value||'').trim(),cfg=borderCfg(name);
-  const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');if(x)x.value=cfg.x;if(y)y.value=cfg.y;if(z)z.value=cfg.zoom;
-  window.saBorderDraftImage='';const f=document.getElementById('jcBorderImage');if(f)f.value='';renderEditor();
-  const st=document.getElementById('saBorderStatus');if(st)st.textContent=name?(cfg.image?'Saved border picture loaded. Move it or zoom it.':'No border picture saved for this artist yet.'):'Choose an artist.';
-};
-window.saPreviewBorderImage=function(ev){
-  const file=ev?.target?.files?.[0];if(!file)return;const r=new FileReader();r.onload=()=>{window.saBorderDraftImage=String(r.result||'');const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');if(x)x.value=50;if(y)y.value=50;if(z)z.value=100;renderEditor()};r.readAsDataURL(file);
-};
-window.saSaveBorderPicture=function(){
-  if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return;}
-  const name=String(document.getElementById('jcBorderArtist')?.value||'').trim();if(!name)return;
-  const b=(()=>{try{return JSON.parse(localStorage.getItem('jassiahArtistBorderPictures')||'{}')||{}}catch(e){return {}}})();
-  const key=Object.keys(b).find(k=>String(k).trim().toLowerCase()===name.toLowerCase())||name,old=b[key]||{},image=window.saBorderDraftImage||old.image||old.heroImage||'';
-  if(!image)return;
-  const x=clamp(N(document.getElementById('saBorderX')?.value,50),0,100),y=clamp(N(document.getElementById('saBorderY')?.value,50),0,100),zoom=clamp(N(document.getElementById('saBorderZoom')?.value,100),60,180);
-  b[key]={image,x,y,zoom};localStorage.setItem('jassiahArtistBorderPictures',JSON.stringify(b));
-  try{const p=JSON.parse(localStorage.getItem('jassiahArtistProfiles')||'{}')||{},pk=Object.keys(p).find(k=>String(k).trim().toLowerCase()===name.toLowerCase())||name;p[pk]=p[pk]||{};p[pk].heroImage=image;p[pk].heroX=x;p[pk].heroY=y;p[pk].heroZoom=zoom;localStorage.setItem('jassiahArtistProfiles',JSON.stringify(p))}catch(e){}
-  window.saBorderDraftImage='';renderEditor();const st=document.getElementById('saBorderStatus');if(st)st.textContent='Artist border picture saved for '+key+'.';
-};
-function syncLiveBorder(){
-  document.querySelectorAll('.jc-artist-border-detail').forEach(detail=>{
-    const bg=detail.querySelector('.jc-artist-border-bg');if(!bg)return;
-    const cs=getComputedStyle(bg);
-    const image=bg.dataset.borderImage || (bg.style.backgroundImage||'').replace(/^url\(["']?/,'').replace(/["']?\)$/,'');
-    const x=N(cs.getPropertyValue('--border-pos-x').replace('%',''),50);
-    const y=N(cs.getPropertyValue('--border-pos-y').replace('%',''),50);
-    const z=Math.max(.6,Math.min(1.8,N(cs.getPropertyValue('--border-zoom'),1)));
-    const old=bg.querySelector('.sa-live-border-img');
-    if(old)old.remove();
-    if(!image)return;
-    bg.dataset.borderImage=image;
-    bg.style.backgroundImage='none';
-    bg.style.backgroundColor='#160020';
-    const im=document.createElement('img');im.className='sa-live-border-img';im.src=image;im.alt='';
-    Object.assign(im.style,{position:'absolute',left:'50%',top:'50%',maxWidth:'none',maxHeight:'none',pointerEvents:'none',display:'block',transformOrigin:'center center'});
-    bg.appendChild(im);
-    const apply=()=>{
-      const bw=detail.clientWidth||1,bh=detail.clientHeight||1,iw=im.naturalWidth||1,ih=im.naturalHeight||1;
-      /* Use the editor's 600x140 crop geometry to calculate the source point being selected. */
-      const ew=600,eh=140;
-      const se=Math.max(ew/iw,eh/ih)*z;
-      const we=iw*se,he=ih*se;
-      const rx=Math.max(0,(we-ew)/2),ry=Math.max(0,(he-eh)/2);
-      const editorDx=((x-50)/50)*rx,editorDy=((y-50)/50)*ry;
-      const cx=iw/2-editorDx/se,cy=ih/2-editorDy/se;
-      /* Preserve the selected source center and the editor's zoomed source framing vertically. */
-      const targetSourceH=Math.max(1,eh/se);
-      let liveScale=(bh/targetSourceH)/ih;
-      const minScale=Math.max(bw/iw,bh/ih)*.6;
-      liveScale=Math.max(liveScale,minScale);
-      const w=iw*liveScale,h=ih*liveScale;
-      const dx=(iw/2-cx)*liveScale,dy=(ih/2-cy)*liveScale;
-      im.style.width=w+'px';im.style.height=h+'px';im.style.transform=`translate(-50%,-50%) translate(${dx}px,${dy}px)`;
-    };
-    if(im.complete)apply();else im.onload=apply;
-  });
-}
-window.saSyncLiveBorder=syncLiveBorder;
-document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,500);setTimeout(renderEditor,1200);setTimeout(syncLiveBorder,700);setTimeout(syncLiveBorder,1500)});
-let syncing=false;
-const obs=new MutationObserver(()=>{
-  if(syncing)return;
-  syncing=true;
-  obs.disconnect();
-  try{syncLiveBorder()}finally{syncing=false;if(document.body)obs.observe(document.body,{subtree:true,childList:true});}
-});
-if(document.body)obs.observe(document.body,{subtree:true,childList:true});
-})();
-</script>
 
-<style id="streamasiah-live-border-image-final-css">
-.jc-artist-border-detail>.jc-artist-border-bg{overflow:hidden!important;}
-.jc-artist-border-detail>.jc-artist-border-bg .sa-live-border-img{z-index:0!important;filter:saturate(.88) brightness(.72)!important;}
+<style id="streamasiah-border-authoritative-fix">
+/* One authoritative crop system for the artist-border editor and saved artist banner. */
+#saBorderPreview{
+  position:relative!important;
+  overflow:hidden!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:7.1 / 1!important;
+  padding:0!important;
+  background:#120018!important;
+}
+#saBorderPreview .sa-border-preview-img{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:fill!important;
+  display:block!important;
+  transform-origin:center center!important;
+  pointer-events:none!important;
+}
+#saBorderPreview .sa-border-preview-tint{
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+}
+.jc-artist-border-detail{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+}
+.jc-artist-border-detail>.jc-artist-border-bg{
+  position:absolute!important;
+  inset:0!important;
+  overflow:hidden!important;
+  background:#160020!important;
+  pointer-events:none!important;
+}
+.jc-artist-border-detail>.jc-artist-border-bg .sa-live-border-img{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  max-width:none!important;
+  max-height:none!important;
+  display:block!important;
+  transform-origin:center center!important;
+  pointer-events:none!important;
+  filter:saturate(.88) brightness(.72)!important;
+}
 </style>
-<script id="streamasiah-live-border-resize-final-js">
+<script id="streamasiah-border-authoritative-fix-js">
 (function(){
-  function run(){try{if(typeof window.saSyncLiveBorder==='function')window.saSyncLiveBorder()}catch(e){}}
-  window.addEventListener('resize',run);
-  document.addEventListener('DOMContentLoaded',()=>{setTimeout(run,300);setTimeout(run,900);setTimeout(run,1600)});
+  'use strict';
+  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+  const num=(v,d)=>Number.isFinite(Number(v))?Number(v):d;
+  const text=v=>String(v==null?'':v).trim();
+  const esc=v=>{try{if(typeof window.escapeHtml==='function')return window.escapeHtml(v)}catch(e){}return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))};
+
+  function read(key,fb){try{const v=JSON.parse(localStorage.getItem(key)||'');return v&&typeof v==='object'?v:fb}catch(e){return fb}}
+  function borderData(name){
+    const b=read('jassiahArtistBorderPictures',{}), target=text(name).toLowerCase();
+    const key=Object.keys(b).find(k=>text(k).toLowerCase()===target)||text(name),v=b[key]||{};
+    return {image:v.image||v.heroImage||'',x:clamp(num(v.x,50),0,100),y:clamp(num(v.y,50),0,100),zoom:clamp(num(v.zoom,100),60,180)};
+  }
+
+  /*
+     This is the crop model used everywhere:
+     1) cover the crop box at 100%
+     2) multiply that cover size by zoom
+     3) use X/Y as the percentage of the available overflow
+     Both the editor and the live artist banner call this exact function.
+  */
+  function applyCrop(box,im,x,y,zoom){
+    if(!box||!im)return;
+    const bw=box.clientWidth||1,bh=box.clientHeight||1;
+    const iw=im.naturalWidth||1,ih=im.naturalHeight||1;
+    const cover=Math.max(bw/iw,bh/ih);
+    const scale=cover*(zoom/100);
+    const w=iw*scale,h=ih*scale;
+    const overflowX=Math.max(0,w-bw),overflowY=Math.max(0,h-bh);
+    const left=-(overflowX*(x/100));
+    const top=-(overflowY*(y/100));
+    im.style.setProperty('width',w+'px','important');
+    im.style.setProperty('height',h+'px','important');
+    im.style.setProperty('left',left+'px','important');
+    im.style.setProperty('top',top+'px','important');
+    im.style.setProperty('transform','none','important');
+  }
+
+  function renderEditor(){
+    const box=document.getElementById('saBorderPreview');
+    if(!box)return;
+    const name=text(document.getElementById('jcBorderArtist')?.value);
+    const cfg=borderData(name);
+    const x=clamp(num(document.getElementById('saBorderX')?.value,cfg.x),0,100);
+    const y=clamp(num(document.getElementById('saBorderY')?.value,cfg.y),0,100);
+    const z=clamp(num(document.getElementById('saBorderZoom')?.value,cfg.zoom),60,180);
+    const image=window.saBorderDraftImage||cfg.image||'';
+    const xv=document.getElementById('saBorderXValue'),yv=document.getElementById('saBorderYValue');
+    if(xv)xv.textContent=Math.round(x)+'%';
+    if(yv)yv.textContent=Math.round(y)+'%';
+    let zv=document.getElementById('saBorderZoomValue');
+    if(!zv){zv=document.createElement('span');zv.id='saBorderZoomValue';zv.style.marginLeft='auto';zv.style.color='#c56cff';document.querySelector('.sa-position-values')?.appendChild(zv)}
+    zv.textContent='Zoom '+Math.round(z)+'%';
+    box.innerHTML=image?`<img class="sa-border-preview-img" src="${esc(image)}" alt=""><span class="sa-border-preview-tint"></span>`:'Select an artist to preview the border picture.';
+    if(!image)return;
+    const im=box.querySelector('.sa-border-preview-img');
+    const apply=()=>applyCrop(box,im,x,y,z);
+    if(im.complete)apply();else im.onload=apply;
+  }
+
+  window.saUpdateBorderPreview=renderEditor;
+  window.saLoadBorderEditor=function(){
+    const name=text(document.getElementById('jcBorderArtist')?.value),cfg=borderData(name);
+    const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');
+    if(x)x.value=cfg.x;if(y)y.value=cfg.y;if(z)z.value=cfg.zoom;
+    window.saBorderDraftImage='';
+    const f=document.getElementById('jcBorderImage');if(f)f.value='';
+    renderEditor();
+    const st=document.getElementById('saBorderStatus');if(st)st.textContent=name?(cfg.image?'Saved border picture loaded. Move it or zoom it.':'No border picture saved for this artist yet.'):'Choose an artist.';
+  };
+
+  window.saPreviewBorderImage=function(ev){
+    const file=ev?.target?.files?.[0];if(!file)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      window.saBorderDraftImage=String(r.result||'');
+      const x=document.getElementById('saBorderX'),y=document.getElementById('saBorderY'),z=document.getElementById('saBorderZoom');
+      if(x)x.value=50;if(y)y.value=50;if(z)z.value=100;
+      renderEditor();
+    };
+    r.readAsDataURL(file);
+  };
+
+  window.saSaveBorderPicture=function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return;}
+    const name=text(document.getElementById('jcBorderArtist')?.value),st=document.getElementById('saBorderStatus');
+    if(!name){if(st)st.textContent='Choose an artist.';return;}
+    const b=read('jassiahArtistBorderPictures',{}),target=name.toLowerCase(),key=Object.keys(b).find(k=>text(k).toLowerCase()===target)||name,old=b[key]||{};
+    const image=window.saBorderDraftImage||old.image||old.heroImage||'';
+    if(!image){if(st)st.textContent='Choose a picture first.';return;}
+    const x=clamp(num(document.getElementById('saBorderX')?.value,50),0,100),y=clamp(num(document.getElementById('saBorderY')?.value,50),0,100),zoom=clamp(num(document.getElementById('saBorderZoom')?.value,100),60,180);
+    b[key]={image,x,y,zoom};
+    localStorage.setItem('jassiahArtistBorderPictures',JSON.stringify(b));
+    try{
+      const p=read('jassiahArtistProfiles',{}),pk=Object.keys(p).find(k=>text(k).toLowerCase()===target)||name;
+      p[pk]=p[pk]||{};p[pk].heroImage=image;p[pk].heroX=x;p[pk].heroY=y;p[pk].heroZoom=zoom;
+      localStorage.setItem('jassiahArtistProfiles',JSON.stringify(p));
+      try{artistProfiles=p}catch(e){}
+    }catch(e){}
+    window.saBorderDraftImage='';
+    renderEditor();
+    if(st)st.textContent='Artist border picture saved for '+key+'.';
+    setTimeout(syncLiveBorders,0);
+  };
+
+  function syncLiveBorders(){
+    document.querySelectorAll('.jc-artist-border-detail').forEach(detail=>{
+      const bg=detail.querySelector('.jc-artist-border-bg');if(!bg)return;
+      const name=window.currentArtistName||'';
+      const inline=(bg.style.backgroundImage||'').replace(/^url\(["']?/,'').replace(/["']?\)$/,'');
+      const image=bg.dataset.borderImage||inline;
+      if(!image)return;
+      const x=num((bg.style.getPropertyValue('--border-pos-x')||'').replace('%',''),50);
+      const y=num((bg.style.getPropertyValue('--border-pos-y')||'').replace('%',''),50);
+      const z=clamp(num(bg.style.getPropertyValue('--border-zoom'),1),.6,1.8)*100;
+      bg.innerHTML='';
+      const im=document.createElement('img');
+      im.className='sa-live-border-img';im.src=image;im.alt='';bg.appendChild(im);
+      const apply=()=>applyCrop(bg,im,x,y,z);
+      if(im.complete)apply();else im.onload=apply;
+    });
+  }
+  window.saSyncLiveBorder=syncLiveBorders;
+  window.addEventListener('resize',()=>{renderEditor();syncLiveBorders()});
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,300);setTimeout(renderEditor,900);setTimeout(syncLiveBorders,500);setTimeout(syncLiveBorders,1200)});
+  const obs=new MutationObserver(()=>{clearTimeout(window.__saBorderTimer);window.__saBorderTimer=setTimeout(syncLiveBorders,20)});
+  if(document.body)obs.observe(document.body,{subtree:true,childList:true});
 })();
 </script>
