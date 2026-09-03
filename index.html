@@ -2179,12 +2179,10 @@ body{padding-bottom:92px!important}
               Save Artist Profile
             </button>
             <div id="jcEditArtistStatus" class="jc-admin-status"></div>
-          </div>
-
-          <div class="jc-admin-card">
+          </div>          <div class="jc-admin-card">
             <h3>🔥 Featured Artist</h3>
             <label>Artist name</label>
-            <input id="jcFeaturedArtistName" list="jcFeaturedArtistList" placeholder="Type artist name...">
+            <input id="jcFeaturedArtistName" list="jcFeaturedArtistList" placeholder="Choose an existing artist...">
             <datalist id="jcFeaturedArtistList"></datalist>
             <label>Featured artist picture</label>
             <input id="jcFeaturedArtistImage" type="file" accept="image/*">
@@ -2192,6 +2190,11 @@ body{padding-bottom:92px!important}
             <input id="jcFeaturedArtistZoom" type="range" min="60" max="140" value="100" step="1" oninput="jcPreviewFeaturedArtistZoom()">
             <div id="jcFeaturedArtistZoomPreview" style="margin-top:10px;width:100%;height:220px;border:1px solid #5d1684;border-radius:10px;overflow:hidden;background:#050505;display:flex;align-items:center;justify-content:center;">
               <span style="color:#888;font-size:12px;">Choose a picture to preview the zoom.</span>
+            </div>
+            <div class="jc-featured-song-editor">
+              <label>Featured Artist Songs <span style="color:#888">(up to 3)</span></label>
+              <div id="jcFeaturedSongEditor"></div>
+              <button type="button" class="jc-admin-btn jc-admin-muted" onclick="jcAddFeaturedSong()">+ Add Song</button>
             </div>
             <button class="jc-admin-btn jc-admin-primary" onclick="jcSaveFeaturedArtist()">Save Featured Artist</button>
             <button class="jc-admin-btn jc-admin-muted" onclick="jcRemoveFeaturedArtist()">Remove Featured Picture</button>
@@ -9284,13 +9287,7 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 #jcArtists .jc-artist-card img{width:100%!important;max-width:104px!important;aspect-ratio:1!important;height:auto!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcHomeArtists .jc-artist-card img{width:110px!important;height:110px!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcArtists .jc-artist-name,#jcHomeArtists .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
-.jc-featured-artist-page{max-width:900px;margin:0 auto;padding:50px 0 80px;}
-#jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;}
-.jc-featured-artist-card{width:min(700px,92%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:24px;box-sizing:border-box;}
-.jc-featured-artist-image-frame{width:min(520px,100%);height:520px;margin:0 auto 18px;overflow:hidden;border-radius:14px;background:#050505;display:flex;align-items:center;justify-content:center;}
-.jc-featured-artist-card img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;margin:0;transform-origin:center center;}
-.jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;}
-.jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;}
+.jc-featured-artist-page{max-width:1000px;margin:0 auto;padding:34px 0 80px;} #jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;} .jc-featured-artist-card{width:min(820px,94%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:20px;box-sizing:border-box;} .jc-featured-artist-image-frame{width:min(720px,100%);height:560px;margin:0 auto 16px;overflow:hidden;border-radius:14px;background:#050505;display:flex;align-items:center;justify-content:center;} .jc-featured-artist-card img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;margin:0;transform-origin:center center;} .jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;margin-bottom:20px;} .jc-featured-song-list{width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:9px;text-align:left;} .jc-featured-song{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#17131a;border:1px solid #2b2130;border-radius:10px;cursor:pointer;} .jc-featured-song img{width:48px;height:48px;object-fit:cover;border-radius:7px;flex:0 0 auto;} .jc-featured-song-info{min-width:0;display:flex;flex-direction:column;gap:3px;} .jc-featured-song-info strong{font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-song-info span{font-size:12px;color:#a100ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;} .jc-featured-song-editor{margin-top:14px;padding-top:14px;border-top:1px solid #2b2130;} .jc-featured-song-edit-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;margin-top:7px;} .jc-featured-song-edit-row select{width:100%;padding:9px;border-radius:8px;background:#111;color:#fff;border:1px solid #444;} .jc-featured-song-edit-row button{min-width:38px;padding:8px 10px;} 
 @media(max-width:900px){#jcArtists{grid-template-columns:repeat(3,minmax(82px,1fr))!important;gap:18px 10px!important;}#jcArtists .jc-artist-card img{max-width:82px!important;}}
 </style>
 <script id="streamasiah-final-data-render-fix-js">
@@ -9951,160 +9948,34 @@ html, body{
 </html>
 <script id="streamasiah-featured-artist-js">
 (function(){
-  'use strict';
-  const FEATURE_PREFIX='__STREAMASIAH_FEATURED__::';
-  const allProfiles=()=>{try{const p=JSON.parse(localStorage.getItem('jassiahArtistProfiles')||'{}');if(p&&typeof p==='object'){if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.assign(p,window.artistProfiles);return p}}catch(e){}return (window.artistProfiles&&typeof window.artistProfiles==='object')?window.artistProfiles:{};};
-  const featuredKey=()=>Object.keys(allProfiles()).find(k=>String(k).startsWith(FEATURE_PREFIX))||'';
-  const featuredData=()=>{
-    const pAll=allProfiles(), key=featuredKey(), p=pAll[key]||{};
-    return key?{key,name:key.slice(FEATURE_PREFIX.length),image:p.image_url||p.image||'',zoom:Number(p.zoom||100)}:null;
-  };
-  const escFeatured=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-  window.jcRenderFeaturedArtist=function(){
-    const box=document.getElementById('jcFeaturedArtistDisplay');
-    if(!box)return;
-    const f=featuredData();
-    box.innerHTML=f&&f.image
-      ? `<div class="jc-featured-artist-card"><div class="jc-featured-artist-image-frame"><img src="${escFeatured(f.image)}" alt="${escFeatured(f.name)}" style="transform:scale(${Math.max(0.6,Math.min(1.4,Number(f.zoom||100)/100))})"></div><div class="jc-featured-artist-name">${escFeatured(f.name)}</div></div>`
-      : '<div class="jc-featured-empty">No Featured Artist has been selected yet.</div>';
-  };
-
-  window.jcPreviewFeaturedArtistZoom=function(){
-    const zoomEl=document.getElementById('jcFeaturedArtistZoom');
-    const valueEl=document.getElementById('jcFeaturedArtistZoomValue');
-    const preview=document.getElementById('jcFeaturedArtistZoomPreview');
-    const fileEl=document.getElementById('jcFeaturedArtistImage');
-    const zoom=Math.max(60,Math.min(140,Number(zoomEl?.value||100)));
-    if(valueEl)valueEl.textContent=zoom+'%';
-    if(!preview)return;
-    const file=fileEl?.files?.[0];
-    if(!file){
-      const existing=featuredData();
-      if(existing?.image){
-        preview.innerHTML=`<img src="${escFeatured(existing.image)}" alt="" style="width:100%;height:100%;object-fit:contain;transform:scale(${zoom/100});transform-origin:center center;">`;
-      }else{
-        preview.innerHTML='<span style="color:#888;font-size:12px;">Choose a picture to preview the zoom.</span>';
-      }
-      return;
-    }
-    const reader=new FileReader();
-    reader.onload=function(){
-      preview.innerHTML=`<img src="${escFeatured(reader.result)}" alt="" style="width:100%;height:100%;object-fit:contain;transform:scale(${zoom/100});transform-origin:center center;">`;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  window.jcSaveFeaturedArtist=async function(){
-    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
-    const nameEl=document.getElementById('jcFeaturedArtistName');
-    const fileEl=document.getElementById('jcFeaturedArtistImage');
-    const status=document.getElementById('jcFeaturedArtistStatus');
-    const name=String(nameEl?.value||'').trim();
-    const file=fileEl?.files?.[0];
-    if(!name||!file){if(status)status.textContent='Enter the artist name and choose a picture.';return}
-    if(status)status.textContent='Saving Featured Artist...';
-    try{
-      const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist');
-      const upload=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
-      if(upload.error)throw upload.error;
-      const imageUrl=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl;
-
-      const existing=featuredKey();
-      if(existing){
-        const del=await client.from('artist_profiles').delete().eq('name',existing);
-        if(del.error)throw del.error;
-      }
-      const key=FEATURE_PREFIX+name;
-      const row=await client.from('artist_profiles').insert({name:key,image_url:imageUrl,created_at:new Date().toISOString()}).select().single();
-      if(row.error)throw row.error;
-
-      window.artistProfiles=window.artistProfiles&&typeof window.artistProfiles==='object'?window.artistProfiles:{};
-      Object.keys(window.artistProfiles).filter(k=>k.startsWith(FEATURE_PREFIX)).forEach(k=>delete window.artistProfiles[k]);
-      const zoom=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100)));
-      window.artistProfiles[key]={image:imageUrl,image_url:imageUrl,zoom,created_at:row.data?.created_at||new Date().toISOString()};
-      localStorage.setItem('jassiahArtistProfiles',JSON.stringify(window.artistProfiles));
-      if(nameEl)nameEl.value='';
-      if(fileEl)fileEl.value='';
-      const zoomEl=document.getElementById('jcFeaturedArtistZoom');
-      const zoomValue=document.getElementById('jcFeaturedArtistZoomValue');
-      if(zoomEl)zoomEl.value=String(zoom);
-      if(zoomValue)zoomValue.textContent=zoom+'%';
-      if(status)status.textContent='Featured Artist saved.';
-      window.jcRenderFeaturedArtist();
-      if(typeof window.jcPrepareAdmin==='function')window.jcPrepareAdmin();
-      if(typeof window.jcGo==='function'&&Number(window.page)===8)window.jcGo(8);
-    }catch(e){
-      console.error(e);
-      if(status)status.textContent='Featured Artist save failed: '+(e?.message||'Unknown error');
-    }
-  };
-
-  window.jcRemoveFeaturedArtist=async function(){
-    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
-    const status=document.getElementById('jcFeaturedArtistStatus');
-    if(status)status.textContent='Removing Featured Artist...';
-    try{
-      const key=featuredKey();
-      if(key){
-        const del=await client.from('artist_profiles').delete().eq('name',key);
-        if(del.error)throw del.error;
-        if(window.artistProfiles&&typeof window.artistProfiles==='object')delete window.artistProfiles[key];
-        localStorage.setItem('jassiahArtistProfiles',JSON.stringify(window.artistProfiles||{}));
-      }
-      const nameEl=document.getElementById('jcFeaturedArtistName');
-      const fileEl=document.getElementById('jcFeaturedArtistImage');
-      if(nameEl)nameEl.value='';
-      if(fileEl)fileEl.value='';
-      if(status)status.textContent='Featured Artist removed.';
-      window.jcRenderFeaturedArtist();
-    }catch(e){
-      console.error(e);
-      if(status)status.textContent='Featured Artist remove failed: '+(e?.message||'Unknown error');
-    }
-  };
-
-  function prepareFeaturedAdmin(){
-    const dl=document.getElementById('jcFeaturedArtistList');
-    if(dl){
-      let names=[];
-      try{names=Object.keys(allProfiles()).filter(n=>n.trim()&&!n.startsWith(FEATURE_PREFIX)).sort((a,b)=>a.localeCompare(b))}catch(e){}
-      dl.innerHTML=names.map(n=>`<option value="${escFeatured(n)}"></option>`).join('');
-    }
-    const f=featuredData(), nameEl=document.getElementById('jcFeaturedArtistName');
-    if(f&&nameEl&&!nameEl.value)nameEl.value=f.name;
-    const zoomEl=document.getElementById('jcFeaturedArtistZoom');
-    const zoomValue=document.getElementById('jcFeaturedArtistZoomValue');
-    if(zoomEl){const z=Math.max(60,Math.min(140,Number(f?.zoom||100)));zoomEl.value=String(z);if(zoomValue)zoomValue.textContent=z+'%';}
-    if(typeof window.jcPreviewFeaturedArtistZoom==='function')window.jcPreviewFeaturedArtistZoom();
-  }
-
-  /* The Featured Artist is slide 8; the existing Admin Hub remains slide 9. */
-  const oldGo=window.jcGo;
-  window.jcGo=function(n){
-    const target=Math.max(0,Math.min(9,Number(n)||0));
-    if(target===8){
-      const track=document.getElementById('jcTrack');
-      if(track)track.style.transform='translateX(-800%)';
-      window.page=8;
-      document.querySelectorAll('.jc-nav').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.page)===8));
-      window.jcRenderFeaturedArtist();
-      return;
-    }
-    if(target===9){
-      const track=document.getElementById('jcTrack');
-      if(track)track.style.transform='translateX(-900%)';
-      window.page=9;
-      document.querySelectorAll('.jc-nav').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.page)===9));
-      if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');window.jcGo(0);return}
-      prepareFeaturedAdmin();
-      ['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});
-      return;
-    }
-    if(typeof oldGo==='function')oldGo(target);
-  };
-
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{prepareFeaturedAdmin();window.jcRenderFeaturedArtist()},500)});
-  else setTimeout(()=>{prepareFeaturedAdmin();window.jcRenderFeaturedArtist()},500);
+'use strict';
+const FEATURE_KEY='jassiahFeaturedArtist',OLD_PREFIX='__STREAMASIAH_FEATURED__::';
+const readJSON=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k)||'');return v&&typeof v==='object'?v:f}catch(e){return f}};
+const saveFeatured=f=>localStorage.setItem(FEATURE_KEY,JSON.stringify(f||{}));
+const getFeatured=()=>{const f=readJSON(FEATURE_KEY,null);return f&&typeof f==='object'?f:null};
+const profiles=()=>{const p=readJSON('jassiahArtistProfiles',{});try{if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.assign(p,window.artistProfiles)}catch(e){}return p};
+const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const songList=()=>{try{if(Array.isArray(window.songs))return window.songs}catch(e){}return []};
+const songById=id=>songList().find(s=>String(s.id)===String(id))||null;
+const songCover=s=>{try{if(typeof window.coverUrl==='function')return window.coverUrl(s)||''}catch(e){}return String(s?.cover_url||s?.cover||'')};
+const artistNames=()=>{const out=new Map();Object.keys(profiles()).forEach(n=>{const x=String(n).trim();if(x&&!x.startsWith(OLD_PREFIX))out.set(x.toLowerCase(),x)});songList().forEach(s=>{const x=String(s?.artist||'').trim().split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();if(x&&!out.has(x.toLowerCase()))out.set(x.toLowerCase(),x)});return [...out.values()].sort((a,b)=>a.localeCompare(b))};
+const findArtist=n=>{const t=String(n||'').trim().toLowerCase();return artistNames().find(x=>x.toLowerCase()===t)||''};
+const cleanIds=ids=>[...(Array.isArray(ids)?ids:[])].map(String).filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,3);
+const legacy=()=>{const p=profiles(),k=Object.keys(p).find(x=>String(x).startsWith(OLD_PREFIX));if(!k)return null;const v=p[k]||{};return{name:k.slice(OLD_PREFIX.length),image:v.image_url||v.image||'',zoom:Number(v.zoom||100),songs:cleanIds(v.songs||[])}};
+const stripLegacy=()=>{try{const p=readJSON('jassiahArtistProfiles',{});Object.keys(p).filter(k=>String(k).startsWith(OLD_PREFIX)).forEach(k=>delete p[k]);localStorage.setItem('jassiahArtistProfiles',JSON.stringify(p));if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.keys(window.artistProfiles).filter(k=>String(k).startsWith(OLD_PREFIX)).forEach(k=>delete window.artistProfiles[k])}catch(e){}};
+const featured=()=>{let f=getFeatured();if(!f?.name){const l=legacy();if(l){f=l;saveFeatured(f)}}stripLegacy();return f};
+function renderEditor(){const box=document.getElementById('jcFeaturedSongEditor');if(!box)return;const f=featured()||{},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[],list=songList();box.innerHTML=ids.map((id,i)=>`<div class="jc-featured-song-edit-row"><select onchange="jcSetFeaturedSong(${i},this.value)"><option value="">Choose song...</option>${list.map(s=>`<option value="${esc(s.id)}" ${String(s.id)===String(id)?'selected':''}>${esc(s.title||'Untitled')} — ${esc(s.artist||'Unknown Artist')}</option>`).join('')}</select><button type="button" class="jc-admin-btn jc-admin-muted" onclick="jcMoveFeaturedSong(${i},-1)" ${i===0?'disabled':''}>↑</button><button type="button" class="jc-admin-btn jc-admin-muted" onclick="jcMoveFeaturedSong(${i},1)" ${i===ids.length-1?'disabled':''}>↓</button><button type="button" class="jc-admin-btn jc-admin-danger" onclick="jcDeleteFeaturedSong(${i})">×</button></div>`).join('')};
+function renderPage(){const box=document.getElementById('jcFeaturedArtistDisplay');if(!box)return;const f=featured();if(!f?.name){box.innerHTML='<div class="jc-featured-empty">No Featured Artist has been selected yet.</div>';return}const img=f.image?`<div class="jc-featured-artist-image-frame"><img src="${esc(f.image)}" alt="${esc(f.name)}" style="transform:scale(${Math.max(.6,Math.min(1.4,Number(f.zoom||100)/100))})"></div>`:'';const ids=cleanIds(f.songs||[]),songs=ids.map(songById).filter(Boolean);const html=songs.length?`<div class="jc-featured-song-list">${songs.map(s=>{const i=songList().findIndex(x=>String(x.id)===String(s.id));return `<div class="jc-featured-song" onclick="event.stopPropagation();if(typeof playSong==='function'&&${i>=0})playSong(${i})"><img src="${esc(songCover(s))}" alt=""><div class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></div></div>`}).join('')}</div>`:'';box.innerHTML=`<div class="jc-featured-artist-card">${img}<div class="jc-featured-artist-name">${esc(f.name)}</div>${html}</div>`};
+window.jcRenderFeaturedArtist=renderPage;
+window.jcPreviewFeaturedArtistZoom=function(){const z=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100))),v=document.getElementById('jcFeaturedArtistZoomValue'),p=document.getElementById('jcFeaturedArtistZoomPreview'),file=document.getElementById('jcFeaturedArtistImage')?.files?.[0];if(v)v.textContent=z+'%';if(!p)return;const f=featured();if(!file){p.innerHTML=f?.image?`<img src="${esc(f.image)}" alt="" style="width:100%;height:100%;object-fit:contain;transform:scale(${z/100});transform-origin:center center;">`:'<span style="color:#888;font-size:12px;">Choose a picture to preview the zoom.</span>';return}const r=new FileReader();r.onload=()=>p.innerHTML=`<img src="${esc(r.result)}" alt="" style="width:100%;height:100%;object-fit:contain;transform:scale(${z/100});transform-origin:center center;">`;r.readAsDataURL(file)};
+window.jcAddFeaturedSong=function(){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[];if(ids.length>=3){const s=document.getElementById('jcFeaturedArtistStatus');if(s)s.textContent='Featured Artist can have up to 3 songs.';return}ids.push('');f.songs=ids;saveFeatured(f);renderEditor()};
+window.jcSetFeaturedSong=function(i,id){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[];ids[i]=String(id||'');f.songs=ids.slice(0,3);saveFeatured(f);renderEditor();renderPage()};
+window.jcDeleteFeaturedSong=function(i){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[];ids.splice(i,1);f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
+window.jcMoveFeaturedSong=function(i,d){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[],j=i+d;if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
+window.jcSaveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage'),st=document.getElementById('jcFeaturedArtistStatus'),name=findArtist(n?.value||''),file=fi?.files?.[0],old=featured()||{};if(!name){if(st)st.textContent='Choose an existing artist. A Featured Artist does not create a new artist profile.';return}if(!file&&!old.image){if(st)st.textContent='Choose a Featured Artist picture.';return}if(st)st.textContent='Saving Featured Artist...';try{let image=old.image||'';if(file){const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist'),u=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(u.error)throw u.error;image=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl}const zoom=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100)));saveFeatured({name,image,zoom,songs:cleanIds(old.songs||[])});stripLegacy();if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured Artist saved.';renderEditor();renderPage();}catch(e){console.error(e);if(st)st.textContent='Featured Artist save failed: '+(e?.message||'Unknown error')}};
+window.jcRemoveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const st=document.getElementById('jcFeaturedArtistStatus');const f=featured();if(f){f.image='';saveFeatured(f)}else saveFeatured({});stripLegacy();const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage');if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured picture removed.';renderEditor();renderPage()};
+function prepareFeaturedAdmin(){const dl=document.getElementById('jcFeaturedArtistList');if(dl)dl.innerHTML=artistNames().map(n=>`<option value="${esc(n)}"></option>`).join('');const f=featured(),n=document.getElementById('jcFeaturedArtistName'),z=document.getElementById('jcFeaturedArtistZoom'),v=document.getElementById('jcFeaturedArtistZoomValue');if(f&&n&&!n.value)n.value=f.name||'';if(z){const x=Math.max(60,Math.min(140,Number(f?.zoom||100)));z.value=String(x);if(v)v.textContent=x+'%'}renderEditor();window.jcPreviewFeaturedArtistZoom()};
+const oldGo=window.jcGo;window.jcGo=function(n){const t=Math.max(0,Math.min(9,Number(n)||0));if(t===8){const tr=document.getElementById('jcTrack');if(tr)tr.style.transform='translateX(-800%)';window.page=8;document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===8));renderPage();return}if(t===9){const tr=document.getElementById('jcTrack');if(tr)tr.style.transform='translateX(-900%)';window.page=9;document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===9));if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');window.jcGo(0);return}prepareFeaturedAdmin();['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});return}if(typeof oldGo==='function')oldGo(t)};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(()=>{prepareFeaturedAdmin();renderPage()},500));else setTimeout(()=>{prepareFeaturedAdmin();renderPage()},500);
 })();
 </script>
