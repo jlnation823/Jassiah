@@ -8200,6 +8200,204 @@ initializeAuth();
   window.jcPrepareAdmin=function(){try{if(typeof oldPrep==='function')oldPrep()}catch(e){};setTimeout(fixCheckboxes,0);setTimeout(fixCheckboxes,300)};
 })();
 </script>
+
+
+<!-- STREAMASIAH REAL ALBUM/SONG FIX: use the actual global lexical song/album arrays. -->
+<style id="streamasiah-real-album-song-fix-css">
+#jcAlbums{display:grid!important;grid-template-columns:repeat(5,150px)!important;justify-content:start!important;gap:28px!important;align-items:start!important;}
+#jcAlbums .jc-album-card{width:150px!important;max-width:150px!important;background:transparent!important;border:0!important;text-align:center!important;padding:0!important;cursor:pointer!important;}
+#jcAlbums .jc-album-card img{width:150px!important;height:150px!important;object-fit:cover!important;border-radius:10px!important;border:1px solid #a100ff!important;display:block!important;}
+#jcAlbums .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+#jcAlbums .jc-muted{color:#8f8995!important;}
+</style>
+<script id="streamasiah-real-album-song-fix-js">
+(function(){
+  'use strict';
+
+  const T=v=>String(v==null?'':v).trim();
+  const E=v=>typeof escapeHtml==='function'?escapeHtml(v):T(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+  /* IMPORTANT: the real arrays are top-level `let songs` and `let albums`.
+     They are NOT window.songs/window.albums. The previous patch looked at
+     window.songs and therefore always got an empty song list. */
+  function realSongs(){
+    try{ if(typeof songs!=='undefined' && Array.isArray(songs)) return songs; }catch(e){}
+    return [];
+  }
+  function realAlbums(){
+    try{ if(typeof albums!=='undefined' && albums && typeof albums==='object') return albums; }catch(e){}
+    try{ return JSON.parse(localStorage.getItem('jassiahAlbums')||'{}')||{}; }catch(e){ return {}; }
+  }
+  function songId(v){
+    if(v&&typeof v==='object') return T(v.id!=null?v.id:(v.song_id!=null?v.song_id:v.songId));
+    return T(v);
+  }
+  function songCover(s){
+    try{ return typeof coverUrl==='function' ? (coverUrl(s)||'') : T(s&&s.cover_url); }catch(e){return T(s&&s.cover_url)}
+  }
+  function findSong(ref){
+    const list=realSongs();
+    if(!list.length) return null;
+    if(ref&&typeof ref==='object'){
+      const id=songId(ref);
+      if(id){const hit=list.find(s=>songId(s.id)===id);if(hit)return hit;}
+      const title=T(ref.title||ref.song_title).toLowerCase();
+      const artist=T(ref.artist).toLowerCase();
+      if(title){
+        const hit=list.find(s=>T(s.title).toLowerCase()===title && (!artist || T(s.artist).toLowerCase()===artist));
+        if(hit)return hit;
+      }
+      const path=T(ref.file_path||ref.path||ref.file||ref.url).toLowerCase();
+      if(path){const hit=list.find(s=>T(s.file_path||s.path||s.file||s.url).toLowerCase()===path);if(hit)return hit;}
+      return null;
+    }
+    const id=songId(ref);
+    if(!id || id==='NaN' || id==='undefined' || id==='null') return null;
+    return list.find(s=>songId(s.id)===id)||null;
+  }
+  function albumSongs(a){
+    const refs=Array.isArray(a&&a.songs)?a.songs:(Array.isArray(a&&a.song_ids)?a.song_ids:(Array.isArray(a&&a.songIds)?a.songIds:[]));
+    return refs.map(findSong).filter(Boolean);
+  }
+  function albumKey(name){
+    const as=realAlbums();
+    return Object.keys(as).find(k=>k===name)||Object.keys(as).find(k=>k.toLowerCase()===T(name).toLowerCase())||'';
+  }
+
+  /* Disable the old destructive normalizer. It ran before Supabase songs had
+     finished loading and erased valid album references. */
+  window.jcAlbumNormalize=function(){return realAlbums();};
+
+  function populateSongChecks(containerId, selected){
+    const box=document.getElementById(containerId); if(!box)return;
+    const list=realSongs();
+    const set=new Set((selected||[]).map(songId).filter(Boolean));
+    box.innerHTML=list.length ? list.map(s=>`<label class="jc-check-row"><input type="checkbox" value="${E(songId(s.id))}" ${set.has(songId(s.id))?'checked':''}>${E(s.title||'Untitled')} — ${E(s.artist||'')}</label>`).join('') : '<div style="color:#777;padding:7px">No songs yet.</div>';
+  }
+
+  window.jcLoadAlbumEditor=function(){
+    const sel=document.getElementById('jcEditAlbumName');
+    const key=sel ? albumKey(sel.value) : '';
+    const a=key ? realAlbums()[key] : null;
+    const title=document.getElementById('jcEditAlbumTitle');
+    const status=document.getElementById('jcEditAlbumStatus');
+    if(title) title.value=key||'';
+    if(status) status.textContent='';
+    const refs=Array.isArray(a&&a.songs)?a.songs:(Array.isArray(a&&a.song_ids)?a.song_ids:[]);
+    populateSongChecks('jcEditAlbumSongs',refs);
+    if(!key && sel && sel.value && status) status.textContent='Album not found.';
+  };
+
+  function rebuildAlbumSelect(keep){
+    const sel=document.getElementById('jcEditAlbumName');if(!sel)return;
+    const as=realAlbums(),key=albumKey(keep||sel.value);
+    sel.innerHTML='<option value="">Select an album...</option>'+Object.keys(as).map(n=>`<option value="${E(n)}">${E(n)}</option>`).join('');
+    if(key){sel.value=key;window.jcLoadAlbumEditor();}
+  }
+
+  function renderAlbumsRealFinal(){
+    const box=document.getElementById('jcAlbums');if(!box)return;
+    const as=realAlbums(),names=Object.keys(as).filter(n=>T(n));
+    let page=Math.max(0,Number(window.saAlbumPageFinal||0));
+    const per=5,pages=Math.max(1,Math.ceil(names.length/per));
+    page=Math.min(page,pages-1);window.saAlbumPageFinal=page;
+    const slice=names.slice(page*per,page*per+per);
+    box.innerHTML=slice.length ? slice.map(name=>{
+      const a=as[name]||{},list=albumSongs(a),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');
+      return `<div class="jc-artist-card jc-album-card" data-real-album="${E(name)}" role="button" tabindex="0"><img src="${E(img)}" alt="${E(name)}"><div class="jc-artist-name">${E(name)}</div><div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?'':'s'}</div></div>`;
+    }).join('') : '<div class="jc-muted">No albums yet.</div>';
+    if(pages>1) box.insertAdjacentHTML('beforeend',`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-real-album-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-real-album-page="1">›</button></div>`);
+  }
+
+  function openAlbumFinal(name){
+    const key=albumKey(name);if(!key)return;
+    const a=realAlbums()[key]||{},list=albumSongs(a),modal=document.getElementById('jcAlbumViewer');if(!modal)return;
+    const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle'),n=document.getElementById('jcAlbumViewerCount'),box=document.getElementById('jcAlbumViewerSongs');
+    if(c)c.src=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');
+    if(t)t.textContent=key;
+    if(n)n.textContent=`${list.length} song${list.length===1?'':'s'}`;
+    if(box){
+      box.innerHTML=list.length ? list.map(song=>{
+        const idx=realSongs().findIndex(s=>songId(s.id)===songId(song.id));
+        return `<button type="button" class="jc-album-song" data-real-song-index="${idx}"><img src="${E(songCover(song))}" alt=""><span><strong>${E(song.title||'Untitled')}</strong><small>${E(song.artist||'Unknown Artist')}</small></span><b>▶</b></button>`;
+      }).join('') : '<div class="jc-muted" style="padding:16px">No songs have been added to this album yet.</div>';
+    }
+    const play=document.getElementById('jcAlbumViewerPlay');
+    if(play)play.onclick=function(){
+      if(list.length){const idx=realSongs().findIndex(s=>songId(s.id)===songId(list[0].id));if(idx>=0&&typeof window.playSong==='function')window.playSong(idx);}
+      if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();
+    };
+    modal.classList.add('open');
+  }
+
+  window.jcOpenAlbum=openAlbumFinal;
+  window.saOpenAlbumReal=openAlbumFinal;
+  window.renderAlbums=renderAlbumsRealFinal;
+  window.jcRenderAlbumsFixed=renderAlbumsRealFinal;
+  window.saAlbumPageFinalMove=function(d){
+    const as=realAlbums(),pages=Math.max(1,Math.ceil(Object.keys(as).filter(n=>T(n)).length/5));
+    window.saAlbumPageFinal=Math.max(0,Math.min(Number(window.saAlbumPageFinal||0)+(Number(d)||0),pages-1));
+    renderAlbumsRealFinal();
+  };
+
+  /* Fix album creation/editing so selected values are always actual song IDs. */
+  window.jcCreateAlbum=async function(){
+    if(!currentUser){alert('Please log in first.');return}
+    const status=document.getElementById('jcAlbumStatus');
+    const name=T(document.getElementById('jcAlbumName')?.value),file=document.getElementById('jcAlbumCover')?.files?.[0];
+    if(!name){if(status)status.textContent='Enter album name.';return}
+    const as=realAlbums();if(as[name]){if(status)status.textContent='Album already exists.';return}
+    const ids=Array.from(document.querySelectorAll('#jcAlbumSongs input[type="checkbox"]:checked')).map(x=>T(x.value)).filter(Boolean);
+    const save=cover=>{as[name]={cover:cover||'',songs:ids};try{localStorage.setItem('jassiahAlbums',JSON.stringify(as))}catch(e){};if(status)status.textContent=`Album created with ${ids.length} song${ids.length===1?'':'s'}.`;renderAlbumsRealFinal();rebuildAlbumSelect(name);};
+    if(file){const r=new FileReader();r.onload=()=>save(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else save('');
+  };
+
+  window.jcSaveAlbumEdit=async function(){
+    if(!currentUser){alert('Please log in first.');return}
+    const status=document.getElementById('jcEditAlbumStatus'),sel=document.getElementById('jcEditAlbumName');
+    const oldKey=albumKey(sel?.value),title=T(document.getElementById('jcEditAlbumTitle')?.value),file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    if(!oldKey){if(status)status.textContent='Select an album first.';return}
+    if(!title){if(status)status.textContent='Enter an album name.';return}
+    const as=realAlbums(),old=as[oldKey];if(!old){if(status)status.textContent='Album not found.';return}
+    if(title!==oldKey && as[title]){if(status)status.textContent='That album name already exists.';return}
+    const ids=Array.from(document.querySelectorAll('#jcEditAlbumSongs input[type="checkbox"]:checked')).map(x=>T(x.value)).filter(Boolean);
+    const save=cover=>{const next={cover:cover||old.cover||'',songs:ids};if(title!==oldKey)delete as[oldKey];as[title]=next;try{localStorage.setItem('jassiahAlbums',JSON.stringify(as))}catch(e){};if(status)status.textContent=`Album updated with ${ids.length} song${ids.length===1?'':'s'}.`;rebuildAlbumSelect(title);renderAlbumsRealFinal();};
+    if(file){const r=new FileReader();r.onload=()=>save(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else save(old.cover||'');
+  };
+
+  /* Keep the existing admin hub functions, but make their album selector/song list reliable. */
+  const oldPrep=window.jcPrepareAdmin;
+  window.jcPrepareAdmin=function(){
+    try{if(typeof oldPrep==='function')oldPrep()}catch(e){}
+    const sel=document.getElementById('jcEditAlbumName');
+    rebuildAlbumSelect(sel?.value||'');
+    populateSongChecks('jcAlbumSongs',[]);
+  };
+
+  document.addEventListener('click',function(e){
+    const card=e.target.closest('[data-real-album]');
+    if(card){e.preventDefault();e.stopImmediatePropagation();openAlbumFinal(card.getAttribute('data-real-album'));return}
+    const pg=e.target.closest('[data-real-album-page]');
+    if(pg){e.preventDefault();e.stopImmediatePropagation();window.saAlbumPageFinalMove(pg.getAttribute('data-real-album-page'));return}
+    const row=e.target.closest('#jcAlbumViewerSongs [data-real-song-index]');
+    if(row){e.preventDefault();e.stopImmediatePropagation();const i=Number(row.getAttribute('data-real-song-index'));if(i>=0&&typeof window.playSong==='function')window.playSong(i);if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();}
+  },true);
+
+  function refreshFinal(){
+    /* Only repair display after songs have actually loaded. Never erase album refs. */
+    if(realSongs().length){
+      renderAlbumsRealFinal();
+      const sel=document.getElementById('jcEditAlbumName');if(sel)rebuildAlbumSelect(sel.value||'');
+      populateSongChecks('jcAlbumSongs',[]);
+    }
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>{setTimeout(refreshFinal,100);setTimeout(refreshFinal,800);setTimeout(refreshFinal,1800);});
+  }else{setTimeout(refreshFinal,100);setTimeout(refreshFinal,800);setTimeout(refreshFinal,1800);}
+  window.addEventListener('storage',refreshFinal);
+})();
+</script>
+
 </body>
 </html>
 
