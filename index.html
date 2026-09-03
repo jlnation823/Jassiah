@@ -2014,6 +2014,7 @@ body{padding-bottom:92px!important}
     <button class="jc-nav" data-page="3" id="jcLikedNav" title="Liked Songs">✓</button>
     <button class="jc-nav" data-page="4" id="jcPlaylistsNav" title="Playlists">☷</button>
     <button class="jc-nav" data-page="5" id="jcAlbumsNav" title="Albums">💿</button><button class="jc-nav" data-page="6" id="jcPhotosNav" title="Fan Photos" aria-label="Fan Photos">P</button>
+    <button class="jc-nav" data-page="9" id="jcFeaturedNav" title="Featured Artist" aria-label="Featured Artist">🔥</button>
   </aside>
 
   <header class="jc-top">
@@ -2102,6 +2103,14 @@ body{padding-bottom:92px!important}
         <div id="jcArtistPage"></div>
       </div></section>
 
+      <section class="jc-slide"><div class="jc-inner" id="jcFeaturedArtistPage">
+        <div class="jc-featured-artist-page">
+          <div class="jc-kicker">STREAMASIAH FEATURED</div>
+          <div class="jc-section" style="margin:6px 0 18px">🔥 Featured Artist</div>
+          <div id="jcFeaturedArtistDisplay"></div>
+        </div>
+      </div></section>
+
       <section class="jc-slide"><div class="jc-inner" id="jcAdminHub">
         <div class="jc-kicker">ADMIN ONLY</div>
         <div class="jc-brand" style="font-size:37px">STREAMASIAH Admin Hub</div>
@@ -2170,6 +2179,18 @@ body{padding-bottom:92px!important}
               Save Artist Profile
             </button>
             <div id="jcEditArtistStatus" class="jc-admin-status"></div>
+          </div>
+
+          <div class="jc-admin-card">
+            <h3>🔥 Featured Artist</h3>
+            <label>Artist name</label>
+            <input id="jcFeaturedArtistName" list="jcFeaturedArtistList" placeholder="Type artist name...">
+            <datalist id="jcFeaturedArtistList"></datalist>
+            <label>Featured artist picture</label>
+            <input id="jcFeaturedArtistImage" type="file" accept="image/*">
+            <button class="jc-admin-btn jc-admin-primary" onclick="jcSaveFeaturedArtist()">Save Featured Artist</button>
+            <button class="jc-admin-btn jc-admin-muted" onclick="jcRemoveFeaturedArtist()">Remove Featured Picture</button>
+            <div id="jcFeaturedArtistStatus" class="jc-admin-status"></div>
           </div>
 
           <div class="jc-admin-card">
@@ -5030,7 +5051,7 @@ initializeAuth();
   function getAlbums(){return (typeof albums!=="undefined"&&albums)?albums:{}}
 
   function artistNames(){
-    return Object.keys(profiles()).filter(n=>String(n).trim()).sort((a,b)=>a.localeCompare(b));
+    return Object.keys(profiles()).filter(n=>String(n).trim()&&!String(n).startsWith("__STREAMASIAH_FEATURED__::")).sort((a,b)=>a.localeCompare(b));
   }
 
   function primaryArtist(credit){
@@ -5406,7 +5427,7 @@ initializeAuth();
       jcCloseLogin();
       const b=document.getElementById("jcAdminButton");if(b)b.textContent="⚙ Admin Hub";
       jcPrepareAdmin();
-      jcGo(7);
+      jcGo(9);
     }catch(error){status.textContent="Login failed."}
   };
 
@@ -6783,7 +6804,7 @@ initializeAuth();
   }
 
   function artistNames(){
-    return Object.keys(currentProfiles()).filter(Boolean);
+    return Object.keys(currentProfiles()).filter(n=>String(n).trim()&&!String(n).startsWith("__STREAMASIAH_FEATURED__::"));
   }
 
   function primary(credit){
@@ -8274,7 +8295,7 @@ initializeAuth();
 
   /* Replace the global navigation so page 5 always uses the REAL album renderer. */
   window.jcGo=function(n){
-    let target=Math.max(0,Math.min(8,Number(n)||0));
+    let target=Math.max(0,Math.min(9,Number(n)||0));
     const track=document.getElementById('jcTrack');
     if(track)track.style.transform=`translateX(-${target*100}%)`;
     window.page=target;
@@ -8288,6 +8309,11 @@ initializeAuth();
       else if(target===5)renderAlbumsReal();
       else if(target===6&&typeof window.jcLoadFanPhotos==='function')window.jcLoadFanPhotos();
       else if(target===8){
+        if(typeof window.jcRenderFeaturedArtist==='function')window.jcRenderFeaturedArtist();
+      }
+      else if(target===9){
+        if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');target=0;if(track)track.style.transform='translateX(0)';return}
+        ['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});
         if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');target=0;if(track)track.style.transform='translateX(0)';return}
         ['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});
       }
@@ -8298,12 +8324,12 @@ initializeAuth();
 
   /* Artists: 4 per row, paged when there are more. */
   let artistPageReal=0, homeArtistPageReal=0;
-  const artistNames=()=>Object.keys(P()).filter(n=>str(n).trim()).sort((a,b)=>a.localeCompare(b));
+  const artistNames=()=>Object.keys(P()).filter(n=>str(n).trim()&&!str(n).startsWith('__STREAMASIAH_FEATURED__::')).sort((a,b)=>a.localeCompare(b));
   const artistImage=name=>{const p=P()[name]||{};if(p.image||p.heroImage)return p.image||p.heroImage;const a=S().find(s=>str(s.artist).toLowerCase().trim().includes(str(name).toLowerCase().trim()));return a?cover(a):''};
   const artistCard=name=>`<div class="jc-artist-card" data-artist="${esc(name)}" onclick="jcOpenArtist(this.dataset.artist)"><img src="${esc(artistImage(name))}" alt="${esc(name)}"><div class="jc-artist-name">${esc(name)}</div></div>`;
   function renderArtistsBoxReal(id,isHome){
     const box=document.getElementById(id);if(!box)return;
-    const names=artistNames(), per=4, pages=Math.max(1,Math.ceil(names.length/per));
+    const names=artistNames(), per=isHome?4:10, pages=Math.max(1,Math.ceil(names.length/per));
     let pg=isHome?homeArtistPageReal:artistPageReal;pg=Math.max(0,Math.min(pg,pages-1));if(isHome)homeArtistPageReal=pg;else artistPageReal=pg;
     const slice=names.slice(pg*per,pg*per+per);
     box.innerHTML=(slice.length?slice.map(artistCard).join(''):'<div class="jc-muted">No artist profiles yet.</div>')+(pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" onclick="${isHome?'saHomeArtistPage':'saArtistPage'}(-1)">‹</button><span class="jc-page-label">${pg+1} / ${pages}</span><button type="button" onclick="${isHome?'saHomeArtistPage':'saArtistPage'}(1)">›</button></div>`:'');
@@ -9226,6 +9252,9 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 })();
 </script>
 
+
+
+
 </body>
 </html>
 
@@ -9242,10 +9271,20 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 #jcAlbums .jc-album-card{width:150px!important;max-width:150px!important;background:transparent!important;border:0!important;text-align:center!important;cursor:pointer!important;}
 #jcAlbums .jc-album-card img{width:150px!important;height:150px!important;object-fit:cover!important;border-radius:10px!important;border:1px solid #6f1aa0!important;display:block!important;}
 #jcAlbums .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
-#jcArtists,#jcHomeArtists{display:grid!important;grid-template-columns:repeat(4,120px)!important;justify-content:start!important;gap:26px 30px!important;align-items:start!important;}
-#jcArtists .jc-artist-card,#jcHomeArtists .jc-artist-card{width:120px!important;max-width:120px!important;background:transparent!important;border:0!important;text-align:center!important;padding:0!important;cursor:pointer!important;}
-#jcArtists .jc-artist-card img,#jcHomeArtists .jc-artist-card img{width:110px!important;height:110px!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
+#jcArtists{display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;justify-content:stretch!important;gap:26px 18px!important;align-items:start!important;}
+#jcHomeArtists{display:grid!important;grid-template-columns:repeat(4,120px)!important;justify-content:start!important;gap:26px 30px!important;align-items:start!important;}
+#jcArtists .jc-artist-card{width:100%!important;max-width:none!important;background:transparent!important;border:0!important;text-align:center!important;padding:0!important;cursor:pointer!important;}
+#jcHomeArtists .jc-artist-card{width:120px!important;max-width:120px!important;background:transparent!important;border:0!important;text-align:center!important;padding:0!important;cursor:pointer!important;}
+#jcArtists .jc-artist-card img{width:100%!important;max-width:104px!important;aspect-ratio:1!important;height:auto!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
+#jcHomeArtists .jc-artist-card img{width:110px!important;height:110px!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcArtists .jc-artist-name,#jcHomeArtists .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+.jc-featured-artist-page{max-width:900px;margin:0 auto;padding:20px 0 80px;}
+#jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:center;justify-content:center;}
+.jc-featured-artist-card{width:min(620px,92%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:24px;box-sizing:border-box;}
+.jc-featured-artist-card img{display:block;width:min(430px,100%);aspect-ratio:1;object-fit:cover;border-radius:14px;border:2px solid #a100ff;margin:0 auto 18px;}
+.jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;}
+.jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;}
+@media(max-width:900px){#jcArtists{grid-template-columns:repeat(3,minmax(82px,1fr))!important;gap:18px 10px!important;}#jcArtists .jc-artist-card img{max-width:82px!important;}}
 </style>
 <script id="streamasiah-final-data-render-fix-js">
 (function(){
@@ -9299,7 +9338,7 @@ const artistImage=name=>{
 };
 const artistNames=()=>{
  const m=new Map();
- Object.keys(profiles()).forEach(n=>{if(text(n).trim())m.set(text(n).trim().toLowerCase(),text(n).trim())});
+ Object.keys(profiles()).forEach(n=>{if(text(n).trim()&&!text(n).startsWith('__STREAMASIAH_FEATURED__::'))m.set(text(n).trim().toLowerCase(),text(n).trim())});
  dataSongs().forEach(s=>{
    const n=text(s.artist).trim().split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();
    if(n&&!m.has(n.toLowerCase()))m.set(n.toLowerCase(),n);
@@ -9314,26 +9353,8 @@ const albumSongs=a=>{
 
 function artistPageSize(id){
   /* Home keeps its original 4-card featured layout.
-     The full Artists page uses as many rows as can fit above the fixed player. */
-  if(id!=='jcArtists')return 4;
-  const box=document.getElementById(id);
-  if(!box)return 4;
-  const slide=box.closest('.jc-slide');
-  if(!slide)return 4;
-  const boxTop=box.getBoundingClientRect().top;
-  const slideRect=slide.getBoundingClientRect();
-  const player=document.querySelector('.player');
-  const playerTop=player&&getComputedStyle(player).position==='fixed'
-    ?player.getBoundingClientRect().top
-    :window.innerHeight;
-  const bottom=Math.min(slideRect.bottom,playerTop)-34;
-  const available=Math.max(0,bottom-boxTop);
-  const card=box.querySelector('.jc-artist-card');
-  const cardHeight=card?card.getBoundingClientRect().height:137;
-  const styles=getComputedStyle(box);
-  const rowGap=parseFloat(styles.rowGap)||parseFloat(styles.gap)||26;
-  const rows=Math.max(1,Math.floor((available+rowGap)/(cardHeight+rowGap)));
-  return 4*rows;
+     The full Artists page shows 10 artists per page. */
+  return id==='jcArtists'?10:4;
 }
 
 function renderArtists(id){
@@ -9921,3 +9942,128 @@ html, body{
 })();
 </script>
 </html>
+<script id="streamasiah-featured-artist-js">
+(function(){
+  'use strict';
+  const FEATURE_PREFIX='__STREAMASIAH_FEATURED__::';
+  const allProfiles=()=>{try{const p=JSON.parse(localStorage.getItem('jassiahArtistProfiles')||'{}');if(p&&typeof p==='object'){if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.assign(p,window.artistProfiles);return p}}catch(e){}return (window.artistProfiles&&typeof window.artistProfiles==='object')?window.artistProfiles:{};};
+  const featuredKey=()=>Object.keys(allProfiles()).find(k=>String(k).startsWith(FEATURE_PREFIX))||'';
+  const featuredData=()=>{
+    const pAll=allProfiles(), key=featuredKey(), p=pAll[key]||{};
+    return key?{key,name:key.slice(FEATURE_PREFIX.length),image:p.image_url||p.image||''}:null;
+  };
+  const escFeatured=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  window.jcRenderFeaturedArtist=function(){
+    const box=document.getElementById('jcFeaturedArtistDisplay');
+    if(!box)return;
+    const f=featuredData();
+    box.innerHTML=f&&f.image
+      ? `<div class="jc-featured-artist-card"><img src="${escFeatured(f.image)}" alt="${escFeatured(f.name)}"><div class="jc-featured-artist-name">${escFeatured(f.name)}</div></div>`
+      : '<div class="jc-featured-empty">No Featured Artist has been selected yet.</div>';
+  };
+
+  window.jcSaveFeaturedArtist=async function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const nameEl=document.getElementById('jcFeaturedArtistName');
+    const fileEl=document.getElementById('jcFeaturedArtistImage');
+    const status=document.getElementById('jcFeaturedArtistStatus');
+    const name=String(nameEl?.value||'').trim();
+    const file=fileEl?.files?.[0];
+    if(!name||!file){if(status)status.textContent='Enter the artist name and choose a picture.';return}
+    if(status)status.textContent='Saving Featured Artist...';
+    try{
+      const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist');
+      const upload=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
+      if(upload.error)throw upload.error;
+      const imageUrl=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl;
+
+      const existing=featuredKey();
+      if(existing){
+        const del=await client.from('artist_profiles').delete().eq('name',existing);
+        if(del.error)throw del.error;
+      }
+      const key=FEATURE_PREFIX+name;
+      const row=await client.from('artist_profiles').insert({name:key,image_url:imageUrl,created_at:new Date().toISOString()}).select().single();
+      if(row.error)throw row.error;
+
+      window.artistProfiles=window.artistProfiles&&typeof window.artistProfiles==='object'?window.artistProfiles:{};
+      Object.keys(window.artistProfiles).filter(k=>k.startsWith(FEATURE_PREFIX)).forEach(k=>delete window.artistProfiles[k]);
+      window.artistProfiles[key]={image:imageUrl,image_url:imageUrl,created_at:row.data?.created_at||new Date().toISOString()};
+      localStorage.setItem('jassiahArtistProfiles',JSON.stringify(window.artistProfiles));
+      if(nameEl)nameEl.value='';
+      if(fileEl)fileEl.value='';
+      if(status)status.textContent='Featured Artist saved.';
+      window.jcRenderFeaturedArtist();
+      if(typeof window.jcPrepareAdmin==='function')window.jcPrepareAdmin();
+      if(typeof window.jcGo==='function'&&Number(window.page)===8)window.jcGo(8);
+    }catch(e){
+      console.error(e);
+      if(status)status.textContent='Featured Artist save failed: '+(e?.message||'Unknown error');
+    }
+  };
+
+  window.jcRemoveFeaturedArtist=async function(){
+    if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
+    const status=document.getElementById('jcFeaturedArtistStatus');
+    if(status)status.textContent='Removing Featured Artist...';
+    try{
+      const key=featuredKey();
+      if(key){
+        const del=await client.from('artist_profiles').delete().eq('name',key);
+        if(del.error)throw del.error;
+        if(window.artistProfiles&&typeof window.artistProfiles==='object')delete window.artistProfiles[key];
+        localStorage.setItem('jassiahArtistProfiles',JSON.stringify(window.artistProfiles||{}));
+      }
+      const nameEl=document.getElementById('jcFeaturedArtistName');
+      const fileEl=document.getElementById('jcFeaturedArtistImage');
+      if(nameEl)nameEl.value='';
+      if(fileEl)fileEl.value='';
+      if(status)status.textContent='Featured Artist removed.';
+      window.jcRenderFeaturedArtist();
+    }catch(e){
+      console.error(e);
+      if(status)status.textContent='Featured Artist remove failed: '+(e?.message||'Unknown error');
+    }
+  };
+
+  function prepareFeaturedAdmin(){
+    const dl=document.getElementById('jcFeaturedArtistList');
+    if(dl){
+      let names=[];
+      try{names=Object.keys(allProfiles()).filter(n=>n.trim()&&!n.startsWith(FEATURE_PREFIX)).sort((a,b)=>a.localeCompare(b))}catch(e){}
+      dl.innerHTML=names.map(n=>`<option value="${escFeatured(n)}"></option>`).join('');
+    }
+    const f=featuredData(), nameEl=document.getElementById('jcFeaturedArtistName');
+    if(f&&nameEl&&!nameEl.value)nameEl.value=f.name;
+  }
+
+  /* The Featured Artist is slide 8; the existing Admin Hub remains slide 9. */
+  const oldGo=window.jcGo;
+  window.jcGo=function(n){
+    const target=Math.max(0,Math.min(9,Number(n)||0));
+    if(target===8){
+      const track=document.getElementById('jcTrack');
+      if(track)track.style.transform='translateX(-800%)';
+      window.page=8;
+      document.querySelectorAll('.jc-nav').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.page)===8));
+      window.jcRenderFeaturedArtist();
+      return;
+    }
+    if(target===9){
+      const track=document.getElementById('jcTrack');
+      if(track)track.style.transform='translateX(-900%)';
+      window.page=9;
+      document.querySelectorAll('.jc-nav').forEach(btn=>btn.classList.toggle('active',Number(btn.dataset.page)===9));
+      if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');window.jcGo(0);return}
+      prepareFeaturedAdmin();
+      ['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});
+      return;
+    }
+    if(typeof oldGo==='function')oldGo(target);
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{prepareFeaturedAdmin();window.jcRenderFeaturedArtist()},500)});
+  else setTimeout(()=>{prepareFeaturedAdmin();window.jcRenderFeaturedArtist()},500);
+})();
+</script>
