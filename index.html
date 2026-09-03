@@ -9279,10 +9279,10 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 #jcArtists .jc-artist-card img{width:100%!important;max-width:104px!important;aspect-ratio:1!important;height:auto!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcHomeArtists .jc-artist-card img{width:110px!important;height:110px!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcArtists .jc-artist-name,#jcHomeArtists .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
-.jc-featured-artist-page{max-width:900px;margin:0 auto;padding:20px 0 80px;}
-#jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:center;justify-content:center;}
-.jc-featured-artist-card{width:min(620px,92%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:24px;box-sizing:border-box;}
-.jc-featured-artist-card img{display:block;width:min(430px,100%);aspect-ratio:1;object-fit:cover;border-radius:14px;border:2px solid #a100ff;margin:0 auto 18px;}
+.jc-featured-artist-page{max-width:900px;margin:0 auto;padding:50px 0 80px;}
+#jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;}
+.jc-featured-artist-card{width:min(700px,92%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:24px;box-sizing:border-box;}
+.jc-featured-artist-card img{display:block;width:min(520px,100%);height:auto;max-height:520px;object-fit:contain;border-radius:14px;border:2px solid #a100ff;margin:0 auto 18px;}
 .jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;}
 .jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;}
 @media(max-width:900px){#jcArtists{grid-template-columns:repeat(3,minmax(82px,1fr))!important;gap:18px 10px!important;}#jcArtists .jc-artist-card img{max-width:82px!important;}}
