@@ -7636,8 +7636,8 @@ initializeAuth();
 
 <style>
 #artistHero{position:relative;overflow:hidden;}
-.sa-artist-border-picture{position:absolute;inset:0;background-repeat:no-repeat;background-size:cover;background-color:#160020;z-index:0;filter:saturate(.88) brightness(.72)}
-.sa-artist-border-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(16,0,28,.92) 0%,rgba(33,0,48,.58) 42%,rgba(23,0,35,.68) 100%),linear-gradient(180deg,rgba(102,0,153,.18),rgba(0,0,0,.58));box-shadow:inset 0 0 0 1px rgba(185,72,255,.38),inset 0 0 55px rgba(113,0,180,.24)}
+.sa-artist-border-picture{position:absolute;inset:0;background-repeat:no-repeat;background-size:cover;background-color:#160020;z-index:0;filter:saturate(.96) brightness(.94)}
+.sa-artist-border-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(120,0,180,.10) 0%,rgba(160,40,220,.07) 50%,rgba(120,0,180,.10) 100%),linear-gradient(180deg,rgba(120,0,180,.06),rgba(0,0,0,.10));box-shadow:inset 0 0 0 1px rgba(190,70,255,.40),inset 0 0 35px rgba(160,40,220,.08)}
 .sa-artist-border-content{position:relative;z-index:2;display:flex;align-items:center;gap:18px;width:100%}
 .sa-artist-border-content>div{position:relative;z-index:2}
 .sa-border-preview{height:150px;margin-top:10px;border:1px solid #7b2cc7;border-radius:12px;background:#120018 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:12px;text-align:center;overflow:hidden;box-shadow:inset 0 0 30px rgba(123,0,190,.25)}
@@ -8814,23 +8814,6 @@ initializeAuth();
 })();
 </script>
 
-
-<style id="streamasiah-light-border-picture-fix">
-/* FINAL ARTIST BORDER PICTURE VISIBILITY FIX */
-#artistHero .sa-artist-border-picture{
-  z-index:0!important;
-  opacity:1!important;
-  filter:none!important;
-  background-color:transparent!important;
-  background-repeat:no-repeat!important;
-}
-#artistHero .sa-artist-border-shade{
-  z-index:1!important;
-  background:linear-gradient(90deg,rgba(120,0,180,.12) 0%,rgba(160,40,220,.10) 50%,rgba(120,0,180,.12) 100%)!important;
-  box-shadow:inset 0 0 0 1px rgba(190,70,255,.32),inset 0 0 35px rgba(160,40,220,.12)!important;
-}
-#artistHero .sa-artist-border-content{z-index:2!important;}
-</style>
 </body>
 </html>
 
@@ -9110,11 +9093,11 @@ body{padding-bottom:92px!important;}
   overflow:hidden!important;
   border-color:rgba(174,44,255,.72)!important;
 }
-.sa-artist-border-picture{filter:saturate(.88) brightness(.72)!important;}
+.sa-artist-border-picture{filter:saturate(.96) brightness(.94)!important;}
 .sa-artist-border-shade{
   background:
-    linear-gradient(90deg,rgba(16,0,28,.88) 0%,rgba(33,0,48,.48) 42%,rgba(23,0,35,.62) 100%),
-    linear-gradient(180deg,rgba(102,0,153,.16),rgba(0,0,0,.52))!important;
+    linear-gradient(90deg,rgba(120,0,180,.10) 0%,rgba(160,40,220,.07) 50%,rgba(120,0,180,.10) 100%),
+    linear-gradient(180deg,rgba(120,0,180,.06),rgba(0,0,0,.10))!important;
   box-shadow:inset 0 0 0 1px rgba(185,72,255,.38),inset 0 0 55px rgba(113,0,180,.24)!important;
 }
 
