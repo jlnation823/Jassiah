@@ -10768,7 +10768,39 @@ window.jcMoveFeaturedSong=function(i,d){const f=featured();if(!f)return;const id
 window.jcSaveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage'),st=document.getElementById('jcFeaturedArtistStatus'),name=findArtist(n?.value||''),file=fi?.files?.[0],old=featured()||{};if(!name){if(st)st.textContent='Choose an existing artist. A Featured Artist does not create a new artist profile.';return}if(!file&&!old.image){if(st)st.textContent='Choose a Featured Artist picture.';return}if(st)st.textContent='Saving Featured Artist...';try{let image=old.image||'';if(file){const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist'),u=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(u.error)throw u.error;image=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl}const zoom=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100)));const editorSongs=[...document.querySelectorAll('#jcFeaturedSongEditor select')].map(x=>x.value);const chosenSongs=cleanIds(editorSongs.length?editorSongs:(old.songs||[]));saveFeatured({name,image,zoom,songs:chosenSongs});stripLegacy();if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured Artist saved.';renderEditor();renderPage();}catch(e){console.error(e);if(st)st.textContent='Featured Artist save failed: '+(e?.message||'Unknown error')}};
 window.jcRemoveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const st=document.getElementById('jcFeaturedArtistStatus');const f=featured();if(f){f.image='';saveFeatured(f)}else saveFeatured({});stripLegacy();const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage');if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured picture removed.';renderEditor();renderPage()};
 function prepareFeaturedAdmin(){const dl=document.getElementById('jcFeaturedArtistList');if(dl)dl.innerHTML=artistNames().map(n=>`<option value="${esc(n)}"></option>`).join('');const f=featured(),n=document.getElementById('jcFeaturedArtistName'),z=document.getElementById('jcFeaturedArtistZoom'),v=document.getElementById('jcFeaturedArtistZoomValue');if(f&&n&&!n.value)n.value=f.name||'';if(z){const x=Math.max(60,Math.min(140,Number(f?.zoom||100)));z.value=String(x);if(v)v.textContent=x+'%'}renderEditor();window.jcPreviewFeaturedArtistZoom()};
-const oldGo=window.jcGo;window.jcGo=function(n){const t=Math.max(0,Math.min(9,Number(n)||0));if(t===8){const tr=document.getElementById('jcTrack');if(tr)tr.style.transform='translateX(-800%)';window.page=8;document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===8));renderPage();return}if(t===9){const tr=document.getElementById('jcTrack');if(tr)tr.style.transform='translateX(-900%)';window.page=9;document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===9));if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');window.jcGo(0);return}prepareFeaturedAdmin();['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});return}if(typeof oldGo==='function')oldGo(t)};
+const oldGo=window.jcGo;window.jcGo=function(n){
+  const t=Math.max(0,Math.min(9,Number(n)||0));
+  const tr=document.getElementById('jcTrack');
+  if(t===8){
+    if(tr)tr.style.transform='translateX(-800%)';
+    window.page=8;
+    document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===8));
+    renderPage();
+    return;
+  }
+  if(t===9){
+    if(tr)tr.style.transform='translateX(-900%)';
+    window.page=9;
+    document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===9));
+    if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');window.jcGo(0);return}
+    prepareFeaturedAdmin();
+    ['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});
+    return;
+  }
+  /* IMPORTANT: page 5 must use the final cross-device album renderer.
+     The older navigation function captured below reads its own local album
+     store, which is why albums could work on the computer but disappear on
+     the phone. Keep the navigation transition, but never hand page 5 back
+     to that old renderer. */
+  if(t===5){
+    if(tr)tr.style.transform='translateX(-500%)';
+    window.page=5;
+    document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===5));
+    try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){console.error('Album render error',e)}
+    return;
+  }
+  if(typeof oldGo==='function')oldGo(t);
+};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{prepareFeaturedAdmin();renderPage()},500);setTimeout(renderPage,1200);setTimeout(renderPage,2500)});else{setTimeout(()=>{prepareFeaturedAdmin();renderPage()},500);setTimeout(renderPage,1200);setTimeout(renderPage,2500)};
 setTimeout(()=>pullFeatured(),350);
 })();</script>
