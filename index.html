@@ -9764,11 +9764,23 @@ window.jcRenderArtistCards=function(){renderArtists('jcHomeArtists');renderArtis
 window.saAlbumPageFinalMove=function(d){window.saAlbumPageFinal=Math.max(0,Number(window.saAlbumPageFinal||0)+(Number(d)||0));renderAlbums()};
 window.saArtistPageFinalMove=function(id,d){const k=id==='jcHomeArtists'?'saArtistHomePage':'saArtistPage',per=artistPageSize(id),pages=Math.max(1,Math.ceil(artistNames().length/per));window[k]=Math.max(0,Math.min(Number(window[k]||0)+(Number(d)||0),pages-1));renderArtists(id)};
 document.addEventListener('click',function(e){
+  /* Album viewer controls must win on touch phones too.  The viewer is a full-screen
+     fixed layer, so handle its close controls before any page/card click logic. */
+  const close=e.target.closest('#jcAlbumViewer .jc-album-close, #jcAlbumViewer .jc-album-viewer-actions button:not(#jcAlbumViewerPlay)');
+  if(close){e.preventDefault();e.stopImmediatePropagation();if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();return}
+  if(e.target.id==='jcAlbumViewer'){e.preventDefault();e.stopImmediatePropagation();if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();return}
   const album=e.target.closest('[data-final-album]');if(album){e.preventDefault();e.stopImmediatePropagation();openAlbum(album.getAttribute('data-final-album'));return}
   const ap=e.target.closest('[data-album-page]');if(ap){e.preventDefault();e.stopImmediatePropagation();window.saAlbumPageFinalMove(ap.getAttribute('data-album-page'));return}
   const artist=e.target.closest('[data-final-artist]');if(artist){e.preventDefault();e.stopImmediatePropagation();const n=artist.getAttribute('data-final-artist');if(typeof window.jcOpenArtist==='function')window.jcOpenArtist(n);return}
   const pp=e.target.closest('[data-artist-page]');if(pp){e.preventDefault();e.stopImmediatePropagation();const id=pp.closest('#jcHomeArtists,#jcArtists')?.id;window.saArtistPageFinalMove(id,pp.getAttribute('data-artist-page'));return}
   const row=e.target.closest('#jcAlbumViewerSongs [data-song-index]');if(row){e.preventDefault();e.stopImmediatePropagation();const i=Number(row.getAttribute('data-song-index'));if(Number.isInteger(i)&&typeof window.playSong==='function')window.playSong(i);if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer()}
+},true);
+
+/* Use pointerdown as the primary mobile close path. Some mobile browsers can delay or
+   suppress a synthetic click when a fixed overlay contains a scrollable child. */
+document.addEventListener('pointerdown',function(e){
+  const close=e.target.closest?.('#jcAlbumViewer .jc-album-close, #jcAlbumViewer .jc-album-viewer-actions button:not(#jcAlbumViewerPlay)');
+  if(close){e.preventDefault();e.stopImmediatePropagation();if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();}
 },true);
 function refresh(){renderAlbums();renderArtists('jcHomeArtists');renderArtists('jcArtists');const sel=document.getElementById('jcEditAlbumName');if(sel){const old=sel.value,as=albums();sel.innerHTML='<option value="">Select an album...</option>'+Object.keys(as).map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');if(old&&as[old])sel.value=old}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{refresh();setTimeout(refresh,400);setTimeout(refresh,1000);setTimeout(refresh,2000)});else{refresh();setTimeout(refresh,400);setTimeout(refresh,1000);setTimeout(refresh,2000)}
@@ -9969,6 +9981,7 @@ html, body{
   align-items:center!important;
   justify-content:center!important;
   overflow:hidden!important;
+  touch-action:auto!important;
   padding:20px!important;
   box-sizing:border-box!important;
 }
@@ -10015,9 +10028,14 @@ html, body{
   top:12px!important;
   width:34px!important;
   height:34px!important;
+  min-width:34px!important;
+  min-height:34px!important;
   padding:0!important;
   margin:0!important;
   display:grid!important;
+  z-index:200002!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
   place-items:center!important;
   border-radius:50%!important;
   box-sizing:border-box!important;
