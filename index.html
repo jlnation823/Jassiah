@@ -8480,8 +8480,8 @@ initializeAuth();
   }
   function realAlbums(){
     let out={};
-    try{out=JSON.parse(localStorage.getItem('jassiahAlbums')||'{}')||{};}catch(e){out={};}
-    try{if(typeof albums!=='undefined' && albums && typeof albums==='object')Object.assign(out,albums);}catch(e){}
+    try{const local=JSON.parse(localStorage.getItem('jassiahAlbums')||'{}');if(local&&typeof local==='object'&&!Array.isArray(local))out=local}catch(e){}
+    try{if(typeof albums!=='undefined'&&albums&&typeof albums==='object'&&!Array.isArray(albums))Object.assign(out,albums)}catch(e){}
     return out;
   }
   function songId(v){
@@ -9504,12 +9504,14 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
   .jc-search-wrap{position:absolute!important;left:27%!important;right:4%!important;top:10px!important;width:auto!important;margin:0!important}
   .jc-search{height:38px!important;font-size:11px!important;padding:0 15px!important;border-radius:20px!important}
   .jc-actions{position:absolute!important;right:-250px!important;top:10px!important;transform:none!important;gap:5px!important}
-  .jc-actions button{height:38px!important;font-size:10px!important;padding:0 9px!important}
-  .jc-bell{width:38px!important;min-width:38px!important;padding:0!important}
+  .jc-actions button{height:40px!important;min-height:40px!important;font-size:0!important;padding:0!important;border-radius:20px!important;display:flex!important;align-items:center!important;justify-content:center!important}
+  .jc-bell{width:40px!important;min-width:40px!important;padding:0!important}
+  #jcAdminButton{width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important}
+  #jcAdminButton::before{content:"🔐";font-size:21px!important;line-height:1!important}
 
   .jc-window{position:absolute!important;left:var(--sa-land-rail)!important;right:var(--sa-land-right)!important;top:var(--sa-land-top)!important;bottom:0!important;overflow:hidden!important;background:#000!important}
   .jc-track{height:100%!important}
-  .jc-slide{height:100%!important;min-height:100%!important;padding:10px 12px 100px!important;overflow-x:hidden!important;overflow-y:auto!important;box-sizing:border-box!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:none!important}
+  .jc-slide{height:100%!important;min-height:100%!important;padding:10px 12px 100px!important;overflow-x:hidden!important;overflow-y:scroll!important;box-sizing:border-box!important;-webkit-overflow-scrolling:touch!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;scrollbar-width:none!important}
   .jc-slide::-webkit-scrollbar{display:none!important}
   .jc-slide>.jc-inner{height:auto!important;min-height:100%!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;overflow:visible!important}
   .jc-section{font-size:18px!important;margin:0 0 10px!important}
@@ -10266,10 +10268,12 @@ html, body{
       if(!data||!data.value||typeof data.value!=='object')return false;
       const remoteAlbums=data.value;
       const localAlbums=readAlbums();
-      /* A blank site_state record must never wipe albums already saved locally.
-         If Supabase is blank but localStorage has albums, publish the local copy. */
-      if(!Object.keys(remoteAlbums).length && Object.keys(localAlbums).length){
+      if(!Object.keys(remoteAlbums).length&&Object.keys(localAlbums).length){
         await pushAlbums(localAlbums);
+        try{if(typeof albums!=='undefined'&&albums&&typeof albums==='object'){
+          Object.keys(albums).forEach(k=>delete albums[k]);
+          Object.assign(albums,localAlbums);
+        }}catch(e){}
         return false;
       }
       syncing=true;
@@ -10278,7 +10282,7 @@ html, body{
       try{
         if(typeof albums!=='undefined' && albums && typeof albums==='object'){
           Object.keys(albums).forEach(k=>delete albums[k]);
-          Object.assign(albums,remoteAlbums);
+          Object.assign(albums,data.value);
         }
       }catch(e){}
       try{if(typeof window.renderAlbums==='function')window.renderAlbums();}catch(e){}
@@ -10330,6 +10334,9 @@ html, body{
   .jc-top:before{content:"STREAMASIAH"!important;position:absolute!important;left:60px!important;top:20px!important;color:#fff!important;font-size:15px!important;font-weight:900!important;line-height:1!important;pointer-events:none!important}
   .jc-arrows{display:none!important}
   .jc-actions{position:absolute!important;right:10px!important;top:5px!important;display:flex!important;align-items:center!important;gap:8px!important;margin:0!important;transform:none!important;z-index:5600!important}
+  #jcAdminButton{width:42px!important;min-width:42px!important;max-width:42px!important;height:42px!important;padding:0!important;font-size:0!important;display:flex!important;align-items:center!important;justify-content:center!important;white-space:nowrap!important}
+  #jcAdminButton::before{content:"🔐";font-size:22px!important;line-height:1!important}
+  .jc-bell{width:42px!important;min-width:42px!important;height:42px!important}
   .jc-actions button{height:38px!important;min-height:38px!important;padding:0 10px!important;border-radius:20px!important;background:#070707!important;border:1px solid #a100ff!important;color:#d66cff!important;font-size:10px!important;font-weight:900!important;white-space:nowrap!important;display:flex!important;align-items:center!important;justify-content:center!important}
   .jc-bell{width:38px!important;min-width:38px!important;padding:0!important}
   .jc-bell-svg{width:18px!important;height:18px!important;color:#d66cff!important;stroke:#d66cff!important}
@@ -10400,7 +10407,7 @@ html, body{
   #jcArtists .jc-artist-name{font-size:10px!important;margin-top:5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
   #jcAlbums,#jcPlaylists{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:18px 10px!important;justify-items:center!important;width:100%!important;padding-bottom:20px!important}
   #jcAlbums .jc-album-card,#jcPlaylists .jc-artist-card{width:140px!important;max-width:140px!important;margin:0!important;padding:0!important;background:transparent!important;border:0!important;text-align:center!important}
-  #jcAlbums .jc-album-card img,#jcPlaylists .jc-artist-card img{width:140px!important;height:140px!important;visibility:visible!important;opacity:1!important;background:#111!important;max-width:140px!important;max-height:140px!important;display:block!important;visibility:visible!important;opacity:1!important;object-fit:cover!important;border-radius:8px!important;border:1px solid #a100ff!important;margin:0 auto!important}
+  #jcAlbums .jc-album-card img,#jcPlaylists .jc-artist-card img{width:140px!important;height:140px!important;max-width:140px!important;max-height:140px!important;display:block!important;visibility:visible!important;opacity:1!important;object-fit:cover!important;border-radius:8px!important;border:1px solid #a100ff!important;margin:0 auto!important}
   #jcAlbums .jc-artist-name,#jcPlaylists .jc-artist-name{font-size:10px!important;margin-top:5px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
   #jcFanPublicGallery{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
 
@@ -10456,13 +10463,12 @@ html, body{
   .jc-top:before{content:"STREAMASIAH"!important;position:absolute!important;left:12px!important;top:18px!important;color:#fff!important;font-size:12px!important;font-weight:900!important;line-height:1!important}
   .jc-arrows{display:none!important}
 
-  /* Landscape header: keep search full-length while giving the bell/admin controls their own space. */
-  .jc-search-wrap{position:absolute!important;left:25%!important;right:96px!important;top:10px!important;width:auto!important;margin:0!important}
-  .jc-search{height:38px!important;font-size:11px!important;padding:0 13px!important;border-radius:20px!important}
-  .jc-actions{position:absolute!important;right:6px!important;top:10px!important;display:flex!important;gap:3px!important;align-items:center!important;transform:none!important;z-index:950!important}
-  .jc-actions button{height:38px!important;min-height:38px!important;font-size:8px!important;padding:0 5px!important;border-radius:18px!important}
-  .jc-bell{width:30px!important;min-width:30px!important;padding:0!important}
-  #jcAdminButton{max-width:58px!important;min-width:58px!important;overflow:hidden!important;text-overflow:ellipsis!important}
+  /* Shorter search leaves clean breathing room at the right edge of the center header. */
+  .jc-search-wrap{position:absolute!important;left:28%!important;right:112px!important;top:10px!important;width:auto!important;margin:0!important}
+  .jc-search{height:38px!important;font-size:11px!important;padding:0 15px!important;border-radius:20px!important}
+  .jc-actions{position:absolute!important;right:8px!important;top:10px!important;display:flex!important;gap:5px!important;align-items:center!important;transform:none!important;z-index:950!important}
+  .jc-actions button{height:38px!important;font-size:10px!important;padding:0 9px!important}
+  .jc-bell{width:38px!important;min-width:38px!important;padding:0!important}
 
   .jc-window{position:absolute!important;left:var(--sa-l-rail)!important;right:var(--sa-l-right)!important;top:var(--sa-l-top)!important;bottom:0!important;overflow:hidden!important;background:#000!important}
   .jc-track{height:100%!important;min-height:100%!important}
@@ -10590,8 +10596,41 @@ html, body{
 'use strict';
 const FEATURE_KEY='jassiahFeaturedArtist',OLD_PREFIX='__STREAMASIAH_FEATURED__::';
 const readJSON=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k)||'');return v&&typeof v==='object'?v:f}catch(e){return f}};
-const saveFeatured=f=>localStorage.setItem(FEATURE_KEY,JSON.stringify(f||{}));
+const saveFeaturedLocal=f=>localStorage.setItem(FEATURE_KEY,JSON.stringify(f||{}));
 const getFeatured=()=>{const f=readJSON(FEATURE_KEY,null);return f&&typeof f==='object'?f:null};
+let featuredCloudSyncing=false;
+async function pushFeatured(f){
+  try{
+    if(typeof client==='undefined'||!client)return;
+    const value=f&&typeof f==='object'?f:{};
+    const {error}=await client.from('site_state').upsert({key:'featured_artist',value,updated_at:new Date().toISOString()},{onConflict:'key'});
+    if(error)console.warn('STREAMASIAH featured artist save failed:',error.message||error);
+  }catch(e){console.warn('STREAMASIAH featured artist save failed:',e)}
+}
+function saveFeatured(f){
+  const value=f&&typeof f==='object'?f:{};
+  saveFeaturedLocal(value);
+  if(!featuredCloudSyncing)pushFeatured(value);
+}
+async function pullFeatured(){
+  try{
+    if(typeof client==='undefined'||!client)return false;
+    const {data,error}=await client.from('site_state').select('value,updated_at').eq('key','featured_artist').maybeSingle();
+    if(error){console.warn('STREAMASIAH featured artist load failed:',error.message||error);return false}
+    const local=getFeatured();
+    if(!data||!data.value||typeof data.value!=='object'||Array.isArray(data.value)){
+      if(local&&local.name)await pushFeatured(local);
+      return false;
+    }
+    const remote=data.value;
+    if(!remote.name&&local?.name){await pushFeatured(local);return false}
+    featuredCloudSyncing=true;
+    saveFeaturedLocal(remote);
+    featuredCloudSyncing=false;
+    try{renderEditor();renderPage()}catch(e){}
+    return true;
+  }catch(e){featuredCloudSyncing=false;console.warn('STREAMASIAH featured artist load failed:',e);return false}
+}
 const profiles=()=>{const p=readJSON('jassiahArtistProfiles',{});try{if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.assign(p,window.artistProfiles)}catch(e){}return p};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const songList=()=>{try{if(typeof songs!=='undefined'&&Array.isArray(songs))return songs}catch(e){}try{if(Array.isArray(window.songs))return window.songs}catch(e){}return []};
@@ -10639,7 +10678,7 @@ function renderPage(){
   renderPage._retry=0;
   const html=songs.length?`<div class="jc-featured-song-list">${songs.map(s=>{
     const i=list.findIndex(x=>songId(x)===songId(s));
-    return `<button type="button" class="jc-featured-song" onclick="event.stopPropagation();if(typeof window.playSong==='function'&&${i>=0})window.playSong(${i})"><img src="${esc(songCover(s))}" alt=""><span class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></span></button>`;
+    return `<button type="button" class="jc-featured-song" onclick="event.stopPropagation();if(typeof window.playSong==='function'&&${i>=0})window.playSong(${i})"><img src="${esc(songCover(s))}" alt=""><span class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></span><b aria-hidden="true">▶</b></button>`;
   }).join('')}</div>`:'';
   box.innerHTML=`<div class="jc-featured-artist-card">${img}<div class="jc-featured-artist-name">${esc(f.name)}</div>${html}</div>`;
 }window.jcRenderFeaturedArtist=renderPage;
@@ -10649,12 +10688,10 @@ window.jcAddFeaturedSong=function(){const f=featured()||{name:'',image:'',zoom:1
 window.jcSetFeaturedSong=function(i,id){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[];ids[i]=String(id||'');f.songs=ids.slice(0,3);saveFeatured(f);renderEditor();renderPage()};
 window.jcDeleteFeaturedSong=function(i){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[];ids.splice(i,1);f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
 window.jcMoveFeaturedSong=function(i,d){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[],j=i+d;if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
-window.jcSaveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage'),st=document.getElementById('jcFeaturedArtistStatus'),name=findArtist(n?.value||''),file=fi?.files?.[0],old=featured()||{};if(!name){if(st)st.textContent='Choose an existing artist. A Featured Artist does not create a new artist profile.';return}if(!file&&!old.image){if(st)st.textContent='Choose a Featured Artist picture.';return}if(st)st.textContent='Saving Featured Artist...';try{let image=old.image||'';if(file){const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist'),u=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(u.error)throw u.error;image=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl}const zoom=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100)));const editorSongs=[...document.querySelectorAll('#jcFeaturedSongEditor select')].map(x=>x.value);
-      const songs=cleanIds(editorSongs.length?editorSongs:(old.songs||[]));
-      saveFeatured({name,image,zoom,songs});stripLegacy();if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured Artist saved.';renderEditor();renderPage();}catch(e){console.error(e);if(st)st.textContent='Featured Artist save failed: '+(e?.message||'Unknown error')}};
+window.jcSaveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage'),st=document.getElementById('jcFeaturedArtistStatus'),name=findArtist(n?.value||''),file=fi?.files?.[0],old=featured()||{};if(!name){if(st)st.textContent='Choose an existing artist. A Featured Artist does not create a new artist profile.';return}if(!file&&!old.image){if(st)st.textContent='Choose a Featured Artist picture.';return}if(st)st.textContent='Saving Featured Artist...';try{let image=old.image||'';if(file){const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist'),u=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(u.error)throw u.error;image=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl}const zoom=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100)));const editorSongs=[...document.querySelectorAll('#jcFeaturedSongEditor select')].map(x=>x.value);const chosenSongs=cleanIds(editorSongs.length?editorSongs:(old.songs||[]));saveFeatured({name,image,zoom,songs:chosenSongs});stripLegacy();if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured Artist saved.';renderEditor();renderPage();}catch(e){console.error(e);if(st)st.textContent='Featured Artist save failed: '+(e?.message||'Unknown error')}};
 window.jcRemoveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const st=document.getElementById('jcFeaturedArtistStatus');const f=featured();if(f){f.image='';saveFeatured(f)}else saveFeatured({});stripLegacy();const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage');if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured picture removed.';renderEditor();renderPage()};
 function prepareFeaturedAdmin(){const dl=document.getElementById('jcFeaturedArtistList');if(dl)dl.innerHTML=artistNames().map(n=>`<option value="${esc(n)}"></option>`).join('');const f=featured(),n=document.getElementById('jcFeaturedArtistName'),z=document.getElementById('jcFeaturedArtistZoom'),v=document.getElementById('jcFeaturedArtistZoomValue');if(f&&n&&!n.value)n.value=f.name||'';if(z){const x=Math.max(60,Math.min(140,Number(f?.zoom||100)));z.value=String(x);if(v)v.textContent=x+'%'}renderEditor();window.jcPreviewFeaturedArtistZoom()};
 const oldGo=window.jcGo;window.jcGo=function(n){const t=Math.max(0,Math.min(9,Number(n)||0));if(t===8){const tr=document.getElementById('jcTrack');if(tr)tr.style.transform='translateX(-800%)';window.page=8;document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===8));renderPage();return}if(t===9){const tr=document.getElementById('jcTrack');if(tr)tr.style.transform='translateX(-900%)';window.page=9;document.querySelectorAll('.jc-nav').forEach(b=>b.classList.toggle('active',Number(b.dataset.page)===9));if(typeof window.adminNow==='function'&&!window.adminNow()){alert('Please log in as admin first.');window.jcGo(0);return}prepareFeaturedAdmin();['refreshAdminNames','refreshAlbumSongChecks','jcRenderDeleteSongList','jcRenderOrderList','jcLoadFanPhotos'].forEach(fn=>{try{if(typeof window[fn]==='function')window[fn]()}catch(e){}});return}if(typeof oldGo==='function')oldGo(t)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{prepareFeaturedAdmin();renderPage()},500);setTimeout(renderPage,1200);setTimeout(renderPage,2500)});else{setTimeout(()=>{prepareFeaturedAdmin();renderPage()},500);setTimeout(renderPage,1200);setTimeout(renderPage,2500)};
-})();
-</script>
+setTimeout(()=>pullFeatured(),350);
+})();</script>
