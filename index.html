@@ -5643,7 +5643,7 @@ initializeAuth();
     };
     if(admin)admin.onclick=e=>{
       e.preventDefault();e.stopPropagation();
-      if(currentUser){jcPrepareAdmin();jcGo(7)}else jcOpenLogin();
+      if(currentUser){jcPrepareAdmin();jcGo(9)}else jcOpenLogin();
     };
     document.addEventListener("click",e=>{
       if(!e.target.closest("#jcBell")&&!e.target.closest("#jcNewsPanel")){
@@ -5666,6 +5666,7 @@ initializeAuth();
     renderHome();renderSongs();renderArtists();renderPlaylists();renderAlbums();jcLoadGallery();jcGo(0);
     const d=document.getElementById("jcBellDot");if(d){const seen=Number(localStorage.getItem(NEWS_SEEN)||0);d.style.display=(newsStamp()>seen)?"block":"none"}
     setTimeout(()=>{renderHome();renderSongs();renderArtists();renderPlaylists();renderAlbums();jcLoadGallery();jcUpdateNow()},1500);
+    setTimeout(()=>window.dispatchEvent(new Event('streamasiah:songs-ready')),1550);
 
     const audio=document.getElementById("playerAudio");
     if(audio){audio.addEventListener("timeupdate",savePlayer);audio.addEventListener("pause",savePlayer);audio.addEventListener("volumechange",savePlayer)}
@@ -9641,7 +9642,7 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 #jcArtists .jc-artist-card img{width:100%!important;max-width:104px!important;aspect-ratio:1!important;height:auto!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcHomeArtists .jc-artist-card img{width:110px!important;height:110px!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcArtists .jc-artist-name,#jcHomeArtists .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
-.jc-featured-artist-page{max-width:1000px;margin:0 auto;padding:34px 0 80px;} #jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;} .jc-featured-artist-card{width:min(820px,94%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:20px;box-sizing:border-box;} .jc-featured-artist-image-frame{width:min(720px,100%);height:560px;margin:0 auto 16px;overflow:hidden;border-radius:14px;background:#050505;display:flex;align-items:center;justify-content:center;} .jc-featured-artist-card img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;margin:0;transform-origin:center center;} .jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;margin-bottom:20px;} .jc-featured-song-list{width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:9px;text-align:left;} .jc-featured-song{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#17131a;border:1px solid #2b2130;border-radius:10px;cursor:pointer;} .jc-featured-song img{width:48px;height:48px;object-fit:cover;border-radius:7px;flex:0 0 auto;} .jc-featured-song-info{min-width:0;display:flex;flex-direction:column;gap:3px;} .jc-featured-song-info strong{font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-song-info span{font-size:12px;color:#a100ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;} .jc-featured-song-editor{margin-top:14px;padding-top:14px;border-top:1px solid #2b2130;} .jc-featured-song-edit-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;margin-top:7px;} .jc-featured-song-edit-row select{width:100%;padding:9px;border-radius:8px;background:#111;color:#fff;border:1px solid #444;} .jc-featured-song-edit-row button{min-width:38px;padding:8px 10px;} 
+.jc-featured-artist-page{max-width:1000px;margin:0 auto;padding:34px 0 80px;} #jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;} .jc-featured-artist-card{width:min(820px,94%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:20px;box-sizing:border-box;} .jc-featured-artist-image-frame{width:min(720px,100%);height:560px;margin:0 auto 16px;overflow:hidden;border-radius:14px;background:#050505;display:flex;align-items:center;justify-content:center;} .jc-featured-artist-card img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;margin:0;transform-origin:center center;} .jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;margin-bottom:20px;} .jc-featured-song-list{width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:9px;text-align:left;} .jc-featured-song{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#17131a;border:1px solid #2b2130;border-radius:10px;cursor:pointer;} .jc-featured-song{appearance:none!important;width:100%;font:inherit;color:inherit;text-align:left;} .jc-featured-song img{width:48px;height:48px;object-fit:cover;border-radius:7px;flex:0 0 auto;} .jc-featured-song-info{min-width:0;display:flex;flex-direction:column;gap:3px;} .jc-featured-song-info strong{font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-song-info span{font-size:12px;color:#a100ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;} .jc-featured-song-editor{margin-top:14px;padding-top:14px;border-top:1px solid #2b2130;} .jc-featured-song-edit-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;margin-top:7px;} .jc-featured-song-edit-row select{width:100%;padding:9px;border-radius:8px;background:#111;color:#fff;border:1px solid #444;} .jc-featured-song-edit-row button{min-width:38px;padding:8px 10px;} 
 @media(max-width:900px){#jcArtists{grid-template-columns:repeat(3,minmax(82px,1fr))!important;gap:18px 10px!important;}#jcArtists .jc-artist-card img{max-width:82px!important;}}
 </style>
 <script id="streamasiah-final-data-render-fix-js">
@@ -10312,18 +10313,18 @@ html, body{
 
   /* Portrait header: keep the working layout, with a clear gap between actions and search. */
   .jc-sidebar{position:static!important;width:0!important;height:0!important;min-width:0!important;overflow:visible!important;display:block!important;background:transparent!important;border:0!important;padding:0!important;pointer-events:none!important;z-index:5000!important}
-  .jc-sidebar .jc-logo{position:fixed!important;left:18px!important;top:12px!important;width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;margin:0!important;padding:0!important;display:block!important;pointer-events:auto!important;z-index:6000!important;background:transparent!important;border:0!important}
-  .jc-sidebar .jc-logo img{width:42px!important;height:42px!important;display:block!important;object-fit:cover!important;border-radius:50%!important}
+  .jc-sidebar .jc-logo{position:fixed!important;left:18px!important;top:4px!important;width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;margin:0!important;padding:0!important;display:block!important;pointer-events:auto!important;z-index:6000!important;background:transparent!important;border:0!important}
+  .jc-sidebar .jc-logo img{width:36px!important;height:36px!important;display:block!important;object-fit:cover!important;border-radius:50%!important}
   .jc-sidebar .jc-nav{display:none!important}
   .jc-top{position:absolute!important;left:0!important;right:0!important;top:0!important;height:var(--sa-p-header)!important;background:#050505!important;border-bottom:1px solid #21172a!important;z-index:5500!important;display:block!important}
-  .jc-top:before{content:"STREAMASIAH"!important;position:absolute!important;left:68px!important;top:27px!important;color:#fff!important;font-size:15px!important;font-weight:900!important;line-height:1!important;pointer-events:none!important}
+  .jc-top:before{content:"STREAMASIAH"!important;position:absolute!important;left:60px!important;top:20px!important;color:#fff!important;font-size:15px!important;font-weight:900!important;line-height:1!important;pointer-events:none!important}
   .jc-arrows{display:none!important}
-  .jc-actions{position:absolute!important;right:10px!important;top:9px!important;display:flex!important;align-items:center!important;gap:8px!important;margin:0!important;transform:none!important;z-index:5600!important}
+  .jc-actions{position:absolute!important;right:10px!important;top:5px!important;display:flex!important;align-items:center!important;gap:8px!important;margin:0!important;transform:none!important;z-index:5600!important}
   .jc-actions button{height:38px!important;min-height:38px!important;padding:0 10px!important;border-radius:20px!important;background:#070707!important;border:1px solid #a100ff!important;color:#d66cff!important;font-size:10px!important;font-weight:900!important;white-space:nowrap!important;display:flex!important;align-items:center!important;justify-content:center!important}
   .jc-bell{width:38px!important;min-width:38px!important;padding:0!important}
   .jc-bell-svg{width:18px!important;height:18px!important;color:#d66cff!important;stroke:#d66cff!important}
   .jc-red-dot{width:7px!important;height:7px!important;right:4px!important;top:4px!important}
-  .jc-search-wrap{position:absolute!important;left:10px!important;right:10px!important;bottom:7px!important;width:auto!important;margin:0!important;z-index:5550!important}
+  .jc-search-wrap{position:absolute!important;left:10px!important;right:10px!important;bottom:11px!important;width:auto!important;margin:0!important;z-index:5550!important}
   .jc-search{width:100%!important;height:38px!important;min-height:38px!important;box-sizing:border-box!important;border-radius:20px!important;background:#17151a!important;border:1px solid #29232d!important;color:#fff!important;padding:0 15px!important;font-size:11px!important}
 
   .jc-window{position:absolute!important;left:0!important;right:0!important;top:var(--sa-p-header)!important;bottom:0!important;width:auto!important;height:auto!important;overflow:hidden!important;background:#000!important}
@@ -10446,9 +10447,9 @@ html, body{
   .jc-arrows{display:none!important}
 
   /* Shorter search leaves clean breathing room at the right edge of the center header. */
-  .jc-search-wrap{position:absolute!important;left:28%!important;right:15%!important;top:10px!important;width:auto!important;margin:0!important}
+  .jc-search-wrap{position:absolute!important;left:28%!important;right:112px!important;top:10px!important;width:auto!important;margin:0!important}
   .jc-search{height:38px!important;font-size:11px!important;padding:0 15px!important;border-radius:20px!important}
-  .jc-actions{position:absolute!important;right:calc(-1 * var(--sa-l-right) + 8px)!important;top:10px!important;display:flex!important;gap:5px!important;align-items:center!important;transform:none!important;z-index:950!important}
+  .jc-actions{position:absolute!important;right:8px!important;top:10px!important;display:flex!important;gap:5px!important;align-items:center!important;transform:none!important;z-index:950!important}
   .jc-actions button{height:38px!important;font-size:10px!important;padding:0 9px!important}
   .jc-bell{width:38px!important;min-width:38px!important;padding:0!important}
 
@@ -10583,23 +10584,60 @@ const getFeatured=()=>{const f=readJSON(FEATURE_KEY,null);return f&&typeof f==='
 const profiles=()=>{const p=readJSON('jassiahArtistProfiles',{});try{if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.assign(p,window.artistProfiles)}catch(e){}return p};
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const songList=()=>{try{if(typeof songs!=='undefined'&&Array.isArray(songs))return songs}catch(e){}try{if(Array.isArray(window.songs))return window.songs}catch(e){}return []};
-const songById=id=>songList().find(s=>String(s.id)===String(id))||null;
+const songById=id=>findSong(id);
 const songCover=s=>{try{if(typeof window.coverUrl==='function')return window.coverUrl(s)||''}catch(e){}return String(s?.cover_url||s?.cover||'')};
 const artistNames=()=>{const out=new Map();Object.keys(profiles()).forEach(n=>{const x=String(n).trim();if(x&&!x.startsWith(OLD_PREFIX))out.set(x.toLowerCase(),x)});songList().forEach(s=>{const x=String(s?.artist||'').trim().split(/\s+(?:ft\.?|feat\.?|featuring)\s+/i)[0].trim();if(x&&!out.has(x.toLowerCase()))out.set(x.toLowerCase(),x)});return [...out.values()].sort((a,b)=>a.localeCompare(b))};
 const findArtist=n=>{const t=String(n||'').trim().toLowerCase();return artistNames().find(x=>x.toLowerCase()===t)||''};
-const cleanIds=ids=>[...(Array.isArray(ids)?ids:[])].map(String).filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,3);
+const songId=s=>String(s?.id??s?.song_id??s?.songId??'');
+const normalizeRef=x=>{if(x&&typeof x==='object')return String(x.id??x.song_id??x.songId??'');return String(x??'')};
+const cleanIds=ids=>[...(Array.isArray(ids)?ids:[])].map(normalizeRef).filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,3);
+const findSong=id=>{
+  const list=songList(),key=normalizeRef(id);
+  if(!key)return null;
+  let hit=list.find(s=>songId(s)===key)||list.find(s=>String(s?.id??'')===key);
+  if(hit)return hit;
+  if(id&&typeof id==='object'){
+    const title=String(id.title??id.song_title??'').trim().toLowerCase();
+    const artist=String(id.artist??'').trim().toLowerCase();
+    if(title)hit=list.find(s=>String(s?.title??'').trim().toLowerCase()===title&&(!artist||String(s?.artist??'').trim().toLowerCase()===artist));
+    if(hit)return hit;
+  }
+  if(/^\d+$/.test(key)){const idx=Number(key);if(Number.isInteger(idx)&&idx>=0&&idx<list.length)return list[idx];}
+  return null;
+};
 const legacy=()=>{const p=profiles(),k=Object.keys(p).find(x=>String(x).startsWith(OLD_PREFIX));if(!k)return null;const v=p[k]||{};return{name:k.slice(OLD_PREFIX.length),image:v.image_url||v.image||'',zoom:Number(v.zoom||100),songs:cleanIds(v.songs||[])}};
 const stripLegacy=()=>{try{const p=readJSON('jassiahArtistProfiles',{});Object.keys(p).filter(k=>String(k).startsWith(OLD_PREFIX)).forEach(k=>delete p[k]);localStorage.setItem('jassiahArtistProfiles',JSON.stringify(p));if(window.artistProfiles&&typeof window.artistProfiles==='object')Object.keys(window.artistProfiles).filter(k=>String(k).startsWith(OLD_PREFIX)).forEach(k=>delete window.artistProfiles[k])}catch(e){}};
 const featured=()=>{let f=getFeatured();if(!f?.name){const l=legacy();if(l){f=l;saveFeatured(f)}}stripLegacy();return f};
+let lastSongCount=-1;setInterval(()=>{const n=songList().length;if(n!==lastSongCount){lastSongCount=n;renderEditor();renderPage()}},500);
 let featuredSongRenderRetry=0;
 function renderEditor(){const box=document.getElementById('jcFeaturedSongEditor');if(!box)return;const f=featured()||{},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[],list=songList();if(!list.length){if(featuredSongRenderRetry<20){featuredSongRenderRetry++;setTimeout(()=>renderEditor(),300)}return}featuredSongRenderRetry=0;box.innerHTML=ids.map((id,i)=>`<div class="jc-featured-song-edit-row"><select onchange="jcSetFeaturedSong(${i},this.value)"><option value="">Choose song...</option>${list.map(s=>`<option value="${esc(s.id)}" ${String(s.id)===String(id)?'selected':''}>${esc(s.title||'Untitled')} — ${esc(s.artist||'Unknown Artist')}</option>`).join('')}</select><button type="button" class="jc-admin-btn jc-admin-muted" onclick="jcMoveFeaturedSong(${i},-1)" ${i===0?'disabled':''}>↑</button><button type="button" class="jc-admin-btn jc-admin-muted" onclick="jcMoveFeaturedSong(${i},1)" ${i===ids.length-1?'disabled':''}>↓</button><button type="button" class="jc-admin-btn jc-admin-danger" onclick="jcDeleteFeaturedSong(${i})">×</button></div>`).join('')};
-function renderPage(){const box=document.getElementById('jcFeaturedArtistDisplay');if(!box)return;const f=featured();if(!f?.name){box.innerHTML='<div class="jc-featured-empty">No Featured Artist has been selected yet.</div>';return}const img=f.image?`<div class="jc-featured-artist-image-frame"><img src="${esc(f.image)}" alt="${esc(f.name)}" style="transform:scale(${Math.max(.6,Math.min(1.4,Number(f.zoom||100)/100))})"></div>`:'';const ids=cleanIds(f.songs||[]),list=songList(),songs=ids.map(songById).filter(Boolean);if(ids.length&&list.length===0){if(typeof renderPage._retry!=='number')renderPage._retry=0;if(renderPage._retry<12){renderPage._retry++;setTimeout(renderPage,400)}return}renderPage._retry=0;const html=songs.length?`<div class="jc-featured-song-list">${songs.map(s=>{const i=songList().findIndex(x=>String(x.id)===String(s.id));return `<div class="jc-featured-song" onclick="event.stopPropagation();if(typeof playSong==='function'&&${i>=0})playSong(${i})"><img src="${esc(songCover(s))}" alt=""><div class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></div></div>`}).join('')}</div>`:'';box.innerHTML=`<div class="jc-featured-artist-card">${img}<div class="jc-featured-artist-name">${esc(f.name)}</div>${html}</div>`};
-window.jcRenderFeaturedArtist=renderPage;
+function renderPage(){
+  const box=document.getElementById('jcFeaturedArtistDisplay');
+  if(!box)return;
+  const f=featured();
+  if(!f?.name){box.innerHTML='<div class="jc-featured-empty">No Featured Artist has been selected yet.</div>';return}
+  const zoom=Math.max(.6,Math.min(1.4,Number(f.zoom||100)/100));
+  const img=f.image?`<div class="jc-featured-artist-image-frame"><img src="${esc(f.image)}" alt="${esc(f.name)}" style="transform:scale(${zoom})"></div>`:'';
+  const refs=Array.isArray(f.songs)?f.songs.slice(0,3):[];
+  const list=songList();
+  const songs=refs.map(findSong).filter(Boolean);
+  if(refs.length&&list.length===0){
+    if(typeof renderPage._retry!=='number')renderPage._retry=0;
+    if(renderPage._retry<30){renderPage._retry++;setTimeout(renderPage,350);return}
+  }
+  renderPage._retry=0;
+  const html=songs.length?`<div class="jc-featured-song-list">${songs.map(s=>{
+    const i=list.findIndex(x=>songId(x)===songId(s));
+    return `<button type="button" class="jc-featured-song" onclick="event.stopPropagation();if(typeof window.playSong==='function'&&${i>=0})window.playSong(${i})"><img src="${esc(songCover(s))}" alt=""><span class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></span><b aria-hidden="true">▶</b></button>`;
+  }).join('')}</div>`:'';
+  box.innerHTML=`<div class="jc-featured-artist-card">${img}<div class="jc-featured-artist-name">${esc(f.name)}</div>${html}</div>`;
+}window.jcRenderFeaturedArtist=renderPage;
+window.addEventListener('streamasiah:songs-ready',()=>{featuredSongRenderRetry=0;renderEditor();renderPage()});
 window.jcPreviewFeaturedArtistZoom=function(){const z=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100))),v=document.getElementById('jcFeaturedArtistZoomValue'),p=document.getElementById('jcFeaturedArtistZoomPreview'),file=document.getElementById('jcFeaturedArtistImage')?.files?.[0];if(v)v.textContent=z+'%';if(!p)return;const f=featured();if(!file){p.innerHTML=f?.image?`<img src="${esc(f.image)}" alt="" style="width:100%;height:100%;object-fit:contain;transform:scale(${z/100});transform-origin:center center;">`:'<span style="color:#888;font-size:12px;">Choose a picture to preview the zoom.</span>';return}const r=new FileReader();r.onload=()=>p.innerHTML=`<img src="${esc(r.result)}" alt="" style="width:100%;height:100%;object-fit:contain;transform:scale(${z/100});transform-origin:center center;">`;r.readAsDataURL(file)};
-window.jcAddFeaturedSong=function(){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[];if(ids.length>=3){const s=document.getElementById('jcFeaturedArtistStatus');if(s)s.textContent='Featured Artist can have up to 3 songs.';return}ids.push('');f.songs=ids;saveFeatured(f);renderEditor()};
-window.jcSetFeaturedSong=function(i,id){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[];ids[i]=String(id||'');f.songs=ids.slice(0,3);saveFeatured(f);renderEditor();renderPage()};
-window.jcDeleteFeaturedSong=function(i){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[];ids.splice(i,1);f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
-window.jcMoveFeaturedSong=function(i,d){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(String):[],j=i+d;if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
+window.jcAddFeaturedSong=function(){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[];if(ids.length>=3){const st=document.getElementById('jcFeaturedArtistStatus');if(st)st.textContent='Featured Artist can have up to 3 songs.';return}ids.push('');f.songs=ids;saveFeatured(f);renderEditor();setTimeout(()=>document.querySelector('#jcFeaturedSongEditor select:last-of-type')?.focus(),0)};
+window.jcSetFeaturedSong=function(i,id){const f=featured()||{name:'',image:'',zoom:100,songs:[]},ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[];ids[i]=String(id||'');f.songs=ids.slice(0,3);saveFeatured(f);renderEditor();renderPage()};
+window.jcDeleteFeaturedSong=function(i){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[];ids.splice(i,1);f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
+window.jcMoveFeaturedSong=function(i,d){const f=featured();if(!f)return;const ids=Array.isArray(f.songs)?f.songs.slice(0,3).map(normalizeRef):[],j=i+d;if(j<0||j>=ids.length)return;[ids[i],ids[j]]=[ids[j],ids[i]];f.songs=ids;saveFeatured(f);renderEditor();renderPage()};
 window.jcSaveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage'),st=document.getElementById('jcFeaturedArtistStatus'),name=findArtist(n?.value||''),file=fi?.files?.[0],old=featured()||{};if(!name){if(st)st.textContent='Choose an existing artist. A Featured Artist does not create a new artist profile.';return}if(!file&&!old.image){if(st)st.textContent='Choose a Featured Artist picture.';return}if(st)st.textContent='Saving Featured Artist...';try{let image=old.image||'';if(file){const path='featured/'+Date.now()+'_'+(typeof cleanName==='function'?cleanName(file.name||'featured-artist'):file.name||'featured-artist'),u=await client.storage.from('artist-images').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});if(u.error)throw u.error;image=client.storage.from('artist-images').getPublicUrl(path).data.publicUrl}const zoom=Math.max(60,Math.min(140,Number(document.getElementById('jcFeaturedArtistZoom')?.value||100)));saveFeatured({name,image,zoom,songs:cleanIds(old.songs||[])});stripLegacy();if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured Artist saved.';renderEditor();renderPage();}catch(e){console.error(e);if(st)st.textContent='Featured Artist save failed: '+(e?.message||'Unknown error')}};
 window.jcRemoveFeaturedArtist=async function(){if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}const st=document.getElementById('jcFeaturedArtistStatus');const f=featured();if(f){f.image='';saveFeatured(f)}else saveFeatured({});stripLegacy();const n=document.getElementById('jcFeaturedArtistName'),fi=document.getElementById('jcFeaturedArtistImage');if(n)n.value='';if(fi)fi.value='';if(st)st.textContent='Featured picture removed.';renderEditor();renderPage()};
 function prepareFeaturedAdmin(){const dl=document.getElementById('jcFeaturedArtistList');if(dl)dl.innerHTML=artistNames().map(n=>`<option value="${esc(n)}"></option>`).join('');const f=featured(),n=document.getElementById('jcFeaturedArtistName'),z=document.getElementById('jcFeaturedArtistZoom'),v=document.getElementById('jcFeaturedArtistZoomValue');if(f&&n&&!n.value)n.value=f.name||'';if(z){const x=Math.max(60,Math.min(140,Number(f?.zoom||100)));z.value=String(x);if(v)v.textContent=x+'%'}renderEditor();window.jcPreviewFeaturedArtistZoom()};
