@@ -10057,12 +10057,47 @@ html, body{
 }
 #jcAlbumViewer .jc-album-close::before{transform:translate(-50%,-50%) rotate(45deg)!important;}
 #jcAlbumViewer .jc-album-close::after{transform:translate(-50%,-50%) rotate(-45deg)!important;}
-@media(max-width:600px){
-  #jcAlbumViewer{padding:10px!important;}
+@media(max-width:700px) and (hover:none){
+  /* Keep the album viewer completely above the phone navigation + mini-player.
+     The old full-height box was extending underneath those fixed controls,
+     which hid the album header and the bottom of the song list. */
+  #jcAlbumViewer{
+    padding:10px!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    box-sizing:border-box!important;
+  }
   #jcAlbumViewer .jc-album-viewer-box{
-    width:96vw!important;
-    height:calc(100vh - 20px)!important;
-    max-height:calc(100vh - 20px)!important;
+    width:calc(100vw - 20px)!important;
+    height:calc(100dvh - var(--sa-p-player) - var(--sa-p-nav) - 20px)!important;
+    max-height:calc(100dvh - var(--sa-p-player) - var(--sa-p-nav) - 20px)!important;
+    margin:0!important;
+    padding:14px!important;
+    border-radius:14px!important;
+  }
+  #jcAlbumViewer .jc-album-viewer-head{
+    min-height:110px!important;
+    gap:12px!important;
+  }
+  #jcAlbumViewer .jc-album-viewer-head img{
+    width:110px!important;
+    height:110px!important;
+    flex:0 0 110px!important;
+  }
+  #jcAlbumViewer .jc-album-viewer-title{
+    font-size:22px!important;
+    line-height:1.05!important;
+    max-width:calc(100vw - 165px)!important;
+    overflow-wrap:anywhere!important;
+  }
+  #jcAlbumViewer .jc-album-viewer-count{font-size:14px!important;}
+  #jcAlbumViewer .jc-album-viewer-actions{gap:8px!important;margin-top:10px!important;}
+  #jcAlbumViewer .jc-album-viewer-actions button{padding:8px 11px!important;}
+  #jcAlbumViewer .jc-section[style*="margin-top:20px"]{margin-top:12px!important;}
+  #jcAlbumViewerSongs{
+    min-height:0!important;
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
   }
 }
 </style>
@@ -10657,7 +10692,7 @@ html, body{
     if(!nav){
       nav=document.createElement('nav');nav.className='sa-phone-bottom-nav';nav.setAttribute('aria-label','Mobile navigation');
       const originals=pages.map(p=>document.querySelector('.jc-nav[data-page="'+p+'"]')).filter(Boolean);
-      originals.forEach(o=>{const b=document.createElement('button');b.type='button';b.dataset.page=o.dataset.page;b.title=o.title||'';b.setAttribute('aria-label',o.getAttribute('aria-label')||o.title||'Navigation');b.textContent=o.textContent||'';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const p=Number(b.dataset.page);if(typeof window.jcGo==='function')window.jcGo(p);else o.click();setTimeout(sync,50)});nav.appendChild(b)});
+      originals.forEach(o=>{const b=document.createElement('button');b.type='button';b.dataset.page=o.dataset.page;b.title=o.title||'';b.setAttribute('aria-label',o.getAttribute('aria-label')||o.title||'Navigation');b.textContent=o.textContent||'';b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(typeof window.jcCloseAlbumViewer==='function')window.jcCloseAlbumViewer();const p=Number(b.dataset.page);if(typeof window.jcGo==='function')window.jcGo(p);else o.click();setTimeout(sync,50)});nav.appendChild(b)});
       document.body.appendChild(nav);
     }
     sync();
