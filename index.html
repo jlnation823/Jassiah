@@ -5177,7 +5177,7 @@ initializeAuth();
         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();jcOpenAlbum('${jsEsc(name)}')}" >
         <img src="${esc(img)}" alt="${esc(name)}">
         <div class="jc-artist-name">${esc(name)}</div>
-        <div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?"":"s"}</div>
+        <div class="jc-album-song-count">${list.length} song${list.length===1?"":"s"}</div>
       </div>`;
     }).join(""):'<div class="jc-muted">No albums yet.</div>';
   }
@@ -8132,7 +8132,7 @@ initializeAuth();
     const as=albumsNow(),names=Object.keys(as);
     box.innerHTML=names.length?names.map(name=>{
       const a=as[name]||{},list=albumSongs(a),img=a.cover||(list[0]?imageForSong(list[0]):'');
-      return `<div class="jc-artist-card jc-album-card" role="button" tabindex="0" onclick="jcOpenAlbum('${js2(name)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();jcOpenAlbum('${js2(name)}')}"><img src="${esc2(img)}" alt="${esc2(name)}"><div class="jc-artist-name">${esc2(name)}</div><div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?'':'s'}</div></div>`;
+      return `<div class="jc-artist-card jc-album-card" role="button" tabindex="0" onclick="jcOpenAlbum('${js2(name)}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();jcOpenAlbum('${js2(name)}')}"><img src="${esc2(img)}" alt="${esc2(name)}"><div class="jc-artist-name">${esc2(name)}</div><div class="jc-album-song-count">${list.length} song${list.length===1?'':'s'}</div></div>`;
     }).join(''):'<div class="jc-muted">No albums yet.</div>';
   }
   window.renderAlbums=renderAlbumCards;
@@ -8560,7 +8560,7 @@ initializeAuth();
     const slice=names.slice(page*per,page*per+per);
     box.innerHTML=slice.length ? slice.map(name=>{
       const a=as[name]||{},list=albumSongs(a),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');
-      return `<div class="jc-artist-card jc-album-card" data-real-album="${E(name)}" role="button" tabindex="0"><img src="${E(img)}" alt="${E(name)}"><div class="jc-artist-name">${E(name)}</div><div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?'':'s'}</div></div>`;
+      return `<div class="jc-artist-card jc-album-card" data-real-album="${E(name)}" role="button" tabindex="0"><img src="${E(img)}" alt="${E(name)}"><div class="jc-artist-name">${E(name)}</div><div class="jc-album-song-count">${list.length} song${list.length===1?'':'s'}</div></div>`;
     }).join('') : '<div class="jc-muted">No albums yet.</div>';
     if(pages>1) box.insertAdjacentHTML('beforeend',`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-real-album-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-real-album-page="1">›</button></div>`);
   }
@@ -9638,6 +9638,7 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 #jcAlbums{display:grid!important;grid-template-columns:repeat(5,150px)!important;justify-content:start!important;gap:28px!important;align-items:start!important;}
 #jcAlbums .jc-album-card{width:150px!important;max-width:150px!important;background:transparent!important;border:0!important;text-align:center!important;cursor:pointer!important;}
 #jcAlbums .jc-album-card img{width:150px!important;height:150px!important;object-fit:cover!important;border-radius:10px!important;border:1px solid #6f1aa0!important;display:block!important;}
+#jcAlbums .jc-album-song-count{display:block!important;margin-top:7px!important;margin-bottom:10px!important;line-height:1.2!important;min-height:13px!important;}
 #jcAlbums .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
 #jcArtists{display:grid!important;grid-template-columns:repeat(10,minmax(0,1fr))!important;justify-content:stretch!important;gap:26px 18px!important;align-items:start!important;}
 #jcHomeArtists{display:grid!important;grid-template-columns:repeat(4,120px)!important;justify-content:start!important;gap:26px 30px!important;align-items:start!important;}
@@ -9646,7 +9647,7 @@ document.addEventListener('DOMContentLoaded',()=>{setTimeout(renderEditor,250);s
 #jcArtists .jc-artist-card img{width:100%!important;max-width:104px!important;aspect-ratio:1!important;height:auto!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcHomeArtists .jc-artist-card img{width:110px!important;height:110px!important;object-fit:cover!important;border-radius:50%!important;border:2px solid #a100ff!important;display:block!important;margin:0 auto!important;}
 #jcArtists .jc-artist-name,#jcHomeArtists .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
-.jc-featured-artist-page{max-width:1000px;margin:0 auto;padding:34px 0 80px;} #jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;} .jc-featured-artist-card{width:min(820px,94%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:20px;box-sizing:border-box;} .jc-featured-artist-image-frame{width:min(720px,100%);height:560px;margin:0 auto 16px;overflow:hidden;border-radius:14px;background:#050505;display:flex;align-items:center;justify-content:center;} .jc-featured-artist-card img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;margin:0;transform-origin:center center;} .jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;margin-bottom:20px;} .jc-featured-song-list{width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:9px;text-align:left;} .jc-featured-song{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#17131a;border:1px solid #2b2130;border-radius:10px;cursor:pointer;} .jc-featured-song{appearance:none!important;width:100%;font:inherit;color:inherit;text-align:left;} .jc-featured-song img{width:48px;height:48px;object-fit:cover;border-radius:7px;flex:0 0 auto;} .jc-featured-song-info{min-width:0;display:flex;flex-direction:column;gap:3px;} .jc-featured-song-info strong{font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-song-info span{font-size:12px;color:#a100ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-song-play{margin-left:auto;flex:0 0 40px;width:40px;height:40px;display:grid;place-items:center;box-sizing:border-box;border-radius:50%;background:#3b82f6;color:#fff;font-size:20px;line-height:1;} .jc-featured-song-play{border:0!important;box-shadow:none!important;background:#3b82f6!important;color:#fff!important;border-radius:50%!important;padding:0!important;align-items:center!important;justify-content:center!important;text-align:center!important;} .jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;} .jc-featured-song-editor{margin-top:14px;padding-top:14px;border-top:1px solid #2b2130;} .jc-featured-song-edit-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;margin-top:7px;} .jc-featured-song-edit-row select{width:100%;padding:9px;border-radius:8px;background:#111;color:#fff;border:1px solid #444;} .jc-featured-song-edit-row button{min-width:38px;padding:8px 10px;} 
+.jc-featured-artist-page{max-width:1000px;margin:0 auto;padding:34px 0 80px;} #jcFeaturedArtistDisplay{min-height:420px;display:flex;align-items:flex-start;justify-content:center;} .jc-featured-artist-card{width:min(820px,94%);text-align:center;background:#0e0912;border:1px solid #5d1684;border-radius:18px;padding:20px;box-sizing:border-box;} .jc-featured-artist-image-frame{width:min(720px,100%);height:560px;margin:0 auto 16px;overflow:hidden;border-radius:14px;background:#050505;display:flex;align-items:center;justify-content:center;} .jc-featured-artist-card img{display:block;width:100%;height:100%;object-fit:contain;border:0;border-radius:0;margin:0;transform-origin:center center;} .jc-featured-artist-name{font-size:30px;font-weight:900;color:#fff;margin-bottom:20px;} .jc-featured-song-list{width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:9px;text-align:left;} .jc-featured-song{display:flex;align-items:center;gap:12px;padding:10px 12px;background:#17131a;border:1px solid #2b2130;border-radius:10px;cursor:pointer;} .jc-featured-song{appearance:none!important;width:100%;font:inherit;color:inherit;text-align:left;} .jc-featured-song img{width:48px;height:48px;object-fit:cover;border-radius:7px;flex:0 0 auto;} .jc-featured-song-info{min-width:0;display:flex;flex-direction:column;gap:3px;} .jc-featured-song-info strong{font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-song-info span{font-size:12px;color:#a100ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .jc-featured-empty{color:#999;text-align:center;padding:80px 20px;border:1px dashed #351442;border-radius:16px;width:min(620px,92%);box-sizing:border-box;} .jc-featured-song-editor{margin-top:14px;padding-top:14px;border-top:1px solid #2b2130;} .jc-featured-song-edit-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:6px;align-items:center;margin-top:7px;} .jc-featured-song-edit-row select{width:100%;padding:9px;border-radius:8px;background:#111;color:#fff;border:1px solid #444;} .jc-featured-song-edit-row button{min-width:38px;padding:8px 10px;} 
 @media(max-width:900px){#jcArtists{grid-template-columns:repeat(3,minmax(82px,1fr))!important;gap:18px 10px!important;}#jcArtists .jc-artist-card img{max-width:82px!important;}}
 </style>
 <script id="streamasiah-final-data-render-fix-js">
@@ -9736,7 +9737,7 @@ function renderAlbums(){
  const names=albumNames(), per=5;
  let page=Math.max(0,Number(window.saAlbumPageFinal||0));const pages=Math.max(1,Math.ceil(names.length/per));page=Math.min(page,pages-1);window.saAlbumPageFinal=page;
  const slice=names.slice(page*per,page*per+per);
- box.innerHTML=(slice.length?slice.map(n=>{const a=albums()[n]||{},list=albumSongs(a),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');return `<div class="jc-artist-card jc-album-card" data-final-album="${esc(n)}" role="button" tabindex="0"><img src="${esc(img)}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div><div class="jc-muted" style="font-size:11px;margin-top:3px">${list.length} song${list.length===1?'':'s'}</div></div>`}).join(''):'<div class="jc-muted">No albums yet.</div>')+
+ box.innerHTML=(slice.length?slice.map(n=>{const a=albums()[n]||{},list=albumSongs(a),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');return `<div class="jc-artist-card jc-album-card" data-final-album="${esc(n)}" role="button" tabindex="0"><img src="${esc(img)}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div><div class="jc-album-song-count">${list.length} song${list.length===1?'':'s'}</div></div>`}).join(''):'<div class="jc-muted">No albums yet.</div>')+
  (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-album-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-album-page="1">›</button></div>`:'');
 }
 function openAlbum(name){
@@ -10460,7 +10461,6 @@ html, body{
   .jc-featured-song-info{min-width:0!important;flex:1 1 auto!important}
   .jc-featured-song-info strong{font-size:13px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
   .jc-featured-song-info span{font-size:10px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
-  .jc-featured-song-play{flex:0 0 34px!important;width:34px!important;height:34px!important;font-size:17px!important;border-radius:50%!important;background:#3b82f6!important;color:#fff!important}
 
   #jcAdminHub{padding:12px 8px 160px!important}
   .jc-admin-grid{grid-template-columns:1fr!important;gap:10px!important}
@@ -10569,7 +10569,6 @@ html, body{
   .jc-featured-song img{width:34px!important;height:34px!important;flex:0 0 34px!important}
   .jc-featured-song-info strong{font-size:10px!important}
   .jc-featured-song-info span{font-size:8px!important}
-  .jc-featured-song-play{flex:0 0 30px!important;width:30px!important;height:30px!important;font-size:15px!important;border-radius:50%!important;background:#3b82f6!important;color:#fff!important}
 
   .jc-mobile-now{display:none!important}
   .player{position:fixed!important;left:0!important;right:0!important;bottom:0!important;width:100%!important;height:var(--sa-l-player)!important;min-height:var(--sa-l-player)!important;max-height:var(--sa-l-player)!important;display:flex!important;align-items:center!important;box-sizing:border-box!important;padding:4px 8px!important;gap:6px!important;background:#020204!important;border-top:1px solid #a100ff!important;z-index:2147483647!important}
@@ -10719,7 +10718,7 @@ function renderPage(){
   renderPage._retry=0;
   const html=songs.length?`<div class="jc-featured-song-list">${songs.map(s=>{
     const i=list.findIndex(x=>songId(x)===songId(s));
-    return `<button type="button" class="jc-featured-song" onclick="event.stopPropagation();if(typeof window.playSong==='function'&&${i>=0})window.playSong(${i})"><img src="${esc(songCover(s))}" alt=""><span class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></span><b class="jc-featured-song-play" aria-hidden="true">▶</b></button>`;
+    return `<button type="button" class="jc-featured-song" onclick="event.stopPropagation();if(typeof window.playSong==='function'&&${i>=0})window.playSong(${i})"><img src="${esc(songCover(s))}" alt=""><span class="jc-featured-song-info"><strong>${esc(s.title||'Untitled')}</strong><span>${esc(s.artist||'Unknown Artist')}</span></span></button>`;
   }).join('')}</div>`:'';
   box.innerHTML=`<div class="jc-featured-artist-card">${img}<div class="jc-featured-artist-name">${esc(f.name)}</div>${html}</div>`;
 }window.jcRenderFeaturedArtist=renderPage;
