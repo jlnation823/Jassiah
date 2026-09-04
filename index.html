@@ -9706,11 +9706,19 @@ const artistNames=()=>{
 };
 const albumNames=()=>Object.keys(albums()).filter(n=>text(n).trim());
 const albumSongs=(a,albumName='')=>{
- const refs=Array.isArray(a?.songs)?a.songs:(Array.isArray(a?.song_ids)?a.song_ids:(Array.isArray(a?.songIds)?a.songIds:[]));
- const resolved=refs.map(findSong).filter(Boolean);
+ const raw=a&&typeof a==='object' ? (a.songs??a.song_ids??a.songIds??a.track_ids??a.trackIds??a.tracks??a.items??a.song_list??[]) : [];
+ let refs=Array.isArray(raw)?raw:[];
+ if(typeof raw==='string'){
+   try{const parsed=JSON.parse(raw);refs=Array.isArray(parsed)?parsed:[raw]}catch(e){refs=raw.split(/\s*,\s*/).filter(Boolean)}
+ }
+ const resolved=[];const seen=new Set();
+ refs.forEach(ref=>{const hit=findSong(ref);if(hit){const k=text(hit.id);if(!seen.has(k)){seen.add(k);resolved.push(hit)}}});
  if(resolved.length||!albumName)return resolved;
  const needle=text(albumName).trim().toLowerCase();
- return needle?dataSongs().filter(s=>text(s?.album||s?.album_name||s?.albumTitle).trim().toLowerCase()===needle):resolved;
+ return needle?dataSongs().filter(s=>{
+   const n=text(s?.album||s?.album_name||s?.albumTitle||s?.album_title).trim().toLowerCase();
+   return n===needle;
+ }):resolved;
 };
 
 function artistPageSize(id){
