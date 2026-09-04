@@ -8265,7 +8265,7 @@ initializeAuth();
     const slice=names.slice(albumPage*5,albumPage*5+5);
     if(!slice.length){box.innerHTML='<div class="sa-album-empty">No albums yet.</div>';return}
     box.innerHTML=slice.map(name=>{
-      const a=A()[name]||{}, list=albumSongs(a), img=a.cover||a.cover_url||(list[0]?cover(list[0]):'');
+      const a=A()[name]||{}, list=albumSongs(a,name), img=a.cover||a.cover_url||(list[0]?cover(list[0]):'');
       return `<div class="jc-artist-card jc-album-card" role="button" tabindex="0" data-album="${esc(name)}" onclick="saOpenAlbumReal(this.dataset.album)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();saOpenAlbumReal(this.dataset.album)}">
         <img src="${esc(img)}" alt="${esc(name)}">
         <div class="jc-artist-name">${esc(name)}</div>
@@ -8280,7 +8280,7 @@ initializeAuth();
   window.saOpenAlbumReal=function(name){
     const names=albumNames(), key=names.find(n=>n===name)||names.find(n=>n.toLowerCase()===str(name).toLowerCase());
     const a=key?A()[key]:null; if(!a)return;
-    const list=albumSongs(a), modal=document.getElementById('jcAlbumViewer'); if(!modal)return;
+    const list=albumSongs(a,key), modal=document.getElementById('jcAlbumViewer'); if(!modal)return;
     const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle'),n=document.getElementById('jcAlbumViewerCount'),b=document.getElementById('jcAlbumViewerSongs');
     if(c)c.src=a.cover||a.cover_url||(list[0]?cover(list[0]):'');
     if(t)t.textContent=key;
@@ -8484,30 +8484,33 @@ initializeAuth();
     try{ return typeof coverUrl==='function' ? (coverUrl(s)||'') : T(s&&s.cover_url); }catch(e){return T(s&&s.cover_url)}
   }
   function findSong(ref){
-    const list=realSongs();
-    if(!list.length) return null;
-    if(ref&&typeof ref==='object'){
-      const id=songId(ref);
-      if(id){const hit=list.find(s=>songId(s.id)===id);if(hit)return hit;}
-      const title=T(ref.title||ref.song_title).toLowerCase();
-      const artist=T(ref.artist).toLowerCase();
-      if(title){
-        const hit=list.find(s=>T(s.title).toLowerCase()===title && (!artist || T(s.artist).toLowerCase()===artist));
-        if(hit)return hit;
-      }
-      const path=T(ref.file_path||ref.path||ref.file||ref.url).toLowerCase();
-      if(path){const hit=list.find(s=>T(s.file_path||s.path||s.file||s.url).toLowerCase()===path);if(hit)return hit;}
-      return null;
-    }
-    const id=songId(ref);
-    if(!id || id==='NaN' || id==='undefined' || id==='null') return null;
-    return list.find(s=>songId(s.id)===id)||null;
-  }
-  function albumSongs(a){
-    const refs=Array.isArray(a&&a.songs)?a.songs:(Array.isArray(a&&a.song_ids)?a.song_ids:(Array.isArray(a&&a.songIds)?a.songIds:[]));
-    return refs.map(findSong).filter(Boolean);
-  }
-  function albumKey(name){
+     const list=realSongs();
+     if(!list.length) return null;
+     if(ref&&typeof ref==='object'){
+       const id=songId(ref);
+       if(id){const hit=list.find(s=>songId(s.id)===id);if(hit)return hit;}
+       const title=T(ref.title||ref.song_title).toLowerCase();
+       const artist=T(ref.artist).toLowerCase();
+       if(title){const hit=list.find(s=>T(s.title).toLowerCase()===title&&(!artist||T(s.artist).toLowerCase()===artist));if(hit)return hit;}
+       const path=T(ref.file_path||ref.path||ref.file||ref.url).toLowerCase();
+       if(path){const hit=list.find(s=>T(s.file_path||s.path||s.file||s.url).toLowerCase()===path);if(hit)return hit;}
+       return null;
+     }
+     const id=songId(ref);
+     if(!id || id==='NaN' || id==='undefined' || id==='null') return null;
+     const hit=list.find(s=>songId(s.id)===id);
+     if(hit)return hit;
+     const needle=T(ref).toLowerCase();
+     return list.find(s=>T(s.title).toLowerCase()===needle)||list.find(s=>T(s.file_path||s.path||s.file||s.url).toLowerCase()===needle)||null;
+   }
+   function albumSongs(a,albumName=''){
+     const refs=Array.isArray(a&&a.songs)?a.songs:(Array.isArray(a&&a.song_ids)?a.song_ids:(Array.isArray(a&&a.songIds)?a.songIds:[]));
+     const resolved=refs.map(findSong).filter(Boolean);
+     if(resolved.length||!albumName)return resolved;
+     const needle=T(albumName).toLowerCase();
+     return needle?realSongs().filter(s=>T(s&& (s.album||s.album_name||s.albumTitle)).toLowerCase()===needle):resolved;
+   }
+   function albumKey(name){
     const as=realAlbums();
     return Object.keys(as).find(k=>k===name)||Object.keys(as).find(k=>k.toLowerCase()===T(name).toLowerCase())||'';
   }
@@ -8559,7 +8562,7 @@ initializeAuth();
 
   function openAlbumFinal(name){
     const key=albumKey(name);if(!key)return;
-    const a=realAlbums()[key]||{},list=albumSongs(a),modal=document.getElementById('jcAlbumViewer');if(!modal)return;
+    const a=realAlbums()[key]||{},list=albumSongs(a,key),modal=document.getElementById('jcAlbumViewer');if(!modal)return;
     const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle'),n=document.getElementById('jcAlbumViewerCount'),box=document.getElementById('jcAlbumViewerSongs');
     if(c)c.src=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');
     if(t)t.textContent=key;
@@ -9666,20 +9669,21 @@ const esc=v=>{try{if(typeof window.escapeHtml==='function')return window.escapeH
 const js=v=>text(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
 const songId=s=>s&&s.id!=null?text(s.id):'';
 const findSong=ref=>{
- const list=dataSongs();
- if(ref&&typeof ref==='object'){
-   const rid=ref.id!=null?ref.id:(ref.song_id!=null?ref.song_id:ref.songId);
-   if(rid!=null){const exact=list.find(s=>text(s.id)===text(rid));if(exact)return exact}
-   const title=text(ref.title||ref.song_title).trim().toLowerCase();
-   const file=text(ref.file_path||ref.path||ref.file||ref.url).trim().toLowerCase();
-   return list.find(s=>
-     (title&&text(s.title).trim().toLowerCase()===title) ||
-     (file&&text(s.file_path||s.path||s.file||s.url).trim().toLowerCase()===file)
-   )||null;
- }
- const r=text(ref).trim();
- if(!r||r==='null'||r==='undefined'||r==='NaN')return null;
- return list.find(s=>text(s.id).trim()===r)||list.find(s=>String(s.id).trim()===r)||null;
+  const list=dataSongs();
+  if(ref&&typeof ref==='object'){
+    const rid=ref.id!=null?ref.id:(ref.song_id!=null?ref.song_id:ref.songId);
+    if(rid!=null){const exact=list.find(s=>text(s.id).trim()===text(rid).trim());if(exact)return exact}
+    const title=text(ref.title||ref.song_title).trim().toLowerCase();
+    const artist=text(ref.artist).trim().toLowerCase();
+    const file=text(ref.file_path||ref.path||ref.file||ref.url).trim().toLowerCase();
+    return list.find(s=>(title&&text(s.title).trim().toLowerCase()===title&&(!artist||text(s.artist).trim().toLowerCase()===artist))||(file&&text(s.file_path||s.path||s.file||s.url).trim().toLowerCase()===file))||null;
+  }
+  const r=text(ref).trim();
+  if(!r||r==='null'||r==='undefined'||r==='NaN')return null;
+  const byId=list.find(s=>text(s.id).trim()===r);
+  if(byId)return byId;
+  const needle=r.toLowerCase();
+  return list.find(s=>text(s.title).trim().toLowerCase()===needle)||list.find(s=>text(s.file_path||s.path||s.file||s.url).trim().toLowerCase()===needle)||null;
 };
 const songCover=s=>{try{if(typeof window.coverUrl==='function')return window.coverUrl(s)||''}catch(e){}return text(s&& (s.cover_url||s.cover||s.image_url||''))};
 const profileKey=(name)=>{const target=text(name).trim().toLowerCase();return Object.keys(profiles()).find(k=>text(k).trim().toLowerCase()===target)||text(name).trim()};
@@ -9701,9 +9705,12 @@ const artistNames=()=>{
  return [...m.values()].sort((a,b)=>a.localeCompare(b));
 };
 const albumNames=()=>Object.keys(albums()).filter(n=>text(n).trim());
-const albumSongs=a=>{
+const albumSongs=(a,albumName='')=>{
  const refs=Array.isArray(a?.songs)?a.songs:(Array.isArray(a?.song_ids)?a.song_ids:(Array.isArray(a?.songIds)?a.songIds:[]));
- return refs.map(findSong).filter(Boolean);
+ const resolved=refs.map(findSong).filter(Boolean);
+ if(resolved.length||!albumName)return resolved;
+ const needle=text(albumName).trim().toLowerCase();
+ return needle?dataSongs().filter(s=>text(s?.album||s?.album_name||s?.albumTitle).trim().toLowerCase()===needle):resolved;
 };
 
 function artistPageSize(id){
@@ -9728,12 +9735,12 @@ function renderAlbums(){
  const names=albumNames(), per=5;
  let page=Math.max(0,Number(window.saAlbumPageFinal||0));const pages=Math.max(1,Math.ceil(names.length/per));page=Math.min(page,pages-1);window.saAlbumPageFinal=page;
  const slice=names.slice(page*per,page*per+per);
- box.innerHTML=(slice.length?slice.map(n=>{const a=albums()[n]||{},list=albumSongs(a),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');return `<div class="jc-artist-card jc-album-card" data-final-album="${esc(n)}" role="button" tabindex="0"><img src="${esc(img)}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div></div>`}).join(''):'<div class="jc-muted">No albums yet.</div>')+
+ box.innerHTML=(slice.length?slice.map(n=>{const a=albums()[n]||{},list=albumSongs(a,n),img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');return `<div class="jc-artist-card jc-album-card" data-final-album="${esc(n)}" role="button" tabindex="0"><img src="${esc(img)}" alt="${esc(n)}"><div class="jc-artist-name">${esc(n)}</div></div>`}).join(''):'<div class="jc-muted">No albums yet.</div>')+
  (pages>1?`<div class="jc-card-pages" style="grid-column:1/-1"><button type="button" data-album-page="-1">‹</button><span class="jc-page-label">${page+1} / ${pages}</span><button type="button" data-album-page="1">›</button></div>`:'');
 }
 function openAlbum(name){
  const key=albumNames().find(n=>n===name)||albumNames().find(n=>n.toLowerCase()===text(name).toLowerCase());if(!key)return;
- const a=albums()[key]||{},list=albumSongs(a),modal=document.getElementById('jcAlbumViewer');
+ const a=albums()[key]||{},list=albumSongs(a,key),modal=document.getElementById('jcAlbumViewer');
  if(!modal){alert('Album viewer is missing from this page.');return}
  const c=document.getElementById('jcAlbumViewerCover'),t=document.getElementById('jcAlbumViewerTitle'),count=document.getElementById('jcAlbumViewerCount'),box=document.getElementById('jcAlbumViewerSongs');
  const img=a.cover||a.cover_url||(list[0]?songCover(list[0]):'');if(c)c.src=img;if(t)t.textContent=key;if(count)count.textContent=list.length+' song'+(list.length===1?'':'s');
@@ -9906,6 +9913,16 @@ body{padding-bottom:92px!important;}
   background:#fff!important;
   color:#000!important;
   border-color:#fff!important;
+}
+
+/* Compact desktop song-list like buttons. */
+@media(min-width:901px){
+  #jcSongs .jc-list-like,#jcLiked .jc-list-like,#jcSongs .jc-like,#jcLiked .jc-like{
+    width:26px!important;height:26px!important;min-width:26px!important;min-height:26px!important;
+    max-width:26px!important;max-height:26px!important;padding:0!important;margin:0 auto!important;
+    border-radius:50%!important;font-size:14px!important;line-height:1!important;
+    display:grid!important;place-items:center!important;box-sizing:border-box!important;
+  }
 }
 
 /* Purple artist-profile border remains visible around uploaded artist pictures. */
@@ -10434,6 +10451,13 @@ html, body{
 
   /* Artist detail page stays vertically scrollable. */
   .jc-slide:has(#jcArtistPage)>.jc-inner,#jcArtistPage{height:auto!important;min-height:0!important;overflow:visible!important}
+  .jc-artist-border-detail{height:auto!important;min-height:150px!important;max-height:none!important;border-radius:12px!important}
+  .jc-artist-border-content-final{height:auto!important;min-height:150px!important;padding:12px!important;gap:12px!important;align-items:center!important;box-sizing:border-box!important}
+  .jc-artist-border-content-final>img{width:105px!important;height:105px!important;max-width:105px!important;max-height:105px!important;flex:0 0 105px!important;border-radius:12px!important;object-fit:cover!important}
+  .jc-artist-border-content-final>div{min-width:0!important;max-width:100%!important}
+  .jc-artist-border-content-final .jc-detail-name{font-size:27px!important;line-height:1.05!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+  .jc-artist-border-content-final .jc-kicker{font-size:11px!important;letter-spacing:3px!important}
+  .jc-artist-border-content-final .jc-muted{font-size:17px!important;white-space:nowrap!important}
   .jc-artist-detail-shell{height:auto!important;min-height:0!important;overflow:visible!important}
   .jc-artist-detail-head{padding:12px!important}
   .jc-artist-detail-list{height:auto!important;max-height:none!important;overflow:visible!important;padding:0!important}
