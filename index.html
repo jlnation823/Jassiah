@@ -9104,36 +9104,88 @@ initializeAuth();
   function renderAlbumEditor(){
     const sel=document.getElementById('jcEditAlbumName'),box=document.getElementById('jcEditAlbumSongs');
     if(!sel||!box)return;
-    const key=albumKey(sel.value),a=key?albums()[key]:null;
-    if(!key||!a){box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';return}
+    const key=albumKey(sel.value),store=albums(),a=key?store[key]:null;
+    const title=document.getElementById('jcEditAlbumTitle');
+    if(!key||!a){
+      if(title)title.value='';
+      box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';
+      return;
+    }
+    /* The album selected above IS the album being edited.  The title field is
+       only for an optional rename; saving does not require retyping it. */
+    if(title&&!title.value.trim())title.value=key;
     const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]);
-    const selected=new Set(refs.map(r=>{if(r&&typeof r==='object')return T(r.id??r.song_id??r.songId);return T(r)}).filter(Boolean));
+    const selected=new Set(refs.map(r=>{
+      if(r&&typeof r==='object')return T(r.id??r.song_id??r.songId);
+      return T(r);
+    }).filter(Boolean));
     const list=songsList();
     box.innerHTML=list.length?list.map(s=>{
-      const sid=T(s.id),checked=selected.has(sid)?' checked':'';
-      return `<label class="jc-check-row jc-album-order-row" data-song-id="${esc(sid)}"><input type="checkbox" value="${esc(sid)}"${checked}><span class="jc-album-order-text">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span></label>`;
+      const songId=T(s.id),checked=selected.has(songId)?' checked':'';
+      return `<label class="jc-check-row jc-album-order-row" data-song-id="${esc(songId)}" style="display:flex;align-items:center;gap:9px;padding:9px 7px;cursor:pointer;">
+        <input type="checkbox" value="${esc(songId)}"${checked} style="flex:0 0 auto;">
+        <span class="jc-album-order-text">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span>
+      </label>`;
     }).join(''):'<div style="color:#777;padding:7px">No songs available.</div>';
   }
-  window.jcLoadAlbumEditor=renderAlbumEditor;
+
+  window.jcLoadAlbumEditor=function(){
+    const sel=document.getElementById('jcEditAlbumName'),title=document.getElementById('jcEditAlbumTitle'),status=document.getElementById('jcEditAlbumStatus');
+    if(!sel)return;
+    const key=albumKey(sel.value),a=key?albums()[key]:null;
+    if(title)title.value=key||'';
+    if(status)status.textContent='';
+    renderAlbumEditor();
+  };
+
   window.jcSaveAlbumEdit=function(){
     if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
-    const sel=document.getElementById('jcEditAlbumName'),oldKey=albumKey(sel?.value),title=T(document.getElementById('jcEditAlbumTitle')?.value),status=document.getElementById('jcEditAlbumStatus'),file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    const sel=document.getElementById('jcEditAlbumName'),status=document.getElementById('jcEditAlbumStatus');
+    const oldKey=albumKey(sel?.value||'');
     if(!oldKey){if(status)status.textContent='Select an album first.';return}
-    if(!title){if(status)status.textContent='Enter an album name.';return}
-    const as=albums(),old=as[oldKey];if(!old){if(status)status.textContent='Album not found.';return}
-    if(title!==oldKey&&as[title]){if(status)status.textContent='That album name already exists.';return}
-    const ids=[...document.querySelectorAll('#jcEditAlbumSongs input[type="checkbox"]:checked')].map(x=>T(x.value)).filter(Boolean);
+
+    const as=albums(),old=as[oldKey];
+    if(!old){if(status)status.textContent='Album not found.';return}
+
+    /* Do NOT require the user to type the album name again. The selected
+       album is the album being edited. If the title box is left alone/blank,
+       keep the selected album name. */
+    const titleInput=document.getElementById('jcEditAlbumTitle');
+    const requestedTitle=T(titleInput?.value)||oldKey;
+    if(requestedTitle!==oldKey&&as[requestedTitle]){
+      if(status)status.textContent='That album name already exists.';
+      return;
+    }
+
+    /* One list controls membership: checked = in album, unchecked = out. */
+    const ids=[...document.querySelectorAll('#jcEditAlbumSongs input[type="checkbox"]:checked')]
+      .map(x=>T(x.value)).filter(Boolean);
+
     const finish=cover=>{
       const next={...old,cover:cover||old.cover||old.cover_url||'',songs:[...new Set(ids)]};
-      if(title!==oldKey)delete as[oldKey];as[title]=next;
-      saveAlbums(as);
+      if(requestedTitle!==oldKey)delete as[oldKey];
+      as[requestedTitle]=next;
+
+      /* Write the exact edited album store and synchronize the cache used by
+         the final album renderer so an older in-memory copy cannot overwrite it. */
+      localStorage.setItem('jassiahAlbums',JSON.stringify(as));
+      try{window.__saAlbumsCache=JSON.parse(JSON.stringify(as));}catch(e){}
+
       if(status)status.textContent=`Album updated with ${next.songs.length} song${next.songs.length===1?'':'s'}.`;
-      if(sel)sel.value=title;
+      if(sel)sel.value=requestedTitle;
+      if(titleInput)titleInput.value=requestedTitle;
       const ci=document.getElementById('jcEditAlbumCover');if(ci)ci.value='';
       try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){}
       renderAlbumEditor();
     };
-    if(file){const r=new FileReader();r.onload=()=>finish(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else finish(old.cover||old.cover_url||'');
+
+    const file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    if(file){
+      const r=new FileReader();
+      r.onload=()=>finish(String(r.result||''));
+      r.onerror=()=>{if(status)status.textContent='Could not read that image.'};
+      r.readAsDataURL(file);
+    }else finish(old.cover||old.cover_url||'');
   };
 
   function borderData(name){const b=read('jassiahArtistBorderPictures',{}),k=Object.keys(b).find(x=>T(x).toLowerCase()===T(name).toLowerCase())||T(name),v=b[k]||{};return {image:v.image||v.heroImage||'',x:Number.isFinite(Number(v.x))?Number(v.x):50,y:Number.isFinite(Number(v.y))?Number(v.y):50,zoom:Number.isFinite(Number(v.zoom))?Number(v.zoom):100}}
