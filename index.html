@@ -9209,6 +9209,11 @@ initializeAuth();
     if(!sel||!box)return;
     const key=albumKey(sel.value),store=albums(),a=key?store[key]:null;
     const title=document.getElementById('jcEditAlbumTitle');
+    /* The Edit Album editor must contain ONLY songs already belonging to the
+       selected album. Remove any older add-song UI that another editor version
+       may have inserted beside this list. */
+    const oldAdd=document.getElementById('jcEditAlbumAddSongsWrap');
+    if(oldAdd)oldAdd.remove();
     if(!key||!a){
       if(title)title.value='';
       box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';
@@ -9223,15 +9228,15 @@ initializeAuth();
       return T(r);
     }).filter(Boolean));
     const list=songsList();
-    /* Keep album songs in their saved album order first, then put every other song after them.
-       This makes the Edit Album list itself the place where membership AND order are managed. */
+    /* ONLY songs that are already in the selected album are rendered here.
+       Never append the rest of the user's uploaded songs to this editor.
+       The saved album array is the exact starting order. */
     const ordered=[],used=new Set();
     refs.forEach(ref=>{
       const r=ref&&typeof ref==='object'?T(ref.id??ref.song_id??ref.songId):T(ref);
-      const hit=list.find(s=>T(s.id)===r);
+      const hit=list.find(s=>T(s.id)===r)||findSong(ref);
       if(hit&&!used.has(T(hit.id))){used.add(T(hit.id));ordered.push(hit);}
     });
-    list.forEach(s=>{if(!used.has(T(s.id)))ordered.push(s)});
     box.innerHTML=ordered.length?ordered.map(s=>{
       const songId=T(s.id),isSelected=selected.has(songId),checked=isSelected?' checked':'';
       return `<div class="jc-album-order-row" data-song-id="${esc(songId)}" style="display:flex;align-items:center;gap:9px;padding:9px 7px;border-bottom:1px solid rgba(255,255,255,.06);">
