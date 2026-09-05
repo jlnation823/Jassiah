@@ -550,7 +550,7 @@ body>.wrap,body>#authBar,body>#adminLoginPanel{display:none!important}
 .jc-admin-card{background:#151515;border:1px solid #3a321f;border-radius:12px;padding:16px;margin-bottom:14px}
 .jc-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
 .jc-admin-card h3{margin:0 0 11px;color:#c56cff}
-.jc-admin-card input,.jc-admin-card select{
+.jc-admin-card input:not([type="checkbox"]),.jc-admin-card select{
   width:100%;box-sizing:border-box;background:#242424;color:#fff;border:1px solid #444;
   border-radius:7px;padding:10px;margin:5px 0 9px;
 }
@@ -9083,10 +9083,12 @@ initializeAuth();
 #saBorderPreview{position:relative!important;overflow:hidden!important;background:#120018!important;}
 #saBorderPreview .sa-border-preview-img{position:absolute!important;max-width:none!important;max-height:none!important;width:auto!important;height:auto!important;object-fit:fill!important;object-position:center!important;left:50%!important;top:50%!important;transform-origin:center center!important;pointer-events:none!important;display:block!important;}
 #saBorderPreview .sa-border-preview-tint{position:absolute!important;inset:0!important;z-index:2!important;pointer-events:none!important;}
-#jcEditAlbumSongs .jc-album-order-row{display:flex!important;align-items:center!important;gap:8px!important;min-height:44px!important;}
-#jcEditAlbumSongs .jc-album-order-text{flex:1!important;min-width:0!important;}
-#jcEditAlbumSongs .jc-album-order-buttons{margin-left:auto!important;display:flex!important;gap:5px!important;flex-shrink:0!important;}
-#jcEditAlbumSongs .jc-album-move,#jcEditAlbumSongs .jc-album-remove{width:30px!important;height:30px!important;border:1px solid #7d1ab2!important;border-radius:6px!important;background:#16091c!important;color:#d06cff!important;font-weight:900!important;cursor:pointer!important;padding:0!important;display:inline-grid!important;place-items:center!important;}
+#jcEditAlbumSongs{height:260px!important;max-height:260px!important;overflow-y:auto!important;overflow-x:hidden!important;box-sizing:border-box!important;padding:4px!important;}
+#jcEditAlbumSongs .jc-album-order-row{display:grid!important;grid-template-columns:24px minmax(0,1fr) 65px!important;align-items:center!important;gap:8px!important;width:100%!important;min-width:0!important;min-height:44px!important;box-sizing:border-box!important;padding:7px 6px!important;border-bottom:1px solid rgba(255,255,255,.06)!important;}
+#jcEditAlbumSongs .jc-album-order-row input[type="checkbox"]{width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;margin:0!important;padding:0!important;box-sizing:border-box!important;flex:none!important;}
+#jcEditAlbumSongs .jc-album-order-text{display:block!important;min-width:0!important;width:auto!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;line-height:1.35!important;color:#ddd!important;}
+#jcEditAlbumSongs .jc-album-order-buttons{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:5px!important;margin:0!important;width:65px!important;min-width:65px!important;flex-shrink:0!important;}
+#jcEditAlbumSongs .jc-album-move,#jcEditAlbumSongs .jc-album-remove{width:30px!important;height:30px!important;min-width:30px!important;max-width:30px!important;border:1px solid #7d1ab2!important;border-radius:6px!important;background:#16091c!important;color:#d06cff!important;font-weight:900!important;cursor:pointer!important;padding:0!important;margin:0!important;display:inline-grid!important;place-items:center!important;box-sizing:border-box!important;}
 #jcEditAlbumSongs .jc-album-move:hover,#jcEditAlbumSongs .jc-album-remove:hover{background:#281032!important;border-color:#c56cff!important;}
 #jcEditAlbumSongs .jc-album-remove{color:#ff8cff!important;}
 </style>
