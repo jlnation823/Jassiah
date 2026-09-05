@@ -2130,6 +2130,22 @@ body{padding-bottom:92px!important}
           </div>
 
           <div class="jc-admin-card">
+            <h3>✏️ Edit Song</h3>
+            <label>Song to edit</label>
+            <select id="jcEditSongId" onchange="jcLoadSongEditor()" style="width:100%;padding:10px;border-radius:8px;background:#111;color:#fff;border:1px solid #444">
+              <option value="">Select a song...</option>
+            </select>
+            <label>Song name</label>
+            <input id="jcEditSongTitle" placeholder="Song title">
+            <label>Artist</label>
+            <input id="jcEditSongArtist" placeholder="Artist">
+            <label>New cover (optional)</label>
+            <input id="jcEditSongCover" type="file" accept="image/*">
+            <button class="jc-admin-btn jc-admin-primary" onclick="jcSaveSongEdit()">Save Song Changes</button>
+            <div id="jcEditSongStatus" class="jc-admin-status"></div>
+          </div>
+
+          <div class="jc-admin-card">
             <h3>🎤 Artist Profile</h3>
             <input id="jcArtistName" placeholder="Artist name">
             <label>Artist picture</label><input id="jcArtistImage" type="file" accept="image/*">
@@ -8456,6 +8472,54 @@ initializeAuth();
 #jcAlbums .jc-artist-name{color:#fff!important;font-weight:800!important;font-size:15px!important;margin-top:9px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
 #jcAlbums .jc-muted{color:#8f8995!important;}
 </style>
+<script id="streamasiah-song-edit-final-fix">
+(function(){
+  'use strict';
+  const T=v=>String(v==null?'':v).trim();
+  const E=v=>typeof escapeHtml==='function'?escapeHtml(v):T(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+  function songList(){try{return Array.isArray(songs)?songs:[]}catch(e){return []}}
+  function selectedSong(){
+    const id=T(document.getElementById('jcEditSongId')?.value);
+    return songList().find(s=>T(s.id)===id)||null;
+  }
+  window.jcRefreshSongEditor=function(keep){
+    const sel=document.getElementById('jcEditSongId'); if(!sel)return;
+    const old=T(keep||sel.value);
+    sel.innerHTML='<option value="">Select a song...</option>'+songList().map(s=>`<option value="${E(s.id)}">${E(s.title||'Untitled')} — ${E(s.artist||'')}</option>`).join('');
+    if(old && songList().some(s=>T(s.id)===old)){sel.value=old;window.jcLoadSongEditor()}
+    else if(songList().length){sel.value=T(songList()[0].id);window.jcLoadSongEditor()}
+  };
+  window.jcLoadSongEditor=function(){
+    const s=selectedSong(),title=document.getElementById('jcEditSongTitle'),artist=document.getElementById('jcEditSongArtist'),status=document.getElementById('jcEditSongStatus');
+    if(title)title.value=s?.title||'';
+    if(artist)artist.value=s?.artist||'';
+    if(status)status.textContent='';
+    const cover=document.getElementById('jcEditSongCover');if(cover)cover.value='';
+  };
+  window.jcSaveSongEdit=async function(){
+    const s=selectedSong(),title=T(document.getElementById('jcEditSongTitle')?.value),artist=T(document.getElementById('jcEditSongArtist')?.value),file=document.getElementById('jcEditSongCover')?.files?.[0],status=document.getElementById('jcEditSongStatus');
+    if(!currentUser){alert('Please log in first.');return}
+    if(!s){if(status)status.textContent='Select a song first.';return}
+    if(!title||!artist){if(status)status.textContent='Enter the song name and artist.';return}
+    if(status)status.textContent='Saving song...';
+    try{
+      const update={title,artist};
+      if(file){
+        const path='covers/'+Date.now()+'_'+cleanName(file.name);
+        const up=await client.storage.from('music').upload(path,file,{upsert:false,contentType:file.type||'image/jpeg'});
+        if(up.error)throw up.error;
+        update.cover_url=client.storage.from('music').getPublicUrl(path).data.publicUrl;
+      }
+      const result=await client.from('songs').update(update).eq('id',s.id);
+      if(result.error)throw result.error;
+      Object.assign(s,update);
+      if(typeof loadSongs==='function')await loadSongs();
+      window.jcRefreshSongEditor(s.id);
+      if(status)status.textContent='Song updated successfully.';
+    }catch(e){console.error(e);if(status)status.textContent='Song update failed: '+T(e?.message||e)}
+  };
+})();
+</script>
 <script id="streamasiah-real-album-song-fix-js">
 (function(){
   'use strict';
@@ -8471,10 +8535,21 @@ initializeAuth();
     return [];
   }
   function realAlbums(){
-    let out={};
-    try{const local=JSON.parse(localStorage.getItem('jassiahAlbums')||'{}');if(local&&typeof local==='object'&&!Array.isArray(local))out=local}catch(e){}
-    try{if(typeof albums!=='undefined'&&albums&&typeof albums==='object'&&!Array.isArray(albums))Object.assign(out,albums)}catch(e){}
-    return out;
+    try{
+      const local=JSON.parse(localStorage.getItem('jassiahAlbums')||'{}');
+      if(local&&typeof local==='object'&&!Array.isArray(local)){
+        try{if(typeof albums!=='undefined'&&albums&&typeof albums==='object'&&!Array.isArray(albums)){
+          Object.keys(albums).forEach(k=>{if(!Object.prototype.hasOwnProperty.call(local,k))local[k]=albums[k]});
+          albums=local;
+        }}catch(e){}
+        return local;
+      }
+    }catch(e){}
+    try{return (typeof albums!=='undefined'&&albums&&typeof albums==='object'&&!Array.isArray(albums))?albums:{}}catch(e){return {}}
+  }
+  function saveRealAlbums(as){
+    try{localStorage.setItem('jassiahAlbums',JSON.stringify(as))}catch(e){}
+    try{if(typeof albums!=='undefined')albums=as}catch(e){}
   }
   function songId(v){
     if(v&&typeof v==='object') return T(v.id!=null?v.id:(v.song_id!=null?v.song_id:v.songId));
@@ -8599,7 +8674,7 @@ initializeAuth();
     if(!name){if(status)status.textContent='Enter album name.';return}
     const as=realAlbums();if(as[name]){if(status)status.textContent='Album already exists.';return}
     const ids=Array.from(document.querySelectorAll('#jcAlbumSongs input[type="checkbox"]:checked')).map(x=>T(x.value)).filter(Boolean);
-    const save=cover=>{as[name]={cover:cover||'',songs:ids};try{localStorage.setItem('jassiahAlbums',JSON.stringify(as))}catch(e){};if(status)status.textContent=`Album created with ${ids.length} song${ids.length===1?'':'s'}.`;renderAlbumsRealFinal();rebuildAlbumSelect(name);};
+    const save=cover=>{as[name]={cover:cover||'',songs:ids};saveRealAlbums(as);if(status)status.textContent=`Album created with ${ids.length} song${ids.length===1?'':'s'}.`;renderAlbumsRealFinal();rebuildAlbumSelect(name);};
     if(file){const r=new FileReader();r.onload=()=>save(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else save('');
   };
 
@@ -8612,7 +8687,7 @@ initializeAuth();
     const as=realAlbums(),old=as[oldKey];if(!old){if(status)status.textContent='Album not found.';return}
     if(title!==oldKey && as[title]){if(status)status.textContent='That album name already exists.';return}
     const ids=Array.from(document.querySelectorAll('#jcEditAlbumSongs input[type="checkbox"]:checked')).map(x=>T(x.value)).filter(Boolean);
-    const save=cover=>{const next={cover:cover||old.cover||'',songs:ids};if(title!==oldKey)delete as[oldKey];as[title]=next;try{localStorage.setItem('jassiahAlbums',JSON.stringify(as))}catch(e){};if(status)status.textContent=`Album updated with ${ids.length} song${ids.length===1?'':'s'}.`;rebuildAlbumSelect(title);renderAlbumsRealFinal();};
+    const save=cover=>{const next={cover:cover||old.cover||'',songs:ids};if(title!==oldKey)delete as[oldKey];as[title]=next;saveRealAlbums(as);if(status)status.textContent=`Album updated with ${ids.length} song${ids.length===1?'':'s'}.`;rebuildAlbumSelect(title);renderAlbumsRealFinal();};
     if(file){const r=new FileReader();r.onload=()=>save(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else save(old.cover||'');
   };
 
@@ -8623,6 +8698,7 @@ initializeAuth();
     const sel=document.getElementById('jcEditAlbumName');
     rebuildAlbumSelect(sel?.value||'');
     populateSongChecks('jcAlbumSongs',[]);
+    try{if(typeof window.jcRefreshSongEditor==='function')window.jcRefreshSongEditor(document.getElementById('jcEditSongId')?.value||'')}catch(e){}
   };
 
   document.addEventListener('click',function(e){
