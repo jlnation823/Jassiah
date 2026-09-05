@@ -9120,12 +9120,25 @@ initializeAuth();
       return T(r);
     }).filter(Boolean));
     const list=songsList();
-    box.innerHTML=list.length?list.map(s=>{
-      const songId=T(s.id),checked=selected.has(songId)?' checked':'';
-      return `<label class="jc-check-row jc-album-order-row" data-song-id="${esc(songId)}" style="display:flex;align-items:center;gap:9px;padding:9px 7px;cursor:pointer;">
-        <input type="checkbox" value="${esc(songId)}"${checked} style="flex:0 0 auto;">
-        <span class="jc-album-order-text">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span>
-      </label>`;
+    /* Keep album songs in their saved album order first, then put every other song after them.
+       This makes the Edit Album list itself the place where membership AND order are managed. */
+    const ordered=[],used=new Set();
+    refs.forEach(ref=>{
+      const r=ref&&typeof ref==='object'?T(ref.id??ref.song_id??ref.songId):T(ref);
+      const hit=list.find(s=>T(s.id)===r);
+      if(hit&&!used.has(T(hit.id))){used.add(T(hit.id));ordered.push(hit);}
+    });
+    list.forEach(s=>{if(!used.has(T(s.id)))ordered.push(s)});
+    box.innerHTML=ordered.length?ordered.map(s=>{
+      const songId=T(s.id),isSelected=selected.has(songId),checked=isSelected?' checked':'';
+      return `<div class="jc-album-order-row" data-song-id="${esc(songId)}" style="display:flex;align-items:center;gap:9px;padding:9px 7px;border-bottom:1px solid rgba(255,255,255,.06);">
+        <input type="checkbox" value="${esc(songId)}"${checked} aria-label="${esc((isSelected?'Keep ':'Add ')+(s.title||'Untitled'))}" style="flex:0 0 auto;">
+        <span class="jc-album-order-text" style="flex:1;min-width:0;">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span>
+        <span class="jc-album-order-buttons" style="display:flex;gap:4px;flex:0 0 auto;">
+          <button type="button" class="jc-album-move" data-album-move="-1" title="Move song up" aria-label="Move ${esc(s.title||'song')} up">↑</button>
+          <button type="button" class="jc-album-move" data-album-move="1" title="Move song down" aria-label="Move ${esc(s.title||'song')} down">↓</button>
+        </span>
+      </div>`;
     }).join(''):'<div style="color:#777;padding:7px">No songs available.</div>';
   }
 
@@ -9158,8 +9171,12 @@ initializeAuth();
     }
 
     /* One list controls membership: checked = in album, unchecked = out. */
-    const ids=[...document.querySelectorAll('#jcEditAlbumSongs input[type="checkbox"]:checked')]
-      .map(x=>T(x.value)).filter(Boolean);
+    /* Read the checked songs in the EXACT visual order of the Edit Album list.
+       Moving ↑/↓ therefore changes the order that is saved to the album. */
+    const ids=[...document.querySelectorAll('#jcEditAlbumSongs .jc-album-order-row')]
+      .filter(row=>row.querySelector('input[type="checkbox"]')?.checked)
+      .map(row=>T(row.dataset.songId||row.querySelector('input[type="checkbox"]')?.value))
+      .filter(Boolean);
 
     const finish=cover=>{
       const next={...old,cover:cover||old.cover||old.cover_url||'',songs:[...new Set(ids)]};
@@ -9187,6 +9204,21 @@ initializeAuth();
       r.readAsDataURL(file);
     }else finish(old.cover||old.cover_url||'');
   };
+
+  /* Album order controls live inside Edit Album. They only move the row in the editor;
+     the new order is persisted when Save Album Changes is pressed. */
+  document.addEventListener('click',function(e){
+    const move=e.target.closest?.('#jcEditAlbumSongs [data-album-move]');
+    if(!move)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const row=move.closest('.jc-album-order-row'),box=document.getElementById('jcEditAlbumSongs');
+    if(!row||!box)return;
+    const rows=[...box.querySelectorAll('.jc-album-order-row')],idx=rows.indexOf(row),dir=Number(move.getAttribute('data-album-move'))||0,next=idx+dir;
+    if(idx<0||next<0||next>=rows.length)return;
+    if(dir<0)box.insertBefore(row,rows[next]);
+    else box.insertBefore(row,rows[next].nextSibling);
+  },true);
 
   function borderData(name){const b=read('jassiahArtistBorderPictures',{}),k=Object.keys(b).find(x=>T(x).toLowerCase()===T(name).toLowerCase())||T(name),v=b[k]||{};return {image:v.image||v.heroImage||'',x:Number.isFinite(Number(v.x))?Number(v.x):50,y:Number.isFinite(Number(v.y))?Number(v.y):50,zoom:Number.isFinite(Number(v.zoom))?Number(v.zoom):100}}
   function updateBorder(){
