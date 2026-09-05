@@ -9209,51 +9209,55 @@ initializeAuth();
     if(!sel||!box)return;
     const key=albumKey(sel.value),store=albums(),a=key?store[key]:null;
     const title=document.getElementById('jcEditAlbumTitle');
-    /* The Edit Album editor must contain ONLY songs already belonging to the
-       selected album. Remove any older add-song UI that another editor version
-       may have inserted beside this list. */
+
+    /* Edit Album is ONLY the selected album's tracklist.  Never append the
+       site's other uploaded songs here.  Also remove any old add-song UI that
+       an earlier version of the editor may have created. */
     const oldAdd=document.getElementById('jcEditAlbumAddSongsWrap');
     if(oldAdd)oldAdd.remove();
+
     if(!key||!a){
       if(title)title.value='';
-      box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';
+      box.innerHTML='<div style="color:#777;padding:10px">Select an album first.</div>';
       return;
     }
-    /* The album selected above IS the album being edited.  The title field is
-       only for an optional rename; saving does not require retyping it. */
-    if(title&&!title.value.trim())title.value=key;
+
+    /* The selected album is the album being edited.  The name field is only
+       an optional rename; it is never required just to save the album. */
+    if(title)title.value=title.value.trim()||key;
+
     const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]);
-    const selected=new Set(refs.map(r=>{
-      if(r&&typeof r==='object')return T(r.id??r.song_id??r.songId);
-      return T(r);
-    }).filter(Boolean));
     const list=songsList();
-    /* ONLY songs that are already in the selected album are rendered here.
-       Never append the rest of the user's uploaded songs to this editor.
-       The saved album array is the exact starting order. */
-    const ordered=[],used=new Set();
-    refs.forEach(ref=>{
-      const r=ref&&typeof ref==='object'?T(ref.id??ref.song_id??ref.songId):T(ref);
-      const hit=list.find(s=>T(s.id)===r)||findSong(ref);
-      if(hit&&!used.has(T(hit.id))){used.add(T(hit.id));ordered.push(hit);}
-    });
-    box.innerHTML=ordered.length?ordered.map(s=>{
-      const songId=T(s.id),isSelected=selected.has(songId),checked=isSelected?' checked':'';
-      return `<div class="jc-album-order-row" data-song-id="${esc(songId)}" style="display:flex;align-items:center;gap:9px;padding:9px 7px;border-bottom:1px solid rgba(255,255,255,.06);">
-        <input type="checkbox" value="${esc(songId)}"${checked} aria-label="${esc((isSelected?'Keep ':'Add ')+(s.title||'Untitled'))}" style="flex:0 0 auto;">
-        <span class="jc-album-order-text" style="flex:1;min-width:0;">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span>
-        <span class="jc-album-order-buttons" style="display:flex;gap:4px;flex:0 0 auto;">
-          <button type="button" class="jc-album-move" data-album-move="-1" title="Move song up" aria-label="Move ${esc(s.title||'song')} up">↑</button>
-          <button type="button" class="jc-album-move" data-album-move="1" title="Move song down" aria-label="Move ${esc(s.title||'song')} down">↓</button>
+
+    /* Build the editor directly from the album's saved refs, in their saved
+       order.  Every row is already part of this album, so every checkbox must
+       start CHECKED.  Do not use a global song list to decide what appears. */
+    const rows=refs.map(ref=>{
+      const refId=ref&&typeof ref==='object' ? T(ref.id??ref.song_id??ref.songId) : T(ref);
+      const hit=findSong(ref);
+      const id=refId||T(hit?.id);
+      if(!id)return null;
+      return {id, song:hit||ref};
+    }).filter(Boolean);
+
+    box.innerHTML=rows.length?rows.map(({id,song})=>{
+      const songTitle=T(song?.title||song?.song_title||song?.name)||'Untitled';
+      const artist=T(song?.artist||song?.artist_name||'');
+      return `<div class="jc-album-order-row" data-song-id="${esc(id)}" style="display:flex;align-items:center;gap:9px;padding:8px 7px;border-bottom:1px solid rgba(255,255,255,.06);box-sizing:border-box;width:100%;min-width:0;">
+        <input type="checkbox" value="${esc(id)}" checked aria-label="Keep ${esc(songTitle)}" style="width:16px!important;min-width:16px!important;max-width:16px!important;height:16px!important;min-height:16px!important;flex:0 0 16px!important;margin:0!important;padding:0!important;">
+        <span class="jc-album-order-text" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.35;">${esc(songTitle)}${artist?' — '+esc(artist):''}</span>
+        <span class="jc-album-order-buttons" style="display:flex;align-items:center;gap:5px;flex:0 0 65px;width:65px;min-width:65px;">
+          <button type="button" class="jc-album-move" data-album-move="-1" title="Move song up" aria-label="Move ${esc(songTitle)} up">↑</button>
+          <button type="button" class="jc-album-move" data-album-move="1" title="Move song down" aria-label="Move ${esc(songTitle)} down">↓</button>
         </span>
       </div>`;
-    }).join(''):'<div style="color:#777;padding:7px">No songs available.</div>';
+    }).join(''):'<div style="color:#777;padding:10px">This album has no songs yet.</div>';
   }
 
   window.jcLoadAlbumEditor=function(){
     const sel=document.getElementById('jcEditAlbumName'),title=document.getElementById('jcEditAlbumTitle'),status=document.getElementById('jcEditAlbumStatus');
     if(!sel)return;
-    const key=albumKey(sel.value),a=key?albums()[key]:null;
+    const key=albumKey(sel.value);
     if(title)title.value=key||'';
     if(status)status.textContent='';
     renderAlbumEditor();
@@ -9268,9 +9272,6 @@ initializeAuth();
     const as=albums(),old=as[oldKey];
     if(!old){if(status)status.textContent='Album not found.';return}
 
-    /* Do NOT require the user to type the album name again. The selected
-       album is the album being edited. If the title box is left alone/blank,
-       keep the selected album name. */
     const titleInput=document.getElementById('jcEditAlbumTitle');
     const requestedTitle=T(titleInput?.value)||oldKey;
     if(requestedTitle!==oldKey&&as[requestedTitle]){
@@ -9278,9 +9279,9 @@ initializeAuth();
       return;
     }
 
-    /* One list controls membership: checked = in album, unchecked = out. */
-    /* Read the checked songs in the EXACT visual order of the Edit Album list.
-       Moving ↑/↓ therefore changes the order that is saved to the album. */
+    /* Save the checked rows in their EXACT visual order.  Because the editor
+       contains only this album's songs and starts every row checked, changing
+       ↑/↓ changes order while unchecking removes a song. */
     const ids=[...document.querySelectorAll('#jcEditAlbumSongs .jc-album-order-row')]
       .filter(row=>row.querySelector('input[type="checkbox"]')?.checked)
       .map(row=>T(row.dataset.songId||row.querySelector('input[type="checkbox"]')?.value))
@@ -9288,13 +9289,27 @@ initializeAuth();
 
     const finish=cover=>{
       const next={...old,cover:cover||old.cover||old.cover_url||'',songs:[...new Set(ids)]};
-      if(requestedTitle!==oldKey)delete as[oldKey];
-      as[requestedTitle]=next;
+      const updated={...as};
+      if(requestedTitle!==oldKey)delete updated[oldKey];
+      updated[requestedTitle]=next;
 
-      /* Write the exact edited album store and synchronize the cache used by
-         the final album renderer so an older in-memory copy cannot overwrite it. */
-      localStorage.setItem('jassiahAlbums',JSON.stringify(as));
-      try{window.__saAlbumsCache=JSON.parse(JSON.stringify(as));}catch(e){}
+      /* Make the edited album store authoritative immediately.  Keep the
+         in-memory cache synchronized too, so the album page cannot repaint
+         from an older copy and make the album appear to disappear. */
+      const serialized=JSON.stringify(updated);
+      localStorage.setItem('jassiahAlbums',serialized);
+      try{window.__saAlbumsCache=JSON.parse(serialized)}catch(e){}
+      try{
+        if(window.albums&&typeof window.albums==='object'&&!Array.isArray(window.albums)){
+          Object.keys(window.albums).forEach(k=>delete window.albums[k]);
+          Object.assign(window.albums,JSON.parse(serialized));
+        }
+      }catch(e){}
+
+      /* Push the same exact edited state to the site's persistent album store
+         when that helper exists.  This is intentionally fire-and-forget so a
+         slow remote write cannot replace the just-saved local editor state. */
+      try{if(typeof window.saSaveAlbumsToSupabase==='function')window.saSaveAlbumsToSupabase()}catch(e){}
 
       if(status)status.textContent=`Album updated with ${next.songs.length} song${next.songs.length===1?'':'s'}.`;
       if(sel)sel.value=requestedTitle;
