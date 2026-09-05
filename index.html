@@ -2174,7 +2174,7 @@ body{padding-bottom:92px!important}
             <input id="jcEditAlbumTitle" placeholder="Album name">
             <label>New album cover (optional)</label>
             <input id="jcEditAlbumCover" type="file" accept="image/*">
-            <label>Add / remove songs — checked songs are in this album</label>
+            <label>Edit album songs — use ↑ ↓ to change order; uncheck to remove</label>
             <div id="jcEditAlbumSongs" class="jc-admin-song-checks"></div>
             <button class="jc-admin-btn jc-admin-primary" onclick="jcSaveAlbumEdit()">Save Album Changes</button>
             <button class="jc-admin-btn jc-admin-danger" id="jcDeleteAlbumBtn" onclick="jcDeleteAlbum()">Delete Album</button>
@@ -9009,41 +9009,142 @@ initializeAuth();
     return null;
   }
   function albumKey(name){const a=getAlbums(),n=S(name).toLowerCase();return Object.keys(a).find(k=>S(k).toLowerCase()===n)||'';}
+  function songRow(songId,s){
+    const escTitle=esc(s?.title||'Untitled'),escArtist=esc(s?.artist||''),id=esc(T(songId));
+    return `<div class="jc-album-order-row" data-song-id="${id}">
+      <input type="checkbox" value="${id}" checked aria-label="Keep ${escTitle}">
+      <span class="jc-album-order-text">${escTitle}${s?.artist?` — ${escArtist}`:''}</span>
+      <span class="jc-album-order-buttons">
+        <button type="button" class="jc-album-move" data-album-move="-1" title="Move song up" aria-label="Move ${escTitle} up">↑</button>
+        <button type="button" class="jc-album-move" data-album-move="1" title="Move song down" aria-label="Move ${escTitle} down">↓</button>
+      </span>
+    </div>`;
+  }
+
+  function ensureAlbumAddUI(box,list,selected){
+    let wrap=document.getElementById('jcEditAlbumAddSongsWrap');
+    if(!wrap){
+      wrap=document.createElement('div');
+      wrap.id='jcEditAlbumAddSongsWrap';
+      box.insertAdjacentElement('afterend',wrap);
+    }
+    const available=list.filter(s=>!selected.has(T(s.id)));
+    wrap.innerHTML=`<div style="font-size:12px;font-weight:700;color:#aaa;margin:9px 0 5px;">Add songs to this album</div>
+      <div style="display:flex;gap:7px;align-items:center;width:100%;box-sizing:border-box;">
+        <select id="jcEditAlbumAddSong" style="flex:1;min-width:0;padding:9px;border-radius:7px;background:#111;color:#fff;border:1px solid #444;box-sizing:border-box;">
+          <option value="">Select a song to add...</option>
+          ${available.map(s=>`<option value="${esc(T(s.id))}">${esc(s.title||'Untitled')}${s.artist?` — ${esc(s.artist)}`:''}</option>`).join('')}
+        </select>
+        <button type="button" class="jc-admin-btn jc-admin-primary" id="jcEditAlbumAddSongBtn" style="flex:0 0 auto;padding:9px 12px;">Add</button>
+      </div>`;
+  }
+
   function renderAlbumEditor(){
     const sel=document.getElementById('jcEditAlbumName'),box=document.getElementById('jcEditAlbumSongs');
     if(!sel||!box)return;
-    const key=albumKey(sel.value), a=key?getAlbums()[key]:null;
-    const add=document.getElementById('jcEditAlbumAddSongs');
-    if(!key||!a){box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';if(add)add.innerHTML='';return;}
-    const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]);
-    const current=refs.map(findSong).filter(Boolean);
-    const currentIds=new Set(current.map(s=>S(s.id)));
-    box.innerHTML=current.length?current.map(s=>`<div class="jc-check-row jc-album-order-row" data-song-id="${esc(S(s.id))}"><input type="checkbox" checked aria-label="Keep ${esc(s.title||'Untitled')} in album"><span class="jc-album-order-text">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</span><span class="jc-album-order-buttons"><button type="button" class="jc-album-move" data-album-move="-1" title="Move up" aria-label="Move ${esc(s.title||'song')} up">↑</button><button type="button" class="jc-album-move" data-album-move="1" title="Move down" aria-label="Move ${esc(s.title||'song')} down">↓</button></span></div>`).join(''):'<div style="color:#777;padding:7px">No songs are in this album yet.</div>';
-    if(add){
-      const available=getSongs().filter(s=>!currentIds.has(S(s.id)));
-      add.innerHTML='<div class="jc-album-add-heading">Add songs to this album</div>'+(available.length?available.map(s=>`<label class="jc-check-row"><input type="checkbox" data-album-add="1" value="${esc(S(s.id))}">${esc(s.title||'Untitled')} — ${esc(s.artist||'')}</label>`).join(''):'<div style="color:#777;padding:7px">All available songs are already in this album.</div>');
+    const key=albumKey(sel.value),store=albums(),a=key?store[key]:null;
+    const title=document.getElementById('jcEditAlbumTitle');
+    const oldAdd=document.getElementById('jcEditAlbumAddSongsWrap');
+    if(oldAdd)oldAdd.remove();
+    if(!key||!a){
+      if(title)title.value='';
+      box.innerHTML='<div style="color:#777;padding:7px">Select an album first.</div>';
+      return;
     }
+    if(title&&!title.value.trim())title.value=key;
+
+    const refs=Array.isArray(a.songs)?a.songs:(Array.isArray(a.song_ids)?a.song_ids:[]);
+    const selected=new Set(refs.map(r=>r&&typeof r==='object'?T(r.id??r.song_id??r.songId):T(r)).filter(Boolean));
+    const list=songsList();
+
+    /* ONLY songs that already belong to the selected album are shown in the
+       order editor. Their saved array order is the starting visual order. */
+    const ordered=[];
+    refs.forEach(ref=>{
+      const id=T(ref&&typeof ref==='object'?(ref.id??ref.song_id??ref.songId):ref);
+      const hit=list.find(s=>T(s.id)===id)||findSong(ref);
+      if(hit&&!ordered.some(x=>T(x.id)===T(hit.id)))ordered.push(hit);
+    });
+
+    box.innerHTML=ordered.length
+      ? ordered.map(s=>songRow(s.id,s)).join('')
+      : '<div style="color:#777;padding:10px">This album has no songs yet.</div>';
+
+    ensureAlbumAddUI(box,list,new Set(ordered.map(s=>T(s.id))));
   }
-  window.jcLoadAlbumEditor=renderAlbumEditor;
+
+  window.jcLoadAlbumEditor=function(){
+    const sel=document.getElementById('jcEditAlbumName'),title=document.getElementById('jcEditAlbumTitle'),status=document.getElementById('jcEditAlbumStatus');
+    if(!sel)return;
+    const key=albumKey(sel.value);
+    if(title)title.value=key||'';
+    if(status)status.textContent='';
+    renderAlbumEditor();
+  };
+
   window.jcSaveAlbumEdit=function(){
     if(typeof currentUser!=='undefined'&&!currentUser){alert('Please log in first.');return}
-    const sel=document.getElementById('jcEditAlbumName'),oldKey=albumKey(sel?.value),title=S(document.getElementById('jcEditAlbumTitle')?.value),status=document.getElementById('jcEditAlbumStatus'),file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    const sel=document.getElementById('jcEditAlbumName'),status=document.getElementById('jcEditAlbumStatus');
+    const oldKey=albumKey(sel?.value||'');
     if(!oldKey){if(status)status.textContent='Select an album first.';return}
-    if(!title){if(status)status.textContent='Enter an album name.';return}
-    const as=getAlbums(),old=as[oldKey];if(!old){if(status)status.textContent='Album not found.';return}
-    if(title!==oldKey&&as[title]){if(status)status.textContent='That album name already exists.';return}
-    const ordered=[...document.querySelectorAll('#jcEditAlbumSongs .jc-album-order-row')].filter(row=>row.querySelector('input[type="checkbox"]')?.checked).map(row=>S(row.dataset.songId)).filter(Boolean);
-    const added=[...document.querySelectorAll('#jcEditAlbumAddSongs input[data-album-add="1"]:checked')].map(x=>S(x.value)).filter(Boolean);
-    const ids=[...new Set(ordered.concat(added))];
+    const as=albums(),old=as[oldKey];
+    if(!old){if(status)status.textContent='Album not found.';return}
+    const titleInput=document.getElementById('jcEditAlbumTitle');
+    const requestedTitle=T(titleInput?.value)||oldKey;
+    if(requestedTitle!==oldKey&&as[requestedTitle]){if(status)status.textContent='That album name already exists.';return}
+
+    /* The editor contains ONLY this album's songs. Their DOM order is the
+       exact order that will be saved. Unchecking a row removes it. */
+    const ids=[...document.querySelectorAll('#jcEditAlbumSongs .jc-album-order-row')]
+      .filter(row=>row.querySelector('input[type="checkbox"]')?.checked)
+      .map(row=>T(row.dataset.songId||row.querySelector('input[type="checkbox"]')?.value))
+      .filter(Boolean);
+
     const finish=cover=>{
-      const next={...old,cover:cover||old.cover||old.cover_url||'',songs:ids};
-      if(title!==oldKey)delete as[oldKey];as[title]=next;localStorage.setItem('jassiahAlbums',JSON.stringify(as));
-      if(status)status.textContent=`Album updated with ${ids.length} song${ids.length===1?'':'s'}.`;
-      if(sel)sel.value=title;const ci=document.getElementById('jcEditAlbumCover');if(ci)ci.value='';
-      try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){} renderAlbumEditor();
+      const next={...old,cover:cover||old.cover||old.cover_url||'',songs:[...new Set(ids)]};
+      if(requestedTitle!==oldKey)delete as[oldKey];
+      as[requestedTitle]=next;
+      localStorage.setItem('jassiahAlbums',JSON.stringify(as));
+      try{window.__saAlbumsCache=JSON.parse(JSON.stringify(as));}catch(e){}
+      if(status)status.textContent=`Album updated with ${next.songs.length} song${next.songs.length===1?'':'s'}.`;
+      if(sel)sel.value=requestedTitle;
+      if(titleInput)titleInput.value=requestedTitle;
+      const ci=document.getElementById('jcEditAlbumCover');if(ci)ci.value='';
+      try{if(typeof window.renderAlbums==='function')window.renderAlbums()}catch(e){}
+      renderAlbumEditor();
     };
-    if(file){const r=new FileReader();r.onload=()=>finish(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file)}else finish(old.cover||old.cover_url||'');
+    const file=document.getElementById('jcEditAlbumCover')?.files?.[0];
+    if(file){
+      const r=new FileReader();r.onload=()=>finish(String(r.result||''));r.onerror=()=>{if(status)status.textContent='Could not read that image.'};r.readAsDataURL(file);
+    }else finish(old.cover||old.cover_url||'');
   };
+
+  document.addEventListener('click',function(e){
+    const add=e.target.closest?.('#jcEditAlbumAddSongBtn');
+    if(add){
+      e.preventDefault();e.stopImmediatePropagation();
+      const select=document.getElementById('jcEditAlbumAddSong'),box=document.getElementById('jcEditAlbumSongs');
+      const id=T(select?.value);
+      if(!id||!box)return;
+      const list=songsList(),song=list.find(s=>T(s.id)===id)||findSong(id);
+      if(!song)return;
+      if(box.querySelector(`.jc-album-order-row[data-song-id="${CSS.escape(id)}"]`)){if(select)select.value='';return}
+      const empty=box.querySelector(':scope > div:not(.jc-album-order-row)');if(empty)empty.remove();
+      box.insertAdjacentHTML('beforeend',songRow(id,song));
+      if(select)select.value='';
+      const opt=document.querySelector(`#jcEditAlbumAddSong option[value="${CSS.escape(id)}"]`);if(opt)opt.remove();
+      return;
+    }
+
+    const move=e.target.closest?.('#jcEditAlbumSongs [data-album-move]');
+    if(!move)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const row=move.closest('.jc-album-order-row'),box=document.getElementById('jcEditAlbumSongs');
+    if(!row||!box)return;
+    const rows=[...box.querySelectorAll('.jc-album-order-row')],idx=rows.indexOf(row),dir=Number(move.getAttribute('data-album-move'))||0,next=idx+dir;
+    if(idx<0||next<0||next>=rows.length)return;
+    if(dir<0)box.insertBefore(row,rows[next]);else box.insertBefore(row,rows[next].nextSibling);
+  },true);
 
   function borderData(name){
     try{const b=JSON.parse(localStorage.getItem('jassiahArtistBorderPictures')||'{}')||{};const k=Object.keys(b).find(x=>S(x).toLowerCase()===S(name).toLowerCase())||S(name);const v=b[k]||{};return {image:v.image||v.heroImage||'',x:Number(v.x??50),y:Number(v.y??50),zoom:Number(v.zoom??100)}}catch(e){return {image:'',x:50,y:50,zoom:100}}
