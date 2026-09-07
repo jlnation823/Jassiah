@@ -28,8 +28,7 @@ position:absolute;left:0;right:0;bottom:4px;height:1px;background:#eee;transform
 .nav button:hover:after,.nav button.active:after{transform:scaleX(1)}
 .top-actions{margin-left:10px;display:flex;align-items:center;gap:12px;flex:0 1 auto}.search{width:min(425px,30vw);min-width:260px;height:42px;border:1px solid rgba(255,255,255,.32);
 border-radius:24px;background:rgba(0,0,0,.55);display:flex;align-items:center;padding:0 15px;gap:10px}
-.search span{font-size:22px;color:#ddd}.search input{width:100%;border:0;outline:0;background:none;color:#fff;font-size:13px}
-.search input::placeholder{color:#aaa}.icon-btn{width:38px;height:38px;border:1px solid rgba(255,255,255,.18);
+.search span{font-size:22px;color:#ddd;line-height:1;display:flex;align-items:center}.search input{width:100%;height:100%;min-height:0;border:0;outline:0;background:none;color:#fff;font-size:13px;line-height:1;display:flex;align-items:center;padding:0}.search input::placeholder{color:#aaa;opacity:1}.icon-btn{width:38px;height:38px;border:1px solid rgba(255,255,255,.18);
 border-radius:50%;background:rgba(0,0,0,.42);color:#eee}.account{display:flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap}
 .avatar{width:34px;height:34px;border:1px solid #bbb;border-radius:50%;display:grid;place-items:center}
 .page{min-height:calc(100vh - 72px);padding:40px 7vw 70px;position:relative}
@@ -73,7 +72,23 @@ body{overflow:auto}.app{position:relative;min-height:100vh;height:auto;overflow:
 </style>
 
 <style id="admin-management-styles">
-.admin-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.admin-card{background:#0a0a0a;border:1px solid #252525;border-radius:6px;padding:16px;min-width:0}.admin-full{grid-column:1/-1}.admin-card h3{margin:0 0 8px;font-size:16px}.admin-list{display:flex;flex-direction:column;gap:4px;max-height:380px;overflow:auto}.admin-row{grid-template-columns:44px minmax(0,1fr) auto;background:#080808;border:1px solid #171717;border-radius:4px}.admin-actions{display:flex;align-items:center;gap:6px}.album-song-picker{max-height:260px;overflow:auto;border:1px solid #252525;border-radius:4px;padding:6px;background:#080808}.album-song-option{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;gap:8px;padding:9px;border-radius:4px;cursor:pointer}.album-song-option:hover{background:#141414}.album-song-option input{width:16px;height:16px}.album-song-option span{min-width:0}.album-song-option strong,.album-song-option small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.album-song-option small{font-size:11px;color:#888;margin-top:3px}@media(max-width:760px){.admin-dashboard{grid-template-columns:1fr}.admin-full{grid-column:auto}.admin-actions{flex-wrap:wrap}.player{grid-template-columns:minmax(0,1fr) auto}.player-left{grid-template-columns:50px minmax(0,1fr) 30px}.player-mid{min-width:0}.controls{gap:6px}.control{width:34px;height:34px}.play{width:42px;height:42px}}
+.admin-dashboard{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px}.admin-card{background:#0a0a0a;border:1px solid #252525;border-radius:6px;padding:16px;min-width:0}.admin-full{grid-column:1/-1}.admin-card h3{margin:0 0 8px;font-size:16px}.admin-list{display:flex;flex-direction:column;gap:4px;max-height:380px;overflow:auto}.admin-row{grid-template-columns:44px minmax(0,1fr) auto;background:#080808;border:1px solid #171717;border-radius:4px}.admin-actions{display:flex;align-items:center;gap:6px}.album-song-picker{max-height:260px;overflow:auto;border:1px solid #252525;border-radius:4px;padding:6px;background:#080808}.album-song-option{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:center;gap:8px;padding:9px;border-radius:4px;cursor:pointer}.album-song-option:hover{background:#141414}.album-song-option input{width:16px;height:16px}.album-song-option span{min-width:0}.album-song-option strong,.album-song-option small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.album-song-option small{font-size:11px;color:#888;margin-top:3px}
+.album-song-option.selected{background:rgba(255,255,255,.06)}
+.album-editor-help{font-size:12px;color:#888;line-height:1.5;margin:0 0 8px}
+.album-order-wrap{margin-top:10px}
+.album-order-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 8px;font-size:12px;letter-spacing:.8px;color:#ddd}
+.album-order-head span{font-size:11px;letter-spacing:0;color:#777}
+.album-order-list{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow:auto;border:1px solid #252525;border-radius:4px;padding:6px;background:#080808}
+.album-order-row{display:grid;grid-template-columns:24px 26px minmax(0,1fr);align-items:center;gap:8px;padding:8px 9px;background:#0d0d0d;border:1px solid #202020;border-radius:4px;cursor:grab;user-select:none}
+.album-order-row:hover{background:#141414;border-color:#333}
+.album-order-row.dragging{opacity:.45}
+.drag-handle{color:#777;font-size:17px;line-height:1;text-align:center}
+.track-number{font-size:11px;color:#888;text-align:center}
+.album-order-meta{min-width:0}
+.album-order-meta strong,.album-order-meta small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.album-order-meta strong{font-size:12px}
+.album-order-meta small{font-size:10px;color:#777;margin-top:2px}
+@media(max-width:760px){.admin-dashboard{grid-template-columns:1fr}.admin-full{grid-column:auto}.admin-actions{flex-wrap:wrap}.player{grid-template-columns:minmax(0,1fr) auto}.player-left{grid-template-columns:50px minmax(0,1fr) 30px}.player-mid{min-width:0}.controls{gap:6px}.control{width:34px;height:34px}.play{width:42px;height:42px}}
 </style>
 <style id="side-now-playing-styles">
 .side-now-playing{
@@ -84,8 +99,8 @@ body{overflow:auto}.app{position:relative;min-height:100vh;height:auto;overflow:
 }
 .side-now-playing h2{font-size:22px;margin:0 0 16px;font-weight:600;letter-spacing:.2px}
 .side-now-cover{display:block;width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:9px;background:#111}
-.side-now-title{font-size:19px;font-weight:700;margin-top:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.side-now-artist{font-size:13px;color:#aaa;margin-top:4px;white-space:normal;overflow-wrap:anywhere;line-height:1.45;min-height:19px}
+.side-now-title{font-size:19px;font-weight:700;margin-top:13px;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;word-break:break-word;line-height:1.25;min-height:24px;flex:0 0 auto}
+.side-now-artist{font-size:13px;color:#aaa;margin-top:4px;white-space:normal;overflow-wrap:anywhere;word-break:break-word;line-height:1.35;min-height:19px;flex:0 0 auto}
 .side-now-progress{height:4px;background:#333;border-radius:99px;margin-top:17px;overflow:hidden}
 #sideNowProgressFill{height:100%;width:0;background:#fff;border-radius:99px}
 .side-now-times{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:6px}
@@ -123,10 +138,9 @@ body{overflow:auto}.app{position:relative;min-height:100vh;height:auto;overflow:
 @media(max-width:900px){.side-now-playing{display:none}}
 </style>
 <style id="navigation-player-no-overlap">
-/* The navigation pages get the full screen: players slide completely out of the way. */
+/* Library pages keep the bottom player available and hide only the large left Now Playing panel. */
 .player{transition:transform .38s cubic-bezier(.2,.75,.25,1),opacity .25s ease;}
 .side-now-playing{transition:transform .38s cubic-bezier(.2,.75,.25,1),opacity .25s ease;}
-body.page-content-open .player{transform:translateY(110%);opacity:0;pointer-events:none;}
 body.page-content-open .side-now-playing{transform:translateX(-115%);opacity:0;pointer-events:none;}
 .content{padding-bottom:70px;}
 @media(max-width:900px){body.page-content-open .side-now-playing{display:none;}}
@@ -266,7 +280,7 @@ function artistDetail(a){
   openModal('<div class="detail"><img class="detail-cover" src="'+esc(a.image_url||coverUrl())+'"><div><h1>'+esc(a.name)+'</h1><div class="song-list" id="detailSongs"></div></div></div>');
   const box=$("detailSongs");songs.forEach(s=>box.appendChild(songElement(s,songs)));
 }
-function albumSongs(a){return state.songs.filter(s=>String(s.album_id||"")===String(a.id)||(!s.album_id&&String(s.album||"").trim().toLowerCase()===String(a.title||"").trim().toLowerCase()))}
+function albumSongs(a){return state.songs.filter(s=>String(s.album_id||"")===String(a.id)||(!s.album_id&&String(s.album||"").trim().toLowerCase()===String(a.title||"").trim().toLowerCase())).sort((x,y)=>{const ax=Number.isFinite(Number(x.sort_order))?Number(x.sort_order):Number.MAX_SAFE_INTEGER;const ay=Number.isFinite(Number(y.sort_order))?Number(y.sort_order):Number.MAX_SAFE_INTEGER;return ax-ay||String(x.id).localeCompare(String(y.id),undefined,{numeric:true})})}
 function albumDetail(a){
   const songs=albumSongs(a);
   openModal('<div class="detail"><img class="detail-cover" src="'+esc(a.cover_url||coverUrl())+'"><div><h1>'+esc(a.title)+'</h1><p style="color:#999">'+esc(a.artist_name||"")+'</p><button class="btn primary" id="playAll" '+(!songs.length?"disabled":"")+'>PLAY ALL</button><div class="song-list" id="detailSongs" style="margin-top:16px"></div></div></div>');
@@ -285,7 +299,7 @@ function playSong(s,list=state.songs){
   if(!s)return;const url=musicUrl(s);if(!url){alert("This song has no music file.");return}
   state.queue=list;state.queueIndex=Math.max(0,list.findIndex(x=>String(x.id)===String(s.id)));state.current=s;
   audio.src=url;audio.play().catch(()=>{});setPlayer();
-  document.body.classList.remove("page-content-open");localStorage.setItem("streamasiah:lastSong",JSON.stringify({id:s.id}));
+  localStorage.setItem("streamasiah:lastSong",JSON.stringify({id:s.id}));
 }
 function setPlayer(){const s=state.current;if(!s)return;$("playerCover").src=coverUrl(s);$("playerTitle").textContent=s.title||"Untitled";$("playerArtist").textContent=s.artist||"Unknown Artist";updateLikePlayer()}
 function togglePlay(){if(!audio.src){if(state.songs[0])playSong(state.songs[0]);return}audio.paused?audio.play():audio.pause()}
@@ -344,20 +358,94 @@ function adminArtistForm(a=null){
   openModal('<h2>'+(a?"EDIT ARTIST":"ADD ARTIST")+'</h2><div class="field"><label>Name</label><input id="aName" value="'+esc(a?.name||"")+'"></div><div class="field"><label>Picture '+(a?"(leave empty to keep current picture)":"")+'</label><input id="aPic" type="file" accept="image/*"></div><div class="modal-actions"><button class="btn" id="cancel" type="button">Cancel</button><button class="btn primary" id="save" type="button">SAVE</button></div>');
   $("cancel").onclick=closeModal;$("save").onclick=async()=>{const btn=$("save");btn.disabled=true;try{const name=$("aName").value.trim();if(!name)throw Error("Artist name is required.");let image=a?.image_url||null;if($("aPic").files[0])image=await uploadFile($("aPic").files[0],"artists");const r=a?await db.from("artists").update({name,image_url:image}).eq("id",a.id):await db.from("artists").insert({name,image_url:image});if(r.error)throw r.error;if(a&&String(a.name).toLowerCase()!==name.toLowerCase())await db.from("songs").update({artist:name,artist_id:a.id}).eq("artist_id",a.id);closeModal();await loadData()}catch(e){alert(e.message||String(e))}finally{btn.disabled=false}}
 }
-function albumSelectionHtml(a){return state.songs.length?'<div class="album-song-picker">'+state.songs.map(s=>{const checked=a&&(String(s.album_id||"")===String(a.id)||(!s.album_id&&String(s.album||"").trim().toLowerCase()===String(a.title||"").trim().toLowerCase()));return '<label class="album-song-option"><input type="checkbox" class="album-song-check" value="'+esc(s.id)+'" '+(checked?"checked":"")+'><span><strong>'+esc(s.title||"Untitled")+'</strong><small>'+esc(s.artist||"Unknown Artist")+'</small></span></label>'}).join('')+'</div>':'<div class="notice">No songs available yet. Add songs first.</div>'}
+function albumSongsForEditor(a){
+  if(!a)return [];
+  return state.songs.filter(s=>String(s.album_id||"")===String(a.id)||(!s.album_id&&String(s.album||"").trim().toLowerCase()===String(a.title||"").trim().toLowerCase())).sort((x,y)=>{
+    const ax=Number.isFinite(Number(x.sort_order))?Number(x.sort_order):Number.MAX_SAFE_INTEGER;
+    const ay=Number.isFinite(Number(y.sort_order))?Number(y.sort_order):Number.MAX_SAFE_INTEGER;
+    return ax-ay||String(x.id).localeCompare(String(y.id),undefined,{numeric:true});
+  });
+}
+function albumSelectionHtml(a){
+  const selectedIds=new Set(albumSongsForEditor(a).map(s=>String(s.id)));
+  if(!state.songs.length)return '<div class="notice">No songs available yet. Add songs first.</div>';
+  return '<div class="album-editor-help">Check the songs you want in this album. For an existing album, drag the selected songs to change their track order.</div><div class="album-song-picker">'+state.songs.map(s=>{
+    const checked=selectedIds.has(String(s.id));
+    return '<label class="album-song-option '+(checked?'selected':'')+'" data-song-id="'+esc(s.id)+'">'+
+      '<input type="checkbox" class="album-song-check" value="'+esc(s.id)+'" '+(checked?'checked':'')+'>'+
+      '<span><strong>'+esc(s.title||"Untitled")+'</strong><small>'+esc(s.artist||"Unknown Artist")+'</small></span></label>';
+  }).join('')+'</div><div id="albumOrderWrap" class="album-order-wrap"></div>';
+}
+function renderAlbumOrderEditor(){
+  const wrap=$("albumOrderWrap");
+  if(!wrap)return;
+  const selected=[...document.querySelectorAll(".album-song-check:checked")].map(input=>{
+    const song=state.songs.find(s=>String(s.id)===String(input.value));
+    return song;
+  }).filter(Boolean);
+  if(!selected.length){wrap.innerHTML='<div class="notice">Select songs above to build the album track order.</div>';return}
+  const existingOrder=albumSongsForEditor(window.__editingAlbum||null);
+  const orderMap=new Map(existingOrder.map((s,i)=>[String(s.id),i]));
+  selected.sort((a,b)=>{
+    const ai=orderMap.has(String(a.id))?orderMap.get(String(a.id)):Number.MAX_SAFE_INTEGER;
+    const bi=orderMap.has(String(b.id))?orderMap.get(String(b.id)):Number.MAX_SAFE_INTEGER;
+    return ai-bi||String(a.title||"").localeCompare(String(b.title||""));
+  });
+  wrap.innerHTML='<div class="album-order-head"><strong>TRACK ORDER</strong><span>Drag to reorder</span></div><div id="albumOrderList" class="album-order-list"></div>';
+  const list=$("albumOrderList");
+  selected.forEach((song,index)=>{
+    const row=document.createElement("div");
+    row.className="album-order-row";row.draggable=true;row.dataset.songId=String(song.id);
+    row.innerHTML='<span class="drag-handle" title="Drag to reorder">☷</span><span class="track-number">'+(index+1)+'</span><div class="album-order-meta"><strong>'+esc(song.title||"Untitled")+'</strong><small>'+esc(song.artist||"Unknown Artist")+'</small></div>';
+    row.addEventListener("dragstart",e=>{row.classList.add("dragging");e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",row.dataset.songId)});
+    row.addEventListener("dragend",()=>{row.classList.remove("dragging");updateAlbumTrackNumbers()});
+    row.addEventListener("dragover",e=>{e.preventDefault();const dragging=list.querySelector(".dragging");if(!dragging||dragging===row)return;const rect=row.getBoundingClientRect();const after=e.clientY>rect.top+rect.height/2;list.insertBefore(dragging,after?row.nextSibling:row);});
+    list.appendChild(row);
+  });
+  updateAlbumTrackNumbers();
+}
+function updateAlbumTrackNumbers(){
+  document.querySelectorAll("#albumOrderList .album-order-row").forEach((row,i)=>{const n=row.querySelector(".track-number");if(n)n.textContent=String(i+1);});
+}
 function adminAlbumForm(a=null){
+  window.__editingAlbum=a||null;
   openModal('<h2>'+(a?"EDIT ALBUM":"ADD ALBUM")+'</h2><div class="field"><label>Album title</label><input id="alTitle" value="'+esc(a?.title||"")+'"></div><div class="field"><label>Artist</label><input id="alArtist" value="'+esc(a?.artist_name||"")+'"></div><div class="field"><label>Artwork '+(a?"(leave empty to keep current artwork)":"")+'</label><input id="alPic" type="file" accept="image/*"></div><div class="field"><label>Songs in this album</label>'+albumSelectionHtml(a)+'</div><div class="modal-actions"><button class="btn" id="cancel" type="button">Cancel</button><button class="btn primary" id="save" type="button">SAVE ALBUM</button></div>');
-  $("cancel").onclick=closeModal;$("save").onclick=async()=>{const btn=$("save");btn.disabled=true;try{const title=$("alTitle").value.trim(),artist=$("alArtist").value.trim();if(!title)throw Error("Album title is required.");let cover=a?.cover_url||null;if($("alPic").files[0])cover=await uploadFile($("alPic").files[0],"albums");let albumId=a?.id;if(a){const r=await db.from("albums").update({title,artist_name:artist,cover_url:cover}).eq("id",a.id);if(r.error)throw r.error}else{const r=await db.from("albums").insert({title,artist_name:artist,cover_url:cover,sort_order:state.albums.length}).select().single();if(r.error)throw r.error;albumId=r.data.id}
-    const selected=[...document.querySelectorAll(".album-song-check:checked")].map(x=>Number(x.value));
-    const oldAlbumSongs=state.songs.filter(s=>String(s.album_id||"")===String(albumId));
-    for(const song of oldAlbumSongs){if(!selected.includes(Number(song.id))){const r=await db.from("songs").update({album_id:null,album:""}).eq("id",song.id);if(r.error)throw r.error}}
-    for(const id of selected){const r=await db.from("songs").update({album_id:albumId,album:title}).eq("id",id);if(r.error)throw r.error}
-    closeModal();await loadData();if(a&&state.current&&String(state.current.album_id)===String(albumId))setPlayer();
-  }catch(e){alert(e.message||String(e))}finally{btn.disabled=false}}
+  document.querySelectorAll(".album-song-check").forEach(input=>input.addEventListener("change",()=>{input.closest(".album-song-option")?.classList.toggle("selected",input.checked);renderAlbumOrderEditor();}));
+  renderAlbumOrderEditor();
+  $("cancel").onclick=()=>{window.__editingAlbum=null;closeModal()};
+  $("save").onclick=async()=>{
+    const btn=$("save");btn.disabled=true;
+    try{
+      const title=$("alTitle").value.trim(),artist=$("alArtist").value.trim();
+      if(!title)throw Error("Album title is required.");
+      let cover=a?.cover_url||null;
+      if($("alPic").files[0])cover=await uploadFile($("alPic").files[0],"albums");
+      let albumId=a?.id;
+      if(a){
+        const r=await db.from("albums").update({title,artist_name:artist,cover_url:cover}).eq("id",a.id);if(r.error)throw r.error;
+      }else{
+        const r=await db.from("albums").insert({title,artist_name:artist,cover_url:cover,sort_order:state.albums.length}).select().single();if(r.error)throw r.error;albumId=r.data.id;
+      }
+      const orderedIds=[...document.querySelectorAll("#albumOrderList .album-order-row")].map(row=>Number(row.dataset.songId));
+      const selectedIds=new Set(orderedIds);
+      const currentAlbumSongs=albumSongsForEditor(a||{id:albumId,title});
+      for(const song of currentAlbumSongs){
+        if(!selectedIds.has(Number(song.id))){
+          const r=await db.from("songs").update({album_id:null,album:""}).eq("id",song.id);if(r.error)throw r.error;
+        }
+      }
+      for(let i=0;i<orderedIds.length;i++){
+        const id=orderedIds[i];
+        const r=await db.from("songs").update({album_id:albumId,album:title,sort_order:i+1}).eq("id",id);if(r.error)throw r.error;
+      }
+      window.__editingAlbum=null;closeModal();await loadData();
+      if(state.current&&String(state.current.album_id)===String(albumId)){state.current=state.songs.find(song=>String(song.id)===String(state.current.id))||state.current;setPlayer();}
+    }catch(e){alert(e.message||String(e))}finally{btn.disabled=false}
+  };
 }
 async function deleteSong(s){if(!confirm("Delete this song record?"))return;const {error}=await db.from("songs").delete().eq("id",s.id);if(error)return alert(error.message);await loadData()}
 async function deleteArtist(a){if(!confirm("Delete this artist profile? Songs will keep their names."))return;const {error}=await db.from("artists").delete().eq("id",a.id);if(error)return alert(error.message);await db.from("songs").update({artist_id:null}).eq("artist_id",a.id);await loadData()}
-async function deleteAlbum(a){if(!confirm("Delete this album? Songs will remain but be removed from the album."))return;const {error}=await db.from("albums").delete().eq("id",a.id);if(error)return alert(error.message);await db.from("songs").update({album_id:null,album:""}).eq("album_id",a.id);await loadData()}
+async function deleteAlbum(a){if(!confirm("Delete this album? Songs will remain but be removed from the album."))return;const {error}=await db.from("albums").delete().eq("id",a.id);if(error)return alert(error.message);const albumSongs=albumSongsForEditor(a);for(const song of albumSongs){const r=await db.from("songs").update({album_id:null,album:""}).eq("id",song.id);if(r.error)return alert(r.error.message)}await loadData()}
 function adminPhotoForm(p=null){
   openModal('<h2>'+(p?"EDIT PHOTO":"ADD PHOTO")+'</h2><div class="field"><label>Title</label><input id="pTitle" value="'+esc(p?.title||"")+'"></div><div class="field"><label>Photo '+(p?"(leave empty to keep current photo)":"")+'</label><input id="pFile" type="file" accept="image/*"></div><div class="modal-actions"><button class="btn" id="cancel" type="button">Cancel</button><button class="btn primary" id="save" type="button">'+(p?"SAVE":"UPLOAD")+'</button></div>');
   $("cancel").onclick=closeModal;$("save").onclick=async()=>{const btn=$("save");btn.disabled=true;try{let url=p?.url||p?.image_url||null;if($("pFile").files[0])url=await uploadFile($("pFile").files[0],"photos");if(!url)throw Error("Please choose a photo.");const payload={title:$("pTitle").value.trim(),url};const r=p?await db.from("photos").update(payload).eq("id",p.id):await db.from("photos").insert({...payload,sort_order:state.photos.length});if(r.error)throw r.error;closeModal();await loadData()}catch(e){alert(e.message||String(e))}finally{btn.disabled=false}}
